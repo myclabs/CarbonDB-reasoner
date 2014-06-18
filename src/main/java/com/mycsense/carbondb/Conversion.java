@@ -40,21 +40,16 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
     }
 
     public ArrayList<MacroRelation> getMacroRelations() {
-        // Move to other class
-        Resource relation = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#Relation");
-        Property hasWeight = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasWeight");
-        Property hasOrigin = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasOrigin");
-        Property hasDestination = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasDestination");
         ArrayList<MacroRelation> macroRelations = new ArrayList<MacroRelation>();
 
-        Selector selector = new SimpleSelector(null, RDF.type, relation);
-        ResIterator i = model.listSubjectsWithProperty(RDF.type, relation);
+        Selector selector = new SimpleSelector(null, RDF.type, Datatype.Relation);
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Relation);
         while (i.hasNext()) {
             Resource macroRelation = i.next();
             macroRelations.add(new MacroRelation(
-                getGroup(macroRelation.getProperty(hasOrigin).getResource()),
-                getGroup(macroRelation.getProperty(hasWeight).getResource()),
-                getGroup(macroRelation.getProperty(hasDestination).getResource())
+                getGroup(macroRelation.getProperty(Datatype.hasOrigin).getResource()),
+                getGroup(macroRelation.getProperty(Datatype.hasWeight).getResource()),
+                getGroup(macroRelation.getProperty(Datatype.hasDestination).getResource())
             ));
         }
 
@@ -151,21 +146,20 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
     {
         // @todo: throw an exception instead of returning null when the element could not be found?
         System.out.println("--- Process exists called ---");
-        Property hasKeyword = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasKeyword");
         Resource single;
         if (type.equals("process")) {
-            single = ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#SingleProcess");
+            single = Datatype.SingleProcess;
         }
         else {
-            single = ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#SingleCoefficient");
+            single = Datatype.SingleCoefficient;
         }
         if (dimension.size() == 0) {
             return (Resource) null;
         }
         Iterator<Resource> iter = dimension.keywords.iterator();
         Resource keyword = iter.next();
-        Selector selector = new SimpleSelector(null, hasKeyword, keyword);
-        ResIterator statementIter = model.listSubjectsWithProperty(hasKeyword, keyword);
+        Selector selector = new SimpleSelector(null, Datatype.hasKeyword, keyword);
+        ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasKeyword, keyword);
         //StmtIterator statementIter = model.listStatements( selector );
         List<Resource> candidates = statementIter.toList();
         System.out.println(candidates);
@@ -176,7 +170,7 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
                 i.remove();
             }
             else {
-                NodeIterator nodeIter = model.listObjectsOfProperty(candidate, hasKeyword);
+                NodeIterator nodeIter = model.listObjectsOfProperty(candidate, Datatype.hasKeyword);
                 int listSize = nodeIter.toList().size();
                 if (listSize != dimension.size()) {
                     System.out.println("removing candidate (" + candidate + "), kw size = " + listSize + " / dim size = " + dimension.size());
@@ -191,7 +185,7 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
             i = candidates.iterator();
             while (i.hasNext()) {
                 Resource candidate = i.next();
-                if (!model.contains(candidate, hasKeyword, (RDFNode) keyword)) {
+                if (!model.contains(candidate, Datatype.hasKeyword, (RDFNode) keyword)) {
                     i.remove();
                 }
             }
@@ -231,8 +225,7 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
 
     protected DimensionSet getFamilyDimSet(Resource family)
     {
-        Property hasDimension = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasDimension");
-        Selector selector = new SimpleSelector(family, hasDimension, (RDFNode) null);
+        Selector selector = new SimpleSelector(family, Datatype.hasDimension, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
         DimensionSet dimSet = new DimensionSet();
@@ -247,8 +240,7 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
 
     protected Dimension getDimensionKeywords(Resource dimension)
     {
-        Property hasKeyword = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasKeyword");
-        Selector selector = new SimpleSelector(dimension, hasKeyword, (RDFNode) null);
+        Selector selector = new SimpleSelector(dimension, Datatype.hasKeyword, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
         Dimension dim = new Dimension();
@@ -334,23 +326,18 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
 
     public void createMicroRelations(ArrayList<MicroRelation> microRelations)
     {
-        Property hasDetailedRelation = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasDetailedRelation");
-        Resource relation = ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#Relation");
-        Property hasWeight = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasWeight");
-        Property hasOrigin = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasOrigin");
-        Property hasDestination = ResourceFactory.createProperty("http://www.myc-sense.com/ontologies/bc#", "hasDestination");
         for (MicroRelation microRelation: microRelations) {
             Resource sourceProcess = getProcessForDimension(microRelation.source);
             Resource coeff = getCoefficientForDimension(microRelation.coeff);
             Resource destinationProcess = getProcessForDimension(microRelation.destination);
             if (sourceProcess != null && coeff != null && destinationProcess != null) {
                 System.out.println("Creating micro-relation");
-                sourceProcess.addProperty(hasDetailedRelation,
-                    model.createResource("http://www.myc-sense.com/ontologies/bc#" + AnonId.create().toString())
-                    .addProperty(RDF.type, relation)
-                    .addProperty(hasOrigin, sourceProcess)
-                    .addProperty(hasWeight, coeff)
-                    .addProperty(hasDestination, destinationProcess));
+                sourceProcess.addProperty(Datatype.hasDetailedRelation,
+                    model.createResource(Datatype.getURI() + AnonId.create().toString())
+                    .addProperty(RDF.type, Datatype.Relation)
+                    .addProperty(Datatype.hasOrigin, sourceProcess)
+                    .addProperty(Datatype.hasWeight, coeff)
+                    .addProperty(Datatype.hasDestination, destinationProcess));
             }
         }
     }
