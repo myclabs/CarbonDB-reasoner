@@ -8,23 +8,20 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-
 /**
  * Unit test for Dimension.
  */
 @RunWith(JUnit4.class)
 public class DimensionTest 
 {
-    Resource kw1, kw2, kw3, kw4;
+    Keyword kw1, kw2, kw3, kw4;
 
     @Before
     public void setUp() {
-        kw1 = ResourceFactory.createResource("kw1");
-        kw2 = ResourceFactory.createResource("kw2");
-        kw3 = ResourceFactory.createResource("kw3");
-        kw4 = ResourceFactory.createResource("kw4");
+        kw1 = new Keyword("kw1");
+        kw2 = new Keyword("kw2");
+        kw3 = new Keyword("kw3");
+        kw4 = new Keyword("kw4");
     }
 
     /**
@@ -35,6 +32,7 @@ public class DimensionTest
     {
         Dimension dim1 = new Dimension();
         Dimension dim2 = new Dimension();
+
         assertFalse(dim1.hasCommonKeywords(dim2));
     }
 
@@ -44,9 +42,9 @@ public class DimensionTest
     @Test
     public void hasCommonKeywordsWithEmptyDimSetB()
     {
-        Dimension dim1 = new Dimension();
-        dim1.add(kw1);
+        Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension();
+
         assertFalse(dim1.hasCommonKeywords(dim2));
     }
 
@@ -56,12 +54,9 @@ public class DimensionTest
     @Test
     public void hasNoCommonKeywords()
     {
-        Dimension dim1 = new Dimension();
-        dim1.add(kw1);
-        dim1.add(kw2);
-        dim1.add(kw4);
-        Dimension dim2 = new Dimension();
-        dim2.add(kw3);
+        Dimension dim1 = new Dimension(kw1, kw2, kw4);
+        Dimension dim2 = new Dimension(kw3);
+
         assertFalse(dim1.hasCommonKeywords(dim2));
     }
     /**
@@ -70,13 +65,9 @@ public class DimensionTest
     @Test
     public void hasOneCommonKeywords()
     {
-        Dimension dim1 = new Dimension();
-        dim1.add(kw1);
-        dim1.add(kw2);
-        dim1.add(kw4);
-        Dimension dim2 = new Dimension();
-        dim2.add(kw3);
-        dim2.add(kw4);
+        Dimension dim1 = new Dimension(kw1, kw2, kw4);
+        Dimension dim2 = new Dimension(kw3, kw4);
+
         assertTrue(dim1.hasCommonKeywords(dim2));
     }
 
@@ -85,9 +76,8 @@ public class DimensionTest
     */
     @Test public void equalsWithSameDim()
     {
-        Dimension dim = new Dimension();
+        Dimension dim = new Dimension(kw1);
 
-        dim.add(kw1);
         assertTrue(dim.equals(dim));
     }
 
@@ -96,12 +86,11 @@ public class DimensionTest
     */
     @Test public void equalsWithEquivalentDims()
     {
-        Dimension dim1 = new Dimension();
-        Dimension dim2 = new Dimension();
+        Dimension dim1 = new Dimension(kw1);
+        Dimension dim2 = new Dimension(kw1);
 
-        dim1.add(kw1);
-        dim2.add(kw1);
         assertTrue(dim1.equals(dim2));
+
         dim1.add(kw2);
         dim2.add(kw2);
         assertTrue(dim1.equals(dim2));
@@ -112,13 +101,9 @@ public class DimensionTest
     */
     @Test public void equalsWithDifferentDims()
     {
-        Dimension dim1 = new Dimension();
-        Dimension dim2 = new Dimension();
+        Dimension dim1 = new Dimension(kw1, kw2);
+        Dimension dim2 = new Dimension(kw3);
 
-        dim1.add(kw1);
-        dim1.add(kw2);
-
-        dim2.add(kw3);
         assertFalse(dim1.equals(dim2));
 
         dim2.add(kw1);

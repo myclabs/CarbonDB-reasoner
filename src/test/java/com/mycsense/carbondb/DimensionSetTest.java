@@ -9,22 +9,19 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-
 /**
  * Unit test for DimensionSet.
  */
 public class DimensionSetTest 
 {
-    Resource kw1, kw2, kw3, kw4;
+    Keyword kw1, kw2, kw3, kw4;
     Dimension dim12, dim34;
 
     @Before public void setUp() {
-        kw1 = ResourceFactory.createResource("kw1");
-        kw2 = ResourceFactory.createResource("kw2");
-        kw3 = ResourceFactory.createResource("kw3");
-        kw4 = ResourceFactory.createResource("kw4");
+        kw1 = new Keyword("kw1");
+        kw2 = new Keyword("kw2");
+        kw3 = new Keyword("kw3");
+        kw4 = new Keyword("kw4");
 
         dim12 = new Dimension(kw1, kw2);
         dim34 = new Dimension(kw3, kw4);
@@ -214,10 +211,10 @@ public class DimensionSetTest
     @Test public void alphaWithOverlapppingDimSets()
     {
         DimensionSet dimSet1 = new DimensionSet(dim12, dim34);
-        Resource kw5 = ResourceFactory.createResource("kw5");
-        Resource kw6 = ResourceFactory.createResource("kw6");
-        Resource kw7 = ResourceFactory.createResource("kw7");
-        Resource kw8 = ResourceFactory.createResource("kw8");
+        Keyword kw5 = new Keyword("kw5");
+        Keyword kw6 = new Keyword("kw6");
+        Keyword kw7 = new Keyword("kw7");
+        Keyword kw8 = new Keyword("kw8");
         DimensionSet dimSet2 = new DimensionSet(new Dimension(kw1, kw5),
                                                 new Dimension(kw3, kw6),
                                                 new Dimension(kw7, kw8));
@@ -275,10 +272,10 @@ public class DimensionSetTest
     @Test public void unionWithOverlappingDimSets()
     {
         DimensionSet dimSet1 = new DimensionSet(dim12, dim34);
-        Resource kw5 = ResourceFactory.createResource("kw5");
-        Resource kw6 = ResourceFactory.createResource("kw6");
-        Resource kw7 = ResourceFactory.createResource("kw7");
-        Resource kw8 = ResourceFactory.createResource("kw8");
+        Keyword kw5 = new Keyword("kw5");
+        Keyword kw6 = new Keyword("kw6");
+        Keyword kw7 = new Keyword("kw7");
+        Keyword kw8 = new Keyword("kw8");
         DimensionSet dimSet2 = new DimensionSet(new Dimension(kw1, kw5),
                                                 new Dimension(kw3, kw6),
                                                 new Dimension(kw7, kw8));

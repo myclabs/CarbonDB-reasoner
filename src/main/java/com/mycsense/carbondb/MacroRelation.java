@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.lang.StringBuilder;
 import java.util.Collections;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-
 class MacroRelation {
     Group source;
     Group coeff;
@@ -65,7 +63,7 @@ class MacroRelation {
         }
 
         ArrayList<String> keywordInKey = new ArrayList<String>();
-        for (Resource keyword: dimension.keywords) {
+        for (Keyword keyword: dimension.keywords) {
             if (commonKeywords.contains(keyword)) {
                 keywordInKey.add(keyword.toString());
             }

@@ -1,34 +1,33 @@
 package com.mycsense.carbondb; 
 
 import java.util.HashSet;
-import com.hp.hpl.jena.rdf.model.Resource;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 class Dimension
 {
-    HashSet<Resource> keywords;
+    HashSet<Keyword> keywords;
 
     public Dimension() {
-        keywords = new HashSet<Resource>();
+        keywords = new HashSet<Keyword>();
     }
 
-    public Dimension(Resource... pKeywords) {
-        keywords = new HashSet<Resource>();
-        for (Resource kw: pKeywords) {
+    public Dimension(Keyword... pKeywords) {
+        keywords = new HashSet<Keyword>();
+        for (Keyword kw: pKeywords) {
             keywords.add(kw);
         }
     }
 
     public Dimension(Dimension dimension) {
-        keywords = new HashSet<Resource>(dimension.keywords);
+        keywords = new HashSet<Keyword>(dimension.keywords);
     }
 
     public int size() {
         return keywords.size();
     }
 
-    public boolean add(Resource keyword) {
+    public boolean add(Keyword keyword) {
         return keywords.add(keyword);
     }
 
@@ -36,7 +35,7 @@ class Dimension
         return keywords.toString();
     }
 
-    public boolean contains(Resource keyword) {
+    public boolean contains(Keyword keyword) {
         return keywords.contains(keyword);
     }
 
@@ -71,7 +70,7 @@ class Dimension
 
     public Boolean hasCommonKeywords(Dimension dimension)
     {
-        for (Resource keyword: keywords) {
+        for (Keyword keyword: keywords) {
             if (dimension.contains(keyword)) {
                 return true;
             }

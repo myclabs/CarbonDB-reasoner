@@ -1,4 +1,7 @@
-package com.mycsense.carbondb; 
+package com.mycsense.carbondb;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 class Keyword
 {
@@ -22,5 +25,25 @@ class Keyword
 
     public String toString() {
         return name.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Keyword))
+            return false;
+        if (obj == this)
+            return true;
+
+        Keyword rhs = (Keyword) obj;
+        return new EqualsBuilder()
+                  .append(name, rhs.getName())
+                  .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(11, 79)
+                  .append(name)
+                  .toHashCode();
     }
 }

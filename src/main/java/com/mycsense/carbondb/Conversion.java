@@ -70,8 +70,8 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
 
         // Those lines shall be converted to an integration test (+ translate)
         Dimension dimA1 = new Dimension();
-        dimA1.add(ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#kw1"));
-        dimA1.add(ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#kw2"));
+        dimA1.add(new Keyword("http://www.myc-sense.com/ontologies/bc#kw1"));
+        dimA1.add(new Keyword("http://www.myc-sense.com/ontologies/bc#kw2"));
         System.out.println("+++ RDF file readed +++");
         System.out.println(getGroupDimSet(ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#fp1")));
         System.out.println("+++ group fp1 +++");
@@ -91,39 +91,33 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
 
     protected Resource getProcessForDimension(Dimension dimension)
     {
-        return getElementForDimension(dimension, "process");
+        return getElementForDimension(dimension, Datatype.SingleProcess);
     }
 
     protected Resource getCoefficientForDimension(Dimension dimension)
     {
-        return getElementForDimension(dimension, "coefficient");
+        return getElementForDimension(dimension, Datatype.SingleCoefficient);
     }
 
-    protected Resource getElementForDimension(Dimension dimension, String type)
+    protected Resource getElementForDimension(Dimension dimension, Resource singleType)
     {
         // @todo: throw an exception instead of returning null when the element could not be found?
         System.out.println("--- Process exists called ---");
-        Resource single;
-        if (type.equals("process")) {
-            single = Datatype.SingleProcess;
-        }
-        else {
-            single = Datatype.SingleCoefficient;
-        }
         if (dimension.size() == 0) {
             return (Resource) null;
         }
-        Iterator<Resource> iter = dimension.keywords.iterator();
-        Resource keyword = iter.next();
-        Selector selector = new SimpleSelector(null, Datatype.hasKeyword, keyword);
-        ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasKeyword, keyword);
+        Iterator<Keyword> iter = dimension.keywords.iterator();
+        Keyword keyword = iter.next();
+        Resource keywordResource = ResourceFactory.createResource(keyword.getName());
+        Selector selector = new SimpleSelector(null, Datatype.hasKeyword, keywordResource);
+        ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasKeyword, keywordResource);
         //StmtIterator statementIter = model.listStatements( selector );
         List<Resource> candidates = statementIter.toList();
         System.out.println(candidates);
         Iterator<Resource> i = candidates.iterator();
         while (i.hasNext()) {
             Resource candidate = i.next();
-            if (!model.contains(candidate, RDF.type, (RDFNode) single)) {
+            if (!model.contains(candidate, RDF.type, (RDFNode) singleType)) {
                 i.remove();
             }
             else {
@@ -139,10 +133,11 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
 
         while (iter.hasNext()) {
             keyword = iter.next();
+            keywordResource = ResourceFactory.createResource(keyword.getName());
             i = candidates.iterator();
             while (i.hasNext()) {
                 Resource candidate = i.next();
-                if (!model.contains(candidate, Datatype.hasKeyword, (RDFNode) keyword)) {
+                if (!model.contains(candidate, Datatype.hasKeyword, (RDFNode) keywordResource)) {
                     i.remove();
                 }
             }
@@ -154,15 +149,15 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
         return candidates.get(0);
     }
 
-    protected Group getGroup(Resource family)
+    protected Group getGroup(Resource groupResource)
     {
-        Group group = new Group(getGroupDimSet(family));
+        Group group = new Group(getGroupDimSet(groupResource));
         return group;
     }
 
-    protected DimensionSet getGroupDimSet(Resource family)
+    protected DimensionSet getGroupDimSet(Resource groupResource)
     {
-        Selector selector = new SimpleSelector(family, Datatype.hasDimension, (RDFNode) null);
+        Selector selector = new SimpleSelector(groupResource, Datatype.hasDimension, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
         DimensionSet dimSet = new DimensionSet();
@@ -175,16 +170,16 @@ TODO: transform this class to remove the dependency to jena (add a class that wi
         return dimSet;
     }
 
-    protected Dimension getDimensionKeywords(Resource dimension)
+    protected Dimension getDimensionKeywords(Resource dimensionResource)
     {
-        Selector selector = new SimpleSelector(dimension, Datatype.hasKeyword, (RDFNode) null);
+        Selector selector = new SimpleSelector(dimensionResource, Datatype.hasKeyword, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
         Dimension dim = new Dimension();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                dim.add((Resource) s.getObject());
+                dim.add(new Keyword(s.getObject().toString()));
             }
         }
         return dim;

@@ -3,8 +3,6 @@ package com.mycsense.carbondb;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -90,7 +88,7 @@ class DimensionSet
             ret.add(new Dimension());
         }
         else {
-            for (Resource keyword: dimensions[index].keywords) {
+            for (Keyword keyword: dimensions[index].keywords) {
                 for (Dimension dim: _getCombinations(index+1, dimensions).dimensions) {
                     dim.add(keyword);
                     ret.add(dim);
@@ -106,7 +104,7 @@ class DimensionSet
         Dimension hashTableRhs = dimSet.getKeywordsHashTable();
 
         for (Dimension dimension: dimensions) {
-            for (Resource keyword: dimension.keywords) {
+            for (Keyword keyword: dimension.keywords) {
                 if (hashTableRhs.contains(keyword)) {
                     commonKeywords.add(keyword);
                 }
@@ -149,18 +147,18 @@ class DimensionSet
         r.commonKeywords = new Dimension();
         Integer dimIndex = -1;
 
-        HashMap<Resource, Dimension> hashTableRhs = new HashMap<Resource, Dimension>();
+        HashMap<Keyword, Dimension> hashTableRhs = new HashMap<Keyword, Dimension>();
         DimensionSet unusedDimsInRhs = new DimensionSet();
 
         for (Dimension dimension: dimSet.dimensions) {
             unusedDimsInRhs.add(dimension);
-            for (Resource keyword: dimension.keywords) {
+            for (Keyword keyword: dimension.keywords) {
                 hashTableRhs.put(keyword, dimension);
             }
         }
         for (Dimension dimension: dimensions) {
             Dimension dimResultTemp = new Dimension();
-            for (Resource keyword: dimension.keywords) {
+            for (Keyword keyword: dimension.keywords) {
                 if (hashTableRhs.containsKey(keyword)) {
                     unusedDimsInRhs.remove(hashTableRhs.get(keyword));
                     dimResultTemp.add(keyword);
@@ -186,7 +184,7 @@ class DimensionSet
     {
         Dimension hashTable = new Dimension();
         for (Dimension dimension: dimensions) {
-            for (Resource keyword: dimension.keywords) {
+            for (Keyword keyword: dimension.keywords) {
                 hashTable.add(keyword);
             }
         }

@@ -12,27 +12,20 @@ import org.junit.runners.JUnit4;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-
 /**
  * Unit test for Conversion.
  */
 public class MacroRelationTest 
 {
-    Resource kw1, kw2, kw3, kw4;
+    Keyword kw1, kw2, kw3, kw4;
     Dimension dim12, dim34;
 
     @Before
     public void setUp() {
-        Model model = ModelFactory.createDefaultModel();
-
-        kw1 = ResourceFactory.createResource("kw1");
-        kw2 = ResourceFactory.createResource("kw2");
-        kw3 = ResourceFactory.createResource("kw3");
-        kw4 = ResourceFactory.createResource("kw4");
+        kw1 = new Keyword("kw1");
+        kw2 = new Keyword("kw2");
+        kw3 = new Keyword("kw3");
+        kw4 = new Keyword("kw4");
 
         dim12 = new Dimension(kw1, kw2);
         dim34 = new Dimension(kw3, kw4);
