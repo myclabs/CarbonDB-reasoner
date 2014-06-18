@@ -1,11 +1,10 @@
 package com.mycsense.carbondb; 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Iterator;
+
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -104,12 +103,8 @@ class DimensionSet
     public Dimension getCommonKeywords(DimensionSet dimSet)
     {
         Dimension commonKeywords = new Dimension();
-        HashSet<Resource> hashTableRhs = new HashSet<Resource>();
-        for (Dimension dimension: dimSet.dimensions) {
-            for (Resource keyword: dimension.keywords) {
-                hashTableRhs.add(keyword);
-            }
-        }
+        Dimension hashTableRhs = dimSet.getKeywordsHashTable();
+
         for (Dimension dimension: dimensions) {
             for (Resource keyword: dimension.keywords) {
                 if (hashTableRhs.contains(keyword)) {
@@ -119,5 +114,82 @@ class DimensionSet
         }
 
         return commonKeywords;
+    }
+
+    public Integer alpha(DimensionSet dimSet)
+    {
+        Integer alpha = 0;
+        Dimension hashTableRhs = dimSet.getKeywordsHashTable();
+
+        for (Dimension dimension: dimensions) {
+            if (dimension.hasCommonKeywords(hashTableRhs)) {
+                alpha++;
+            }
+        }
+        return alpha;
+    }
+
+    public class UnionResult {
+        DimensionSet dimSet;
+        Integer alpha;
+        Dimension commonKeywords;
+
+        public String toString()
+        {
+            return dimSet.toString();
+        }
+    }
+
+    public UnionResult union(DimensionSet dimSet)
+    {
+        UnionResult r = new UnionResult();
+
+        r.dimSet = new DimensionSet();
+        r.alpha = 0;
+        r.commonKeywords = new Dimension();
+        Integer dimIndex = -1;
+
+        HashMap<Resource, Dimension> hashTableRhs = new HashMap<Resource, Dimension>();
+        DimensionSet unusedDimsInRhs = new DimensionSet();
+
+        for (Dimension dimension: dimSet.dimensions) {
+            unusedDimsInRhs.add(dimension);
+            for (Resource keyword: dimension.keywords) {
+                hashTableRhs.put(keyword, dimension);
+            }
+        }
+        for (Dimension dimension: dimensions) {
+            Dimension dimResultTemp = new Dimension();
+            for (Resource keyword: dimension.keywords) {
+                if (hashTableRhs.containsKey(keyword)) {
+                    unusedDimsInRhs.remove(hashTableRhs.get(keyword));
+                    dimResultTemp.add(keyword);
+                    r.commonKeywords.add(keyword);
+                }
+            }
+            if (dimResultTemp.isEmpty()) {
+                r.dimSet.add(dimension);
+            }
+            else {
+                r.dimSet.add(dimResultTemp);
+                r.alpha++;
+            }
+        }
+        for (Dimension dimension: unusedDimsInRhs.dimensions) {
+            r.dimSet.add(dimension);
+        }
+
+        return r;
+    }
+
+    public Dimension getKeywordsHashTable()
+    {
+        Dimension hashTable = new Dimension();
+        for (Dimension dimension: dimensions) {
+            for (Resource keyword: dimension.keywords) {
+                hashTable.add(keyword);
+            }
+        }
+        return hashTable;
     }
 }

@@ -6,8 +6,6 @@ import com.hp.hpl.jena.ontology.*;
 import java.io.*;
 import java.io.FileOutputStream;
 import com.hp.hpl.jena.util.FileManager;
-import org.mindswap.pellet.jena.PelletReasonerFactory;
-import com.hp.hpl.jena.reasoner.Reasoner;
 
 public class App 
 {
@@ -24,31 +22,26 @@ public class App
 
     public static void runAll(String inputFileName, String outputFileName)
     {
-        Reasoner reasoner = PelletReasonerFactory.theInstance().create();
-        
-        Model emptyModel = ModelFactory.createDefaultModel( );
-        
-        InfModel model = ModelFactory.createInfModel( reasoner, emptyModel );
+        Model model = ModelFactory.createDefaultModel( );
 
         InputStream in = FileManager.get().open( inputFileName );
         if (in == null) {
             throw new IllegalArgumentException(
-                        "File: " + inputFileName + " not found");
+                "File: " + inputFileName + " not found");
         }
 
         model.read( in, null );
 
-        Conversion conv = new Conversion(model);
-        conv.run();
-        Calculation calc = new Calculation(model);
-        calc.run();
+        Reasoner reasoner = new Reasoner(model);
+        reasoner.run();
 
         try {
             FileOutputStream out = new FileOutputStream( outputFileName );
-            model.write(out);
+            reasoner.getInfModel().write(out);
         }
         catch (IOException e) {
-            System.out.println("error while writing the onto file");
+            throw new IllegalArgumentException(
+                "Cannot write to file " + outputFileName);
         }
     }
         /**
