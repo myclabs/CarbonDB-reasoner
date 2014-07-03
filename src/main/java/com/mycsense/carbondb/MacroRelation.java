@@ -22,24 +22,18 @@ class MacroRelation {
 
     public ArrayList<MicroRelation> translate()
     {
-        System.out.println("+++ translate called +++");
         ArrayList<MicroRelation> microRelations = new ArrayList<MicroRelation>();
         DimensionSet.UnionResult unionResult = source.dimSet.union(coeff.dimSet);
         Integer alpha1 = unionResult.alpha;
         Integer alpha2 = unionResult.dimSet.alpha(destination.dimSet);
         HashMap<String, ArrayList<Dimension>> coeffs = createGroupHashTable(coeff, unionResult.commonKeywords, alpha1);
-        System.out.println(coeff);
-        System.out.println(unionResult.commonKeywords);
-        System.out.println(alpha1);
-        System.out.println(coeffs);
+
         Dimension commonKeywordsGp1GcGp2 = unionResult.dimSet.getCommonKeywords(destination.dimSet);
         HashMap<String, ArrayList<Dimension>> destinationProcesses = createGroupHashTable(destination, commonKeywordsGp1GcGp2, alpha2);
-        System.out.println("destinationProcesses = " + destinationProcesses + " commonKeywordsGp1GcGp2 = " + commonKeywordsGp1GcGp2 + "alpha2 = " + alpha2);
 
         for (Dimension sourceProcess: source.elements.dimensions) {
             String hashKey = getHashKey(sourceProcess, unionResult.commonKeywords, alpha1);
             if (!hashKey.equals("#nullHashKey#")) {
-                System.out.println("hashKey = " + hashKey);
                 for (Dimension coeff: coeffs.get(hashKey)) {
                     Dimension sourceAndCoeffKeywords = new Dimension(sourceProcess);
                     sourceAndCoeffKeywords.keywords.addAll(coeff.keywords);

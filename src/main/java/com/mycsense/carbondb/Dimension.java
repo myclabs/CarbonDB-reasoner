@@ -4,9 +4,9 @@ import java.util.HashSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-class Dimension
+public class Dimension
 {
-    HashSet<Keyword> keywords;
+    public HashSet<Keyword> keywords;
 
     public Dimension() {
         keywords = new HashSet<Keyword>();

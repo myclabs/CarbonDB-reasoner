@@ -1,29 +1,21 @@
 package com.mycsense.carbondb; 
 
-import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.vocabulary.*;
-import java.io.*;
-import java.io.FileOutputStream;
-import com.hp.hpl.jena.util.FileManager;
+import java.io.InputStream;
+
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.HashMap;
-import com.hp.hpl.jena.ontology.*;
-import com.hp.hpl.jena.reasoner.*;
-import java.lang.StringBuilder;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
 
-public class Parser {
+import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.util.FileManager;
 
-    //protected Model model;
+public class Reader {
+
     public Model model;
-    protected InfModel infModel;
-    protected ArrayList<Resource> processes;
-    protected ArrayList<Resource> elementaryFlowNatures;
 
-    Parser (Model model) {
+    public Reader (Model model) {
         this.model = model;
     }
 
@@ -77,12 +69,12 @@ public class Parser {
         }*/
     }
 
-    protected Resource getProcessForDimension(Dimension dimension)
+    public Resource getProcessForDimension(Dimension dimension)
     {
         return getElementForDimension(dimension, Datatype.SingleProcess);
     }
 
-    protected Resource getCoefficientForDimension(Dimension dimension)
+    public Resource getCoefficientForDimension(Dimension dimension)
     {
         return getElementForDimension(dimension, Datatype.SingleCoefficient);
     }
@@ -90,7 +82,6 @@ public class Parser {
     protected Resource getElementForDimension(Dimension dimension, Resource singleType)
     {
         // @todo: throw an exception instead of returning null when the element could not be found?
-        System.out.println("--- Process exists called ---");
         if (dimension.size() == 0) {
             return (Resource) null;
         }
@@ -99,9 +90,7 @@ public class Parser {
         Resource keywordResource = ResourceFactory.createResource(keyword.getName());
         Selector selector = new SimpleSelector(null, Datatype.hasKeyword, keywordResource);
         ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasKeyword, keywordResource);
-        //StmtIterator statementIter = model.listStatements( selector );
         List<Resource> candidates = statementIter.toList();
-        System.out.println(candidates);
         Iterator<Resource> i = candidates.iterator();
         while (i.hasNext()) {
             Resource candidate = i.next();
@@ -112,12 +101,10 @@ public class Parser {
                 NodeIterator nodeIter = model.listObjectsOfProperty(candidate, Datatype.hasKeyword);
                 int listSize = nodeIter.toList().size();
                 if (listSize != dimension.size()) {
-                    System.out.println("removing candidate (" + candidate + "), kw size = " + listSize + " / dim size = " + dimension.size());
                     i.remove();
                 }
             }
         }
-        System.out.println(candidates);
 
         while (iter.hasNext()) {
             keyword = iter.next();
@@ -130,7 +117,7 @@ public class Parser {
                 }
             }
         }
-        System.out.println(candidates);
+
         if (candidates.isEmpty()) {
             return (Resource) null;
         }
@@ -178,21 +165,66 @@ public class Parser {
         return dim;
     }
 
-    public void createMicroRelations(ArrayList<MicroRelation> microRelations)
-    {
-        for (MicroRelation microRelation: microRelations) {
-            Resource sourceProcess = getProcessForDimension(microRelation.source);
-            Resource coeff = getCoefficientForDimension(microRelation.coeff);
-            Resource destinationProcess = getProcessForDimension(microRelation.destination);
-            if (sourceProcess != null && coeff != null && destinationProcess != null) {
-                System.out.println("Creating micro-relation");
-                sourceProcess.addProperty(Datatype.hasDetailedRelation,
-                    model.createResource(Datatype.getURI() + AnonId.create().toString())
-                    .addProperty(RDF.type, Datatype.Relation)
-                    .addProperty(Datatype.hasOrigin, sourceProcess)
-                    .addProperty(Datatype.hasWeight, coeff)
-                    .addProperty(Datatype.hasDestination, destinationProcess));
+    public ArrayList<Resource> getElementaryFlowNatures() {
+        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ElementaryFlowNature);
+        StmtIterator iter = model.listStatements( selector );
+
+        ArrayList<Resource> elementaryFlowNatures = new ArrayList<Resource>();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                elementaryFlowNatures.add(s.getSubject());
             }
         }
+        return elementaryFlowNatures;
+    }
+
+    public ArrayList<Resource> getSingleProcesses() {
+        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.SingleProcess);
+        StmtIterator iter = model.listStatements( selector );
+
+        ArrayList<Resource> processes = new ArrayList<Resource>();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                processes.add(s.getSubject());
+            }
+        }
+        return processes;
+    }
+
+    public ArrayList<Resource> getRelationsForProcess(Resource process) {
+        Selector selector = new SimpleSelector(null, Datatype.hasOrigin, process);
+        StmtIterator iter = model.listStatements( selector );
+
+        ArrayList<Resource> relations = new ArrayList<Resource>();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                relations.add(s.getSubject());
+            }
+        }
+        return relations;
+    }
+
+    public Double getCoefficientValueForRelation(Resource relation) {
+        Resource coefficient = relation.getProperty(Datatype.hasWeight).getResource();
+
+        return coefficient.getProperty(Datatype.value).getDouble();
+    }
+
+    public HashMap<Resource, Double> getEmissionsForProcess(Resource process)
+    {
+        HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
+        StmtIterator iter = process.listProperties(Datatype.emits);
+
+        while (iter.hasNext()) {
+            Resource emission = iter.nextStatement().getResource();
+            Resource nature = emission.getProperty(Datatype.hasNature).getResource();
+            double emissionValue = emission.getProperty(Datatype.value).getDouble();
+
+            emissions.put(nature, emissionValue);
+        }
+        return emissions;
     }
 }

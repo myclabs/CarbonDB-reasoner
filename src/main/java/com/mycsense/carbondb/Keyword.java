@@ -3,9 +3,9 @@ package com.mycsense.carbondb;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-class Keyword
+public class Keyword
 {
-    String name;
+    public String name;
 
     public Keyword() {
         name = new String();

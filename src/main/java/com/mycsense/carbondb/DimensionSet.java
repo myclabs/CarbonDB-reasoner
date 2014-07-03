@@ -10,9 +10,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * Dimensions inside a DimensionSet should not be modified
  * after they have been added to the dimensionSet
  */
-class DimensionSet
+public class DimensionSet
 {
-    HashSet<Dimension> dimensions;
+    public HashSet<Dimension> dimensions;
 
     public DimensionSet() {
         dimensions = new HashSet<Dimension>();
@@ -73,7 +73,7 @@ class DimensionSet
         return dimensions.contains(dim);
     }
 
-    public DimensionSet getCombinations()
+    DimensionSet getCombinations()
     {
         if (dimensions.size() == 0) {
             return new DimensionSet();

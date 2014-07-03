@@ -1,9 +1,9 @@
 package com.mycsense.carbondb; 
 
-class Group
+public class Group
 {
-    DimensionSet dimSet;
-    DimensionSet elements;
+    public DimensionSet dimSet;
+    public DimensionSet elements;
 
     public Group() {
         dimSet = new DimensionSet();
@@ -33,5 +33,9 @@ class Group
 
     public String toString() {
         return "elements: " + elements.toString() + " dimSet: " + dimSet.toString();
+    }
+
+    public DimensionSet getElements() {
+        return elements;
     }
 }
