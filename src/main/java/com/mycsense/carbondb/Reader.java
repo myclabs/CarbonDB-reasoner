@@ -227,4 +227,20 @@ public class Reader {
         }
         return emissions;
     }
+
+    public HashMap<Resource, Double> getCalculatedEmissionsForProcess(Resource process)
+    {
+        HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
+        StmtIterator iter = process.listProperties(Datatype.emits);
+
+        while (iter.hasNext()) {
+            Resource emission = iter.nextStatement().getResource();
+            if (model.contains(emission, RDF.type, (RDFNode) Datatype.CalculateElementaryFlow)) {
+                Resource nature = emission.getProperty(Datatype.hasNature).getResource();
+                double emissionValue = emission.getProperty(Datatype.value).getDouble();
+                emissions.put(nature, emissionValue);
+            }
+        }
+        return emissions;
+    }
 }

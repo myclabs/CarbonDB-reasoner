@@ -65,8 +65,8 @@
             <argument>-classpath</argument>
             <classpath/>
             <argument>com.mycsense.carbondb.App</argument>
-            <argument>/home/ben/projects/infer-carbononto/ontologies/bc-test.rdf</argument>
-            <argument>/home/ben/projects/infer-carbononto/ontologies/bc-test-with-maven.rdf</argument>
+            <argument>/home/ben/projects/ontologies/bc-test.rdf</argument>
+            <argument>/home/ben/projects/ontologies/bc-test-with-maven.rdf</argument>
           </arguments>
         </configuration>
       </plugin>
