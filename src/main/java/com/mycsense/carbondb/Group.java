@@ -5,6 +5,10 @@ public class Group
     public DimensionSet dimSet;
     public DimensionSet elements;
 
+    protected String label;
+    protected String uri;
+    protected String id;
+
     public Group() {
         dimSet = new DimensionSet();
         elements = new DimensionSet();
@@ -37,5 +41,29 @@ public class Group
 
     public DimensionSet getElements() {
         return elements;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setURI(String uri) {
+        this.uri = uri;
+    }
+
+    public String getURI() {
+        return uri;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 }

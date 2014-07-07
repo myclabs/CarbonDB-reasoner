@@ -7,6 +7,8 @@ public class Keyword
 {
     public String name;
 
+    protected String label;
+
     public Keyword() {
         name = new String();
     }
@@ -45,5 +47,13 @@ public class Keyword
         return new HashCodeBuilder(11, 79)
                   .append(name)
                   .toHashCode();
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
     }
 }

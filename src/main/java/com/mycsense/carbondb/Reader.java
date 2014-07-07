@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.util.FileManager;
 
 public class Reader {
@@ -124,15 +125,52 @@ public class Reader {
         return candidates.get(0);
     }
 
-    public Group getGroup(String groupName)
+    public Group getGroup(String groupId)
     {
-        return getGroup(ResourceFactory.createResource(Datatype.getURI() + groupName));
+        return getGroup(model.getResource(Datatype.getURI() + groupId));
     }
 
     public Group getGroup(Resource groupResource)
     {
         Group group = new Group(getGroupDimSet(groupResource));
+        group.setLabel(getLabelOrURI(groupResource));
+        group.setURI(groupResource.getURI());
+        group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
         return group;
+    }
+
+    public ArrayList<Group> getProcessGroups()
+    {
+        return getGroups(Datatype.Processfamily);
+    }
+
+    public ArrayList<Group> getCoefficientGroups()
+    {
+        return getGroups(Datatype.CoefficientFamily);
+    }
+
+    protected ArrayList<Group> getGroups(Resource groupType)
+    {
+        ArrayList<Group> groups = new ArrayList<Group>();
+
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, groupType);
+        while (i.hasNext()) {
+            Resource groupResource = i.next();
+            groups.add(getGroup(groupResource));
+        }
+
+        return groups;
+    }
+
+    protected String getLabelOrURI(Resource resource)
+    {
+        Statement label = resource.getProperty(RDFS.label);
+        if (null == label) {
+            return resource.getURI();
+        }
+        else {
+            return label.getString();
+        }
     }
 
     protected DimensionSet getGroupDimSet(Resource groupResource)
@@ -159,7 +197,9 @@ public class Reader {
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                dim.add(new Keyword(s.getObject().toString()));
+                Keyword keyword = new Keyword(s.getObject().toString());
+                keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
+                dim.add(keyword);
             }
         }
         return dim;
