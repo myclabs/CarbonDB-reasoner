@@ -54,12 +54,12 @@ public class App
         check if SWRL rules are executed with Pellet: TODO
         cut the onto in two parts (vocabulary and data): TODO
         calculate uncertainties: TODO
-        add property isReferenced for the link between elements and family: TODO
+        add property isReferenced for the link between elements and groups: TODO
         use a class to store the ontology classes and property: TODO
         units?
         flow type?
-        generator family?
-        rename ontology concept for family -> group
+        generator group?
+        rename ontology concept for group -> group
         use OWL API instead of Jena: ???
 
         improve architecture:

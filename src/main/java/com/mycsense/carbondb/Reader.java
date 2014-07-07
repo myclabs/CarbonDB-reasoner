@@ -155,16 +155,16 @@ public class Reader {
 
     public ArrayList<Group> getProcessGroups()
     {
-        return getGroups(Datatype.Processfamily);
+        return getGroups(Datatype.ProcessGroup);
     }
 
     public ArrayList<Group> getCoefficientGroups()
     {
-        return getGroups(Datatype.CoefficientFamily);
+        return getGroups(Datatype.CoefficientGroup);
     }
 
     public ArrayList<Group> getGroups() {
-        return getGroups(Datatype.Family);
+        return getGroups(Datatype.Group);
     }
 
     protected ArrayList<Group> getGroups(Resource groupType)
