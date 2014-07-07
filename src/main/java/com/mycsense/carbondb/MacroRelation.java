@@ -6,9 +6,9 @@ import java.lang.StringBuilder;
 import java.util.Collections;
 
 class MacroRelation {
-    Group source;
-    Group coeff;
-    Group destination;
+    public Group source;
+    public Group coeff;
+    public Group destination;
 
     public MacroRelation(Group source, Group coeff, Group destination) {
         this.source = source;

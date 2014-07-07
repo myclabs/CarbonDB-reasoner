@@ -23,8 +23,23 @@ public class Reader {
     public ArrayList<MacroRelation> getMacroRelations() {
         ArrayList<MacroRelation> macroRelations = new ArrayList<MacroRelation>();
 
-        Selector selector = new SimpleSelector(null, RDF.type, Datatype.Relation);
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Relation);
+        while (i.hasNext()) {
+            Resource macroRelation = i.next();
+            macroRelations.add(new MacroRelation(
+                getGroup(macroRelation.getProperty(Datatype.hasOrigin).getResource()),
+                getGroup(macroRelation.getProperty(Datatype.hasWeight).getResource()),
+                getGroup(macroRelation.getProperty(Datatype.hasDestination).getResource())
+            ));
+        }
+
+        return macroRelations;
+    }
+
+    public ArrayList<MacroRelation> getMacroRelationsForProcessGroup(Resource group) {
+        ArrayList<MacroRelation> macroRelations = new ArrayList<MacroRelation>();
+
+        ResIterator i = model.listSubjectsWithProperty(Datatype.involves, group);
         while (i.hasNext()) {
             Resource macroRelation = i.next();
             macroRelations.add(new MacroRelation(
@@ -89,7 +104,6 @@ public class Reader {
         Iterator<Keyword> iter = dimension.keywords.iterator();
         Keyword keyword = iter.next();
         Resource keywordResource = ResourceFactory.createResource(keyword.getName());
-        Selector selector = new SimpleSelector(null, Datatype.hasKeyword, keywordResource);
         ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasKeyword, keywordResource);
         List<Resource> candidates = statementIter.toList();
         Iterator<Resource> i = candidates.iterator();
@@ -147,6 +161,10 @@ public class Reader {
     public ArrayList<Group> getCoefficientGroups()
     {
         return getGroups(Datatype.CoefficientFamily);
+    }
+
+    public ArrayList<Group> getGroups() {
+        return getGroups(Datatype.Family);
     }
 
     protected ArrayList<Group> getGroups(Resource groupType)
@@ -269,6 +287,22 @@ public class Reader {
     }
 
     public HashMap<Resource, Double> getCalculatedEmissionsForProcess(Resource process)
+    {
+        HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
+        StmtIterator iter = process.listProperties(Datatype.emits);
+
+        while (iter.hasNext()) {
+            Resource emission = iter.nextStatement().getResource();
+            if (model.contains(emission, RDF.type, (RDFNode) Datatype.CalculateElementaryFlow)) {
+                Resource nature = emission.getProperty(Datatype.hasNature).getResource();
+                double emissionValue = emission.getProperty(Datatype.value).getDouble();
+                emissions.put(nature, emissionValue);
+            }
+        }
+        return emissions;
+    }
+
+    public HashMap<Resource, Double> getCoefficientValue(Resource process)
     {
         HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
         StmtIterator iter = process.listProperties(Datatype.emits);

@@ -33,6 +33,7 @@ public class Datatype {
     public static final Resource SingleCoefficient = resource("SingleCoefficient");
     public static final Resource CalculateElementaryFlow = resource("CalculatedElementaryFlow");
     public static final Resource ElementaryFlowNature = resource("ElementaryFlowNature");
+    public static final Resource Family = resource("Family");
     public static final Resource Processfamily = resource("Processfamily");
     public static final Resource CoefficientFamily = resource("CoefficientFamily");
 
@@ -45,5 +46,6 @@ public class Datatype {
     public static final Property emits = property("emits");
     public static final Property hasNature = property("hasNature");
     public static final Property value = property("value");
+    public static final Property involves = property("involves");
 
 }
