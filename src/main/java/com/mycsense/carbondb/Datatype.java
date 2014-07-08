@@ -46,6 +46,7 @@ public class Datatype {
     public static final Property emits = property("emits");
     public static final Property hasNature = property("hasNature");
     public static final Property value = property("value");
+    public static final Property uncertainty = property("uncertainty");
     public static final Property involves = property("involves");
 
 }

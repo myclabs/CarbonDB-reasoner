@@ -25,8 +25,9 @@ public class Reasoner {
     protected Reader reader;
     protected Writer writer;
     protected com.hp.hpl.jena.reasoner.Reasoner jenaReasoner;
-    protected Matrix a, b, c, d;
+    protected Matrix a, b, c, d, uncertaintyMatrix, u;
     protected ArrayList<Resource> elementaryFlowNatures, processes;
+    protected Double threshold = new Double(0.1);
 
     Reasoner (Model model) {
         this.model = model;
@@ -49,11 +50,78 @@ public class Reasoner {
         processes = reader.getSingleProcesses();
         elementaryFlowNatures = reader.getElementaryFlowNatures();
 
-        createMatrix();
-        inverseMatrix();
+        //createMatrix();
+        //inverseMatrix();
         createEcologicalMatrix();
-        calculateCumulatedEcologicalFlows();
+        iterativeCalculation();
+        //calculateCumulatedEcologicalFlows();
         createCumulatedEcologicalFlows();
+        System.out.println(u);
+        /*
+        Calcul des incertitudes :
+            on sait les calculer pour des additions et des multiplications
+            on calcul : A + A.A + A.A.A + ... jusqu'à ce que le delta des incertitudes soit inférieur à un seuil donné
+            on obtient la matrice des incertitudes des coefficients
+            ensuite on fait A . B = matrice des incertitudes des émissions
+        */
+    }
+
+    protected void iterativeCalculation()
+    {
+        Matrix m = getMatrix();
+        Matrix result = m.copy();
+
+        Matrix rPrev = m.copy();
+        Matrix r = rPrev.multiply(rPrev);
+
+        Matrix uPrev = uncertaintyMatrix.copy();
+        System.out.println(uPrev);
+        u = uPrev.power(2);
+
+        int maxIter = 0;
+        while (differenceLowerThanThreshold(rPrev, r, threshold) && maxIter < 1000) {
+            System.out.println("A.A");
+            rPrev = r.copy();
+            r = r.multiply(m);
+            result = result.add(r);
+            maxIter++;
+            // uncertainty calculation
+            // uncertainty product = sqrt(pow(uncertainty^n-1) + pow(uncertainty^n))
+            //                                uPrev                  u
+            uPrev = u.copy();
+            u = sqrtMatrix(u.power(2).add(uPrev.power(2)));
+            // uncertainty sum = sqrt(pow(A^n-1 * uncertainty^n-1, 2) + pow(A^n * uncertainty^n, 2)) / abs(A^n + A^n-1)
+            //                            rPrev   uPrev                     r     u                           result
+
+            u = sqrtMatrix(uPrev.multiply(rPrev).power(2).add(u.multiply(result).power(2)));
+        }
+        for (int i = 0; i < result.rows(); i++)
+            result.set(i, i, 1.0);
+        d = result.multiply(b);
+    }
+
+    protected Matrix sqrtMatrix(Matrix m)
+    {
+        Matrix r = m.copy();
+        for (int i = 0; i < m.rows(); i++) {
+            for (int j = 0; j < m.columns(); j++) {
+                r.set(i, j, Math.sqrt(m.get(i,j)));
+            }
+        }
+        return r;
+    }
+
+    protected boolean differenceLowerThanThreshold(Matrix a, Matrix b, Double threshold)
+    {
+        Matrix c = a.subtract(b);
+        for (int i = 0; i < c.rows(); i++) {
+            for (int j = 0; j < c.columns(); j++) {
+                if (c.get(i,j) >= threshold) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     protected void calculateCumulatedEcologicalFlows()
@@ -78,6 +146,25 @@ public class Reasoner {
         }
     }
 
+    protected void sumUncertainty() {
+
+    }
+
+    protected Matrix getMatrix() {
+        Matrix m = new CCSMatrix(processes.size(), processes.size());
+        uncertaintyMatrix = new CCSMatrix(processes.size(), processes.size());
+        for (int i = 0; i < processes.size(); i++) {
+            //m.set(i, i, 1.0);
+            ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
+            for (Resource relation : relations) {
+                RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
+                m.set(processes.indexOf(downStreamProcess), i, reader.getCoefficientValueForRelation(relation));
+                uncertaintyMatrix.set(processes.indexOf(downStreamProcess), i, reader.getCoefficientUncertaintyForRelation(relation));
+            }
+        }
+        return m;
+    }
+
     protected void createEcologicalMatrix() {
         b = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
 
@@ -89,13 +176,6 @@ public class Reasoner {
                 b.set(i, elementaryFlowNatures.indexOf(e.getKey()), e.getValue());
             }
         }
-    }
-
-    protected void inverseMatrix () {
-        // We will use Gauss-Jordan method for inverting
-        MatrixInverter inverter = a.withInverter(LinearAlgebra.GAUSS_JORDAN);
-        // The 'b' matrix will be dense
-        b = inverter.inverse(LinearAlgebra.DENSE_FACTORY);
     }
 
     protected void createCumulatedEcologicalFlows()

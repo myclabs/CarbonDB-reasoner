@@ -271,6 +271,15 @@ public class Reader {
         return coefficient.getProperty(Datatype.value).getDouble();
     }
 
+    public Double getCoefficientUncertaintyForRelation(Resource relation) {
+        Resource coefficient = relation.getProperty(Datatype.hasWeight).getResource();
+
+        if (!coefficient.hasProperty(Datatype.uncertainty)) {
+            return new Double(0);
+        }
+        return coefficient.getProperty(Datatype.uncertainty).getDouble();
+    }
+
     public HashMap<Resource, Double> getEmissionsForProcess(Resource process)
     {
         HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
