@@ -149,6 +149,12 @@ public class Reader {
         Group group = new Group(getGroupDimSet(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
+        if (groupResource.hasProperty(Datatype.unit)) {
+            group.setUnit(groupResource.getProperty(Datatype.unit).getString());
+        }
+        else {
+            group.setUnit("");
+        }
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
         return group;
     }

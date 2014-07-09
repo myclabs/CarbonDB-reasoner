@@ -48,5 +48,6 @@ public class Datatype {
     public static final Property value = property("value");
     public static final Property uncertainty = property("uncertainty");
     public static final Property involves = property("involves");
+    public static final Property unit = property("unit");
 
 }

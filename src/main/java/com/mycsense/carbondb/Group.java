@@ -8,6 +8,7 @@ public class Group
     protected String label;
     protected String uri;
     protected String id;
+    protected String unit;
 
     public Group() {
         dimSet = new DimensionSet();
@@ -65,5 +66,13 @@ public class Group
 
     public String getId() {
         return id;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 }
