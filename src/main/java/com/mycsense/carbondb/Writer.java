@@ -28,12 +28,13 @@ public class Writer {
             .addProperty(Datatype.hasDestination, destinationProcess));
     }
 
-    public void addCumulatedEcologicalFlow(Resource process, Resource elementaryFlowNature, float value)
+    public void addCumulatedEcologicalFlow(Resource process, Resource elementaryFlowNature, double value, double uncertainty)
     {
         process.addProperty(Datatype.emits,
             model.createResource(Datatype.getURI() + AnonId.create().toString())
             .addProperty(Datatype.hasNature, elementaryFlowNature)
             .addProperty(Datatype.value, model.createTypedLiteral(value))
-            .addProperty(RDF.type, Datatype.CalculateElementaryFlow));          
+            .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
+            .addProperty(RDF.type, Datatype.CalculateElementaryFlow));
     }
 }

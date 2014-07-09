@@ -273,55 +273,45 @@ public class Reader {
 
     public Double getCoefficientUncertaintyForRelation(Resource relation) {
         Resource coefficient = relation.getProperty(Datatype.hasWeight).getResource();
-
-        if (!coefficient.hasProperty(Datatype.uncertainty)) {
-            return new Double(0);
-        }
-        return coefficient.getProperty(Datatype.uncertainty).getDouble();
+        return getUncertainty(coefficient);
     }
 
-    public HashMap<Resource, Double> getEmissionsForProcess(Resource process)
+    public HashMap<Resource, Value> getEmissionsForProcess(Resource process)
     {
-        HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
+        HashMap<Resource, Value> emissions = new HashMap<Resource, Value>();
         StmtIterator iter = process.listProperties(Datatype.emits);
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
             Resource nature = emission.getProperty(Datatype.hasNature).getResource();
-            double emissionValue = emission.getProperty(Datatype.value).getDouble();
+            Double value = emission.getProperty(Datatype.value).getDouble();
+            Double uncertainty = getUncertainty(emission);
 
-            emissions.put(nature, emissionValue);
+            emissions.put(nature, new Value(value, uncertainty));
         }
         return emissions;
     }
 
-    public HashMap<Resource, Double> getCalculatedEmissionsForProcess(Resource process)
+    public Double getUncertainty(Resource resource)
     {
-        HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
+        if (!resource.hasProperty(Datatype.uncertainty)) {
+            return new Double(0);
+        }
+        return resource.getProperty(Datatype.uncertainty).getDouble();
+    }
+
+    public HashMap<Resource, Value> getCalculatedEmissionsForProcess(Resource process)
+    {
+        HashMap<Resource, Value> emissions = new HashMap<Resource, Value>();
         StmtIterator iter = process.listProperties(Datatype.emits);
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
             if (model.contains(emission, RDF.type, (RDFNode) Datatype.CalculateElementaryFlow)) {
                 Resource nature = emission.getProperty(Datatype.hasNature).getResource();
-                double emissionValue = emission.getProperty(Datatype.value).getDouble();
-                emissions.put(nature, emissionValue);
-            }
-        }
-        return emissions;
-    }
-
-    public HashMap<Resource, Double> getCoefficientValue(Resource process)
-    {
-        HashMap<Resource, Double> emissions = new HashMap<Resource, Double>();
-        StmtIterator iter = process.listProperties(Datatype.emits);
-
-        while (iter.hasNext()) {
-            Resource emission = iter.nextStatement().getResource();
-            if (model.contains(emission, RDF.type, (RDFNode) Datatype.CalculateElementaryFlow)) {
-                Resource nature = emission.getProperty(Datatype.hasNature).getResource();
-                double emissionValue = emission.getProperty(Datatype.value).getDouble();
-                emissions.put(nature, emissionValue);
+                Double value = emission.getProperty(Datatype.value).getDouble();
+                Double uncertainty = getUncertainty(emission);
+                emissions.put(nature, new Value(value, uncertainty));
             }
         }
         return emissions;

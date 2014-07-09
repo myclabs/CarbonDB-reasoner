@@ -13,6 +13,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import org.la4j.matrix.sparse.CCSMatrix;
 import org.la4j.matrix.Matrix;
+import org.la4j.vector.Vector;
 import org.la4j.inversion.MatrixInverter;
 import org.la4j.LinearAlgebra;
 
@@ -25,7 +26,10 @@ public class Reasoner {
     protected Reader reader;
     protected Writer writer;
     protected com.hp.hpl.jena.reasoner.Reasoner jenaReasoner;
-    protected Matrix a, b, c, d, uncertaintyMatrix, u;
+    protected Matrix dependencyMatrix, transitiveDependencyMatrix;
+    protected Matrix uncertaintyMatrix, transitiveUncertaintyMatrix;
+    protected Matrix ecologicalMatrix, cumulativeEcologicalMatrix;
+    protected Matrix ecologicalUncertaintyMatrix, cumulativeEcologicalUncertaintyMatrix;
     protected ArrayList<Resource> elementaryFlowNatures, processes;
     protected Double threshold = new Double(0.1);
 
@@ -50,54 +54,115 @@ public class Reasoner {
         processes = reader.getSingleProcesses();
         elementaryFlowNatures = reader.getElementaryFlowNatures();
 
-        //createMatrix();
-        //inverseMatrix();
         createEcologicalMatrix();
+        createMatrices();
         iterativeCalculation();
-        //calculateCumulatedEcologicalFlows();
+        ecologicalCumulatedFlowCalculation();
         createCumulatedEcologicalFlows();
-        System.out.println(u);
-        /*
-        Calcul des incertitudes :
-            on sait les calculer pour des additions et des multiplications
-            on calcul : A + A.A + A.A.A + ... jusqu'à ce que le delta des incertitudes soit inférieur à un seuil donné
-            on obtient la matrice des incertitudes des coefficients
-            ensuite on fait A . B = matrice des incertitudes des émissions
-        */
     }
 
     protected void iterativeCalculation()
     {
-        Matrix m = getMatrix();
-        Matrix result = m.copy();
+        Matrix prevTransitiveDependencySum, transitiveDependencySum,
+               prevUncertaintySum, uncertaintySum,
+               prevDependencyProduct, dependencyProduct,
+               prevUncertaintyProduct, uncertaintyProduct;
 
-        Matrix rPrev = m.copy();
-        Matrix r = rPrev.multiply(rPrev);
+        // R^0
+        transitiveDependencySum = new CCSMatrix(processes.size(), processes.size());
+        for (int i = 0; i < transitiveDependencySum.rows(); i++)
+            transitiveDependencySum.set(i, i, 1.0);
 
-        Matrix uPrev = uncertaintyMatrix.copy();
-        System.out.println(uPrev);
-        u = uPrev.power(2);
+        // R^0 + R^1
+        prevTransitiveDependencySum = transitiveDependencySum.copy();
+        transitiveDependencySum = transitiveDependencySum.add(dependencyMatrix);
+        dependencyProduct = dependencyMatrix;
+
+        uncertaintySum = uncertaintyMatrix;
+        uncertaintyProduct = uncertaintySum;
 
         int maxIter = 0;
-        while (differenceLowerThanThreshold(rPrev, r, threshold) && maxIter < 1000) {
-            System.out.println("A.A");
-            rPrev = r.copy();
-            r = r.multiply(m);
-            result = result.add(r);
-            maxIter++;
-            // uncertainty calculation
-            // uncertainty product = sqrt(pow(uncertainty^n-1) + pow(uncertainty^n))
-            //                                uPrev                  u
-            uPrev = u.copy();
-            u = sqrtMatrix(u.power(2).add(uPrev.power(2)));
-            // uncertainty sum = sqrt(pow(A^n-1 * uncertainty^n-1, 2) + pow(A^n * uncertainty^n, 2)) / abs(A^n + A^n-1)
-            //                            rPrev   uPrev                     r     u                           result
+        while (differenceGreaterThanThreshold(prevTransitiveDependencySum, transitiveDependencySum) && maxIter < 100) {
+            // value
+            prevTransitiveDependencySum = transitiveDependencySum.copy();
 
-            u = sqrtMatrix(uPrev.multiply(rPrev).power(2).add(u.multiply(result).power(2)));
+            dependencyProduct = dependencyProduct.multiply(dependencyMatrix);
+            transitiveDependencySum = transitiveDependencySum.add(dependencyProduct);
+
+            uncertaintyProduct = matrixProductUncertainty(uncertaintyProduct, uncertaintyMatrix);
+            uncertaintySum = matrixSumUncertainty(prevTransitiveDependencySum, uncertaintySum, dependencyProduct, uncertaintyProduct);
+
+            maxIter++;
         }
-        for (int i = 0; i < result.rows(); i++)
-            result.set(i, i, 1.0);
-        d = result.multiply(b);
+        transitiveUncertaintyMatrix = uncertaintySum;
+        transitiveDependencyMatrix = transitiveDependencySum;
+    }
+
+
+    protected void ecologicalCumulatedFlowCalculation()
+    {
+        cumulativeEcologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
+        cumulativeEcologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
+
+
+        for (int j = 0; j < elementaryFlowNatures.size(); j++) {
+
+            Vector column = ecologicalMatrix.getColumn(j);
+            Vector uncertaintyColumn = ecologicalUncertaintyMatrix.getColumn(j);
+
+            for (int i = 0; i < transitiveDependencyMatrix.rows(); i++) {
+
+                double acc = 0.0;
+                double accUncertainty = 0.0;
+
+                for (int k = 0; k < transitiveDependencyMatrix.columns(); k++) {
+                    double emission = transitiveDependencyMatrix.get(i, k) * column.get(k);
+                    double emissionUncertainty = productUncertainty(transitiveUncertaintyMatrix.get(i, k), uncertaintyColumn.get(k));
+                    accUncertainty = sumUncertainty(acc, accUncertainty,
+                                                    emission, emissionUncertainty);
+                    acc += emission;
+                }
+                cumulativeEcologicalUncertaintyMatrix.set(i, j, accUncertainty);
+                cumulativeEcologicalMatrix.set(i, j, acc);
+            }
+        }
+    }
+
+    protected Matrix matrixProductUncertainty(Matrix u1, Matrix u2)
+    {
+        Matrix r = new CCSMatrix(processes.size(), processes.size());
+        for (int i = 0; i < u1.rows(); i++) {
+            for (int j = 0; j < u2.rows(); j++) {
+                r.set(i, j, productUncertainty(u1.get(i,j), u2.get(i,j)));
+            }
+        }
+        return r;
+    }
+
+    protected double productUncertainty(double u1, double u2)
+    {
+        return Math.sqrt(Math.pow(u1, 2) + Math.pow(u2, 2));
+    }
+
+    protected Matrix matrixSumUncertainty(Matrix v1, Matrix u1, Matrix v2, Matrix u2)
+    {
+        Matrix r = new CCSMatrix(processes.size(), processes.size());
+        for (int i = 0; i < u1.rows(); i++) {
+            for (int j = 0; j < u1.columns(); j++) {
+                r.set(i,j,sumUncertainty(v1.get(i,j), u1.get(i,j), v2.get(i,j), u2.get(i,j)));
+            }
+        }
+        return r;
+    }
+
+    protected double sumUncertainty(double v1, double u1, double v2, double u2)
+    {
+        if (Math.abs(v1 + v2) == 0) {
+            return 0.0;
+        }
+        else {
+            return Math.sqrt(Math.pow(v1 * u1, 2) + Math.pow(v2 * u2, 2)) / Math.abs(v1 + v2);
+        }
     }
 
     protected Matrix sqrtMatrix(Matrix m)
@@ -111,69 +176,41 @@ public class Reasoner {
         return r;
     }
 
-    protected boolean differenceLowerThanThreshold(Matrix a, Matrix b, Double threshold)
+    protected boolean differenceGreaterThanThreshold(Matrix a, Matrix b)
     {
         Matrix c = a.subtract(b);
         for (int i = 0; i < c.rows(); i++) {
             for (int j = 0; j < c.columns(); j++) {
-                if (c.get(i,j) >= threshold) {
-                    return false;
+                if (Math.abs(c.get(i,j)) >= threshold) {
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
-    protected void calculateCumulatedEcologicalFlows()
-    {
-        // We will use Gauss-Jordan method for inverting
-        MatrixInverter inverter = a.withInverter(LinearAlgebra.GAUSS_JORDAN);
-        // The 'b' matrix will be dense
-        c = inverter.inverse(LinearAlgebra.DENSE_FACTORY);
-
-        d = c.multiply(b);
-    }
-
-    protected void createMatrix() {
-        a = new CCSMatrix(processes.size(), processes.size());
-        for (int i = 0; i < processes.size(); i++) {
-            a.set(i, i, 1.0);
-            ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
-            for (Resource relation : relations) {
-                RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
-                a.set(processes.indexOf(downStreamProcess), i, - reader.getCoefficientValueForRelation(relation));
-            }
-        }
-    }
-
-    protected void sumUncertainty() {
-
-    }
-
-    protected Matrix getMatrix() {
-        Matrix m = new CCSMatrix(processes.size(), processes.size());
+    protected void createMatrices() {
+        dependencyMatrix = new CCSMatrix(processes.size(), processes.size());
         uncertaintyMatrix = new CCSMatrix(processes.size(), processes.size());
         for (int i = 0; i < processes.size(); i++) {
-            //m.set(i, i, 1.0);
             ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
                 RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
-                m.set(processes.indexOf(downStreamProcess), i, reader.getCoefficientValueForRelation(relation));
+                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, reader.getCoefficientValueForRelation(relation));
                 uncertaintyMatrix.set(processes.indexOf(downStreamProcess), i, reader.getCoefficientUncertaintyForRelation(relation));
             }
         }
-        return m;
     }
 
     protected void createEcologicalMatrix() {
-        b = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
+        ecologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
+        ecologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
 
         for (int i = 0; i < processes.size(); i++) {
-            HashMap<Resource, Double> emissions = reader.getEmissionsForProcess(processes.get(i));
-            for (Entry<Resource, Double> e : emissions.entrySet()) {
-                Resource nature = e.getKey();
-                Double value = e.getValue();
-                b.set(i, elementaryFlowNatures.indexOf(e.getKey()), e.getValue());
+            HashMap<Resource, Value> emissions = reader.getEmissionsForProcess(processes.get(i));
+            for (Entry<Resource, Value> e : emissions.entrySet()) {
+                ecologicalMatrix.set(i, elementaryFlowNatures.indexOf(e.getKey()), e.getValue().value);
+                ecologicalUncertaintyMatrix.set(i, elementaryFlowNatures.indexOf(e.getKey()), e.getValue().uncertainty);
             }
         }
     }
@@ -182,7 +219,11 @@ public class Reasoner {
     {
         for (int i = 0; i < processes.size(); i++) {
             for (int j = 0; j < elementaryFlowNatures.size(); j++) {
-                writer.addCumulatedEcologicalFlow(processes.get(i), elementaryFlowNatures.get(j), (float) d.get(i, j));
+                writer.addCumulatedEcologicalFlow(processes.get(i),
+                                                  elementaryFlowNatures.get(j),
+                                                  cumulativeEcologicalMatrix.get(i, j),
+                                                  cumulativeEcologicalUncertaintyMatrix.get(i,j)
+                                                 );
             }
         }
     }

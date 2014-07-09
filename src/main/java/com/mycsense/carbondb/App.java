@@ -51,16 +51,16 @@ public class App
         convert macro-relations: OK
         use Pellet to infer the ontology with java: OK (downgraded jena to 2.10.0 ... try with pellet/master?)
         in conversion: foreach over all the macroRelations: OK
-        check if SWRL rules are executed with Pellet: TODO
+        rename ontology concept for group -> group: OK
+        check if SWRL rules are executed with Pellet: OK
         cut the onto in two parts (vocabulary and data): TODO
         calculate uncertainties: TODO
-        add property isReferenced for the link between elements and groups: TODO
         use a class to store the ontology classes and property: TODO
         units?
         flow type?
         generator group?
-        rename ontology concept for group -> group
         use OWL API instead of Jena: ???
+        add property isReferenced for the link between elements and groups: NO (useless?)
 
         improve architecture:
             Maven: OK
@@ -76,7 +76,6 @@ public class App
         Limits: no units conversions
                 no uncertainty (is montecarlo necessary?)
                 no flow type (economic, conversion...)
-                rules and jena with pellet?
                 macroRelations involving single elements
         **/
 }
