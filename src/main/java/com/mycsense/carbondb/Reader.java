@@ -101,19 +101,21 @@ public class Reader {
         if (dimension.size() == 0) {
             return (Resource) null;
         }
+        // We consider the candidates linked to one of the dimension's keywords...
         Iterator<Keyword> iter = dimension.keywords.iterator();
         Keyword keyword = iter.next();
         Resource keywordResource = ResourceFactory.createResource(keyword.getName());
-        ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasKeyword, keywordResource);
+        ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasTag, keywordResource);
         List<Resource> candidates = statementIter.toList();
         Iterator<Resource> i = candidates.iterator();
+        // ...and remove the candidates with a wrong type and not enough keywords
         while (i.hasNext()) {
             Resource candidate = i.next();
             if (!model.contains(candidate, RDF.type, (RDFNode) singleType)) {
                 i.remove();
             }
             else {
-                NodeIterator nodeIter = model.listObjectsOfProperty(candidate, Datatype.hasKeyword);
+                NodeIterator nodeIter = model.listObjectsOfProperty(candidate, Datatype.hasTag);
                 int listSize = nodeIter.toList().size();
                 if (listSize != dimension.size()) {
                     i.remove();
@@ -121,13 +123,15 @@ public class Reader {
             }
         }
 
+        // Then we iterate over all the remaining keywords in the dimension...
         while (iter.hasNext()) {
             keyword = iter.next();
             keywordResource = ResourceFactory.createResource(keyword.getName());
             i = candidates.iterator();
+            // ...and remove the candidates that doesn't have a link to a keyword in the dimension
             while (i.hasNext()) {
                 Resource candidate = i.next();
-                if (!model.contains(candidate, Datatype.hasKeyword, (RDFNode) keywordResource)) {
+                if (!model.contains(candidate, Datatype.hasTag, (RDFNode) keywordResource)) {
                     i.remove();
                 }
             }
@@ -188,13 +192,23 @@ public class Reader {
 
     protected String getLabelOrURI(Resource resource)
     {
-        Statement label = resource.getProperty(RDFS.label);
-        if (null == label) {
-            return resource.getURI();
+        StmtIterator iter = resource.listProperties(RDFS.label);
+        String label = resource.getURI();
+        if (iter.hasNext()) {
+            boolean enFound = false;
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                if (s.getLanguage().equals("en")) {
+                    label = s.getString();
+                    enFound = true;
+                }
+            }
+            if (!enFound) {
+                Statement s = resource.getProperty(RDFS.label);
+                label = s.getString();
+            }
         }
-        else {
-            return label.getString();
-        }
+        return label;
     }
 
     protected DimensionSet getGroupDimSet(Resource groupResource)

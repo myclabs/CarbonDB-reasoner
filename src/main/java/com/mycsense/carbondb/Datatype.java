@@ -41,6 +41,7 @@ public class Datatype {
     public static final Property hasOrigin = property("hasOrigin");
     public static final Property hasDestination = property("hasDestination");
     public static final Property hasKeyword = property("hasKeyword");
+    public static final Property hasTag = property("hasTag");
     public static final Property hasDimension = property("hasDimension");
     public static final Property hasDetailedRelation = property("hasDetailedRelation");
     public static final Property emits = property("emits");
