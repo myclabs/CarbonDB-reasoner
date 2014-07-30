@@ -20,6 +20,36 @@ public class Reader {
         this.model = model;
     }
 
+    public Category getCategoriesTree() {
+        Category root = new Category();
+
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Category);
+        while (i.hasNext()) {
+            Resource categoryResource = i.next();
+            if (categoryResource.hasProperty(Datatype.hasParent)
+                && categoryResource.getProperty(Datatype.hasParent) != null
+            ) {
+                root.addChild(getCategory(categoryResource, root));
+            }
+        }
+
+        return root;
+    }
+
+    protected Category getCategory(Resource categoryResource, Category parentCategory) {
+        Category category = new Category(
+            categoryResource.getURI(),
+            getLabelOrURI(categoryResource),
+            parentCategory);
+        ResIterator i = model.listResourcesWithProperty(Datatype.isParentOf, categoryResource);
+        while (i.hasNext()) {
+            Resource subCategoryResource = i.next();
+            category.addChild(getCategory(subCategoryResource, category));
+        }
+
+        return category;
+    }
+
     public ArrayList<MacroRelation> getMacroRelations() {
         ArrayList<MacroRelation> macroRelations = new ArrayList<MacroRelation>();
 

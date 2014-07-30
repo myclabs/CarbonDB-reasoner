@@ -28,6 +28,7 @@ public class Datatype {
         return ResourceFactory.createProperty( uri, local );
     }
 
+    public static final Resource Category = resource("Category");
     public static final Resource Relation = resource("Relation");
     public static final Resource SingleProcess = resource("SingleProcess");
     public static final Resource SingleCoefficient = resource("SingleCoefficient");
@@ -37,6 +38,10 @@ public class Datatype {
     public static final Resource ProcessGroup = resource("ProcessGroup");
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
 
+    public static final Property hasCategory = property("hasCategory");
+    public static final Property hasGroup = property("hasGroup");
+    public static final Property hasParent = property("hasParent");
+    public static final Property isParentOf = property("isParentOf");
     public static final Property hasWeight = property("hasWeight");
     public static final Property hasOrigin = property("hasOrigin");
     public static final Property hasDestination = property("hasDestination");
