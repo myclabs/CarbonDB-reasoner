@@ -153,7 +153,7 @@ public class Reader {
         Group group = new Group(getGroupDimSet(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
-        if (groupResource.hasProperty(Datatype.unit)) {
+        if (groupResource.hasProperty(Datatype.unit) && null != groupResource.getProperty(Datatype.unit)) {
             group.setUnit(groupResource.getProperty(Datatype.unit).getString());
         }
         else {
@@ -314,10 +314,10 @@ public class Reader {
 
     public Double getUncertainty(Resource resource)
     {
-        if (!resource.hasProperty(Datatype.uncertainty)) {
-            return new Double(0);
+        if (resource.hasProperty(Datatype.uncertainty) && null != resource.getProperty(Datatype.uncertainty)) {
+            return resource.getProperty(Datatype.uncertainty).getDouble();
         }
-        return resource.getProperty(Datatype.uncertainty).getDouble();
+        return new Double(0);
     }
 
     public HashMap<Resource, Value> getCalculatedEmissionsForProcess(Resource process)
