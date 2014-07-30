@@ -25,12 +25,14 @@ public class Reader {
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Relation);
         while (i.hasNext()) {
-            Resource macroRelation = i.next();
-            macroRelations.add(new MacroRelation(
-                getGroup(macroRelation.getProperty(Datatype.hasOrigin).getResource()),
-                getGroup(macroRelation.getProperty(Datatype.hasWeight).getResource()),
-                getGroup(macroRelation.getProperty(Datatype.hasDestination).getResource())
-            ));
+            Resource macroRelResource = i.next();
+            MacroRelation macroRelation = new MacroRelation(
+                getGroup(macroRelResource.getProperty(Datatype.hasOrigin).getResource()),
+                getGroup(macroRelResource.getProperty(Datatype.hasWeight).getResource()),
+                getGroup(macroRelResource.getProperty(Datatype.hasDestination).getResource())
+            );
+            macroRelation.setURI(macroRelResource.getURI());
+            macroRelations.add(macroRelation);
         }
 
         return macroRelations;

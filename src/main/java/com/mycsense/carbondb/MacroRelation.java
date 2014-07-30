@@ -10,6 +10,8 @@ class MacroRelation {
     public Group coeff;
     public Group destination;
 
+    protected String uri;
+
     public MacroRelation(Group source, Group coeff, Group destination) {
         this.source = source;
         this.coeff = coeff;
@@ -93,5 +95,13 @@ class MacroRelation {
         }
         sb.append(data[data.length - 1]);
         return sb.toString();
+    }
+
+    public void setURI(String uri) {
+        this.uri = uri;
+    }
+
+    public String getURI() {
+        return uri;
     }
 }
