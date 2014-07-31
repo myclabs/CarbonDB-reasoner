@@ -26,8 +26,8 @@ public class Reader {
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Category);
         while (i.hasNext()) {
             Resource categoryResource = i.next();
-            if (categoryResource.hasProperty(Datatype.hasParent)
-                && categoryResource.getProperty(Datatype.hasParent) != null
+            if (!categoryResource.hasProperty(Datatype.hasParent)
+                || categoryResource.getProperty(Datatype.hasParent) == null
             ) {
                 root.addChild(getCategory(categoryResource, root));
             }
@@ -41,7 +41,7 @@ public class Reader {
             categoryResource.getURI(),
             getLabelOrURI(categoryResource),
             parentCategory);
-        ResIterator i = model.listResourcesWithProperty(Datatype.isParentOf, categoryResource);
+        ResIterator i = model.listResourcesWithProperty(Datatype.hasParent, categoryResource);
         while (i.hasNext()) {
             Resource subCategoryResource = i.next();
             category.addChild(getCategory(subCategoryResource, category));

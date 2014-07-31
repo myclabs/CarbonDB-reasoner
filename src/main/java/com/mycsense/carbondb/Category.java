@@ -6,7 +6,6 @@ public class Category
 {
     protected String uri;
     protected String label;
-    protected Category parent;
     protected ArrayList<Category> children = new ArrayList<Category>();
 
     public Category() {
@@ -25,15 +24,6 @@ public class Category
     public Category(String uri, String label, Category parent) {
         this.uri = uri;
         this.label = label;
-        this.parent = parent;
-    }
-
-    public Category getParent() {
-        return parent;
-    }
-
-    public void setParent(Category parent) {
-        this.parent = parent;
     }
 
     public String getURI() {

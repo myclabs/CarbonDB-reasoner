@@ -10,10 +10,11 @@ import com.hp.hpl.jena.util.FileManager;
 public class App
 {
     public static void main(String[] args) throws IOException {
-        //runCalculation();
-        //runConversion();
         if (args.length > 1){
 	        runAll(args[0], args[1]);
+        }
+        else if (args.length == 1){
+            run(args[0]);
         }
         else {
         	System.out.println("Usage: App inputFile.rdf outputFile.rdf");
@@ -44,6 +45,32 @@ public class App
                 "Cannot write to file " + outputFileName);
         }
     }
+
+    public static void run(String inputFileName) {
+        Model model = ModelFactory.createDefaultModel( );
+
+        InputStream in = FileManager.get().open( inputFileName );
+        if (in == null) {
+            throw new IllegalArgumentException(
+                "File: " + inputFileName + " not found");
+        }
+
+        model.read( in, null );
+        Reader reader = new Reader(model);
+
+        Category cat = reader.getCategoriesTree();
+        for (Category child: cat.getChildren()) {
+            printCategory(child, "");
+        }
+    }
+
+    public static void printCategory(Category cat, String prefix) {
+        System.out.println(prefix + cat.getLabel());
+        for (Category child: cat.getChildren()) {
+            printCategory(child, prefix + "  ");
+        }
+    }
+
         /**
         read, write RDF files: OK
         query model: OK
