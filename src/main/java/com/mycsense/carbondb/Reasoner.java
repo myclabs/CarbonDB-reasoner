@@ -18,6 +18,7 @@ import org.la4j.inversion.MatrixInverter;
 import org.la4j.LinearAlgebra;
 
 import org.mindswap.pellet.jena.PelletReasonerFactory;
+import org.mindswap.pellet.jena.PelletInfGraph;
 
 public class Reasoner {
 
@@ -33,7 +34,7 @@ public class Reasoner {
     protected ArrayList<Resource> elementaryFlowNatures, processes;
     protected Double threshold = new Double(0.1);
 
-    Reasoner (Model model) {
+    public Reasoner (Model model) {
         this.model = model;
         jenaReasoner = PelletReasonerFactory.theInstance().create();
     }
@@ -45,6 +46,9 @@ public class Reasoner {
         calculate ecological flows -> calculate ecological flows
         */
         infModel = ModelFactory.createInfModel( jenaReasoner, model );
+        ((PelletInfGraph) infModel.getGraph()).classify();
+        ((PelletInfGraph) infModel.getGraph()).realize();
+
         reader = new Reader(infModel);
         writer = new Writer(infModel);
         for (MacroRelation macroRelation: reader.getMacroRelations()) {
