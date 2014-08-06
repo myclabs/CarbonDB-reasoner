@@ -187,8 +187,7 @@ public class Reader {
 
     public Group getGroup(Resource groupResource)
     {
-        Group group = new Group(getGroupDimSet(groupResource));
-        group.setCommonKeywords(getGroupCommonKeywords(groupResource));
+        Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
