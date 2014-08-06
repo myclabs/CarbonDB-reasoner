@@ -59,15 +59,25 @@ public class App
         Reader reader = new Reader(model);
 
         Category cat = reader.getCategoriesTree();
-        for (Category child: cat.getChildren()) {
-            printCategory(child, "");
+        for (Object child: cat.getChildren()) {
+            if (child instanceof Category) {
+                printCategory((Category) child, "");
+            }
+            else if (child instanceof Group) {
+                System.out.println( ((Group)child).getLabel() );
+            }
         }
     }
 
     public static void printCategory(Category cat, String prefix) {
         System.out.println(prefix + cat.getLabel());
-        for (Category child: cat.getChildren()) {
-            printCategory(child, prefix + "  ");
+        for (Object child: cat.getChildren()) {
+            if (child instanceof Category) {
+                printCategory((Category) child, prefix + "  ");
+            }
+            else if (child instanceof Group) {
+                System.out.println(prefix + ((Group)child).getLabel() );
+            }
         }
     }
 

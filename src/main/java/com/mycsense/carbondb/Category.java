@@ -6,7 +6,7 @@ public class Category
 {
     protected String uri;
     protected String label;
-    protected ArrayList<Category> children = new ArrayList<Category>();
+    protected ArrayList<Object> children = new ArrayList<Object>();
 
     public Category() {
         uri = new String();
@@ -46,11 +46,11 @@ public class Category
         return label;
     }
 
-    public ArrayList<Category> getChildren() {
+    public ArrayList<Object> getChildren() {
         return children;
     }
 
-    public void addChild(Category child) {
+    public void addChild(Object child) {
         children.add(child);
     }
 }
