@@ -30,7 +30,7 @@ public class Writer {
 
     public void addCumulatedEcologicalFlow(Resource process, Resource elementaryFlowNature, double value, double uncertainty)
     {
-        process.addProperty(Datatype.emits,
+        process.addProperty(Datatype.hasCalculatedFlow,
             model.createResource(Datatype.getURI() + AnonId.create().toString())
             .addProperty(Datatype.hasNature, elementaryFlowNature)
             .addProperty(Datatype.value, model.createTypedLiteral(value))

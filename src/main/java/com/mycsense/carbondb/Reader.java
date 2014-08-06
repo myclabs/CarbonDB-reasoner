@@ -46,6 +46,11 @@ public class Reader {
             Resource subCategoryResource = i.next();
             category.addChild(getCategory(subCategoryResource, category));
         }
+        i = model.listResourcesWithProperty(Datatype.hasCategory, categoryResource);
+        while (i.hasNext()) {
+            Resource groupResource = i.next();
+            category.addChild(getSimpleGroup(groupResource));
+        }
 
         return category;
     }
@@ -75,9 +80,9 @@ public class Reader {
         while (i.hasNext()) {
             Resource macroRelation = i.next();
             macroRelations.add(new MacroRelation(
-                getGroup(macroRelation.getProperty(Datatype.hasOrigin).getResource()),
-                getGroup(macroRelation.getProperty(Datatype.hasWeight).getResource()),
-                getGroup(macroRelation.getProperty(Datatype.hasDestination).getResource())
+                getSimpleGroup(macroRelation.getProperty(Datatype.hasOrigin).getResource()),
+                getSimpleGroup(macroRelation.getProperty(Datatype.hasWeight).getResource()),
+                getSimpleGroup(macroRelation.getProperty(Datatype.hasDestination).getResource())
             ));
         }
 
@@ -185,14 +190,30 @@ public class Reader {
         Group group = new Group(getGroupDimSet(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
-        if (groupResource.hasProperty(Datatype.unit) && null != groupResource.getProperty(Datatype.unit)) {
-            group.setUnit(groupResource.getProperty(Datatype.unit).getString());
-        }
-        else {
-            group.setUnit("");
-        }
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
+        group.setUnit(getUnit(groupResource));
         return group;
+    }
+
+    public Group getSimpleGroup(Resource groupResource)
+    {
+        Group group = new Group();
+        group.setLabel(getLabelOrURI(groupResource));
+        group.setURI(groupResource.getURI());
+        group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
+        group.setUnit(getUnit(groupResource));
+        return group;
+    }
+
+    protected String getUnit(Resource element)
+    {
+        if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
+            Resource unit = element.getProperty(Datatype.hasUnit).getResource();
+            if (unit.hasProperty(Datatype.foreignUnitID) && null != unit.getProperty(Datatype.foreignUnitID)) {
+                return unit.getProperty(Datatype.foreignUnitID).getString();
+            }
+        }
+        return new String();
     }
 
     public ArrayList<Group> getProcessGroups()
@@ -331,15 +352,18 @@ public class Reader {
     public HashMap<Resource, Value> getEmissionsForProcess(Resource process)
     {
         HashMap<Resource, Value> emissions = new HashMap<Resource, Value>();
-        StmtIterator iter = process.listProperties(Datatype.emits);
+        StmtIterator iter = process.listProperties(Datatype.hasFlow);
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
-            Resource nature = emission.getProperty(Datatype.hasNature).getResource();
-            Double value = emission.getProperty(Datatype.value).getDouble();
-            Double uncertainty = getUncertainty(emission);
+            if (emission.hasProperty(Datatype.hasNature) && null != emission.getProperty(Datatype.hasNature)
+                && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
+                Resource nature = emission.getProperty(Datatype.hasNature).getResource();
+                Double value = emission.getProperty(Datatype.value).getDouble();
+                Double uncertainty = getUncertainty(emission);
 
-            emissions.put(nature, new Value(value, uncertainty));
+                emissions.put(nature, new Value(value, uncertainty));
+            }
         }
         return emissions;
     }
@@ -355,16 +379,14 @@ public class Reader {
     public HashMap<Resource, Value> getCalculatedEmissionsForProcess(Resource process)
     {
         HashMap<Resource, Value> emissions = new HashMap<Resource, Value>();
-        StmtIterator iter = process.listProperties(Datatype.emits);
+        StmtIterator iter = process.listProperties(Datatype.hasCalculatedFlow);
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
-            if (model.contains(emission, RDF.type, (RDFNode) Datatype.CalculateElementaryFlow)) {
-                Resource nature = emission.getProperty(Datatype.hasNature).getResource();
-                Double value = emission.getProperty(Datatype.value).getDouble();
-                Double uncertainty = getUncertainty(emission);
-                emissions.put(nature, new Value(value, uncertainty));
-            }
+            Resource nature = emission.getProperty(Datatype.hasNature).getResource();
+            Double value = emission.getProperty(Datatype.value).getDouble();
+            Double uncertainty = getUncertainty(emission);
+            emissions.put(nature, new Value(value, uncertainty));
         }
         return emissions;
     }

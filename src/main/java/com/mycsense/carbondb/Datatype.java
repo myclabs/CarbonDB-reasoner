@@ -49,11 +49,13 @@ public class Datatype {
     public static final Property hasTag = property("hasTag");
     public static final Property hasDimension = property("hasDimension");
     public static final Property hasDetailedRelation = property("hasDetailedRelation");
-    public static final Property emits = property("emits");
+    public static final Property hasFlow = property("hasFlow");
+    public static final Property hasCalculatedFlow = property("hasCalculatedFlow");
     public static final Property hasNature = property("hasNature");
     public static final Property value = property("value");
     public static final Property uncertainty = property("uncertainty");
     public static final Property involves = property("involves");
-    public static final Property unit = property("unit");
+    public static final Property hasUnit = property("hasUnit");
+    public static final Property foreignUnitID = property("foreignUnitID");
 
 }
