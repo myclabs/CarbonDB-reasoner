@@ -48,6 +48,7 @@ public class Datatype {
     public static final Property hasKeyword = property("hasKeyword");
     public static final Property hasTag = property("hasTag");
     public static final Property hasDimension = property("hasDimension");
+    public static final Property hasCommonKeyword = property("hasCommonKeyword");
     public static final Property hasDetailedRelation = property("hasDetailedRelation");
     public static final Property hasFlow = property("hasFlow");
     public static final Property hasCalculatedFlow = property("hasCalculatedFlow");

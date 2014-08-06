@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 /**
- * Unit test for Conversion.
+ * Unit test for MacroRelation.
  */
 public class MacroRelationTest 
 {
@@ -32,7 +32,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.getHashKey
+     * Test for MacroRelation.getHashKey
      */
     @Test public void getHashKeyWithZeroAlpha()
     {
@@ -40,7 +40,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.getHashKey
+     * Test for MacroRelation.getHashKey
      */
     @Test public void getHashKeyWithDifferentDimensions()
     {
@@ -48,7 +48,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.getHashKey
+     * Test for MacroRelation.getHashKey
      */
     @Test public void getHashKeyWithOverlappingDimensionsAndAppropriateAlpha()
     {
@@ -57,7 +57,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.getHashKey
+     * Test for MacroRelation.getHashKey
      */
     @Test public void getHashKeyWithOverlappingDimensionsAndUnappropriateAlpha()
     {
@@ -66,7 +66,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.createGroupHashTable
+     * Test for MacroRelation.createGroupHashTable
      */
     @Test public void createGroupHashTable()
     {
@@ -91,7 +91,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.createGroupHashTable
+     * Test for MacroRelation.createGroupHashTable
      */
     @Test public void createGroupHashTableWithUnselectedElements()
     {
@@ -110,7 +110,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.translate
+     * Test for MacroRelation.translate
      */
     @Test public void translate()
     {
@@ -119,7 +119,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.translate
+     * Test for MacroRelation.translate
      */
     @Test public void translateWithEmptyGroups()
     {
@@ -136,7 +136,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.translate
+     * Test for MacroRelation.translate
      */
     @Test public void translateNormalMacroRelation()
     {
@@ -163,7 +163,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.translate
+     * Test for MacroRelation.translate
      */
     @Test public void translateAggregationMacroRelation()
     {
@@ -193,7 +193,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.translate
+     * Test for MacroRelation.translate
      */
     @Test public void translateProjectionMacroRelation()
     {
@@ -223,7 +223,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.translate
+     * Test for MacroRelation.translate
      */
     @Test public void translatePartialMacroRelation()
     {
@@ -247,7 +247,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for Conversion.translate
+     * Test for MacroRelation.translate
      */
     @Test public void translateWithDifferentGroups()
     {
@@ -270,6 +270,36 @@ public class MacroRelationTest
         expectedMicroRelations.add(new MicroRelation(dim1, dim1, dim4));
         expectedMicroRelations.add(new MicroRelation(dim2, dim2, dim3));
         expectedMicroRelations.add(new MicroRelation(dim2, dim2, dim4));
+        assertEquals(4, microRelations.size());
+        assertTrue(microRelations.containsAll(expectedMicroRelations));
+    }
+
+    /**
+     * Test for MacroRelation.translate
+     */
+    @Test public void translateNormalMacroRelationWithCommonKeywords()
+    {
+        DimensionSet dimSet = new DimensionSet(dim12, dim34);
+        Keyword commonKeyword = new Keyword("commonKw");
+        Dimension commonKeywords = new Dimension(commonKeyword);
+
+        Group upstreamGroup = new Group(dimSet, commonKeywords);
+        Group coeffGroup = new Group(dimSet, commonKeywords);
+        Group downstreamGroup = new Group(dimSet, commonKeywords);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+
+        ArrayList<MicroRelation> microRelations;
+        microRelations = macroRelation.translate();
+
+        ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
+        Dimension dim13c = new Dimension(kw1, kw3, commonKeyword);
+        Dimension dim14c = new Dimension(kw1, kw4, commonKeyword);
+        Dimension dim23c = new Dimension(kw2, kw3, commonKeyword);
+        Dimension dim24c = new Dimension(kw2, kw4, commonKeyword);
+        expectedMicroRelations.add(new MicroRelation(dim13c, dim13c, dim13c));
+        expectedMicroRelations.add(new MicroRelation(dim14c, dim14c, dim14c));
+        expectedMicroRelations.add(new MicroRelation(dim23c, dim23c, dim23c));
+        expectedMicroRelations.add(new MicroRelation(dim24c, dim24c, dim24c));
         assertEquals(4, microRelations.size());
         assertTrue(microRelations.containsAll(expectedMicroRelations));
     }

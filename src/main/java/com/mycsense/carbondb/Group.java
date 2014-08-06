@@ -3,7 +3,9 @@ package com.mycsense.carbondb;
 public class Group
 {
     public DimensionSet dimSet;
+    public DimensionSet dimSetWithCommonKeywords;
     public DimensionSet elements;
+    public Dimension commonKeywords;
 
     protected String label;
     protected String uri;
@@ -12,28 +14,54 @@ public class Group
 
     public Group() {
         dimSet = new DimensionSet();
+        dimSetWithCommonKeywords = new DimensionSet();
+        commonKeywords = new Dimension();
         elements = new DimensionSet();
     }
 
     public Group(Dimension... dimensions) {
         dimSet = new DimensionSet();
+        dimSetWithCommonKeywords = new DimensionSet();
+        commonKeywords = new Dimension();
         for (Dimension dimension: dimensions) {
-            dimSet.add(dimension);
+            addDimension(dimension);
         }
         createElements();
     }
 
     public Group(DimensionSet dimSet) {
         this.dimSet = dimSet;
+        dimSetWithCommonKeywords = dimSet;
+        commonKeywords = new Dimension();
+        createElements();
+    }
+
+    public Group(DimensionSet dimSet, Dimension commonKeywords) {
+        this.dimSet = dimSet;
+        dimSetWithCommonKeywords = dimSet;
+        setCommonKeywords(commonKeywords);
         createElements();
     }
 
     public void addDimension(Dimension dimension) {
         dimSet.add(dimension);
+        dimSetWithCommonKeywords.add(dimension);
+    }
+
+    public void addCommonKeyword(Keyword keyword) {
+        commonKeywords.add(keyword);
+        dimSetWithCommonKeywords.add(new Dimension(keyword));
+    }
+
+    public void setCommonKeywords(Dimension commonKeywords) {
+        this.commonKeywords = new Dimension();
+        for (Keyword keyword: commonKeywords.keywords) {
+            addCommonKeyword(keyword);
+        }
     }
 
     public void createElements() {
-        elements = dimSet.getCombinations();
+        elements = dimSetWithCommonKeywords.getCombinations();
     }
 
     public String toString() {

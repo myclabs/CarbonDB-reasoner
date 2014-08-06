@@ -188,6 +188,7 @@ public class Reader {
     public Group getGroup(Resource groupResource)
     {
         Group group = new Group(getGroupDimSet(groupResource));
+        group.setCommonKeywords(getGroupCommonKeywords(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
@@ -277,6 +278,23 @@ public class Reader {
             }
         }
         return dimSet;
+    }
+
+    protected Dimension getGroupCommonKeywords(Resource groupResource)
+    {
+        Selector selector = new SimpleSelector(groupResource, Datatype.hasCommonKeyword, (RDFNode) null);
+        StmtIterator iter = model.listStatements( selector );
+
+        Dimension dim = new Dimension();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                Keyword keyword = new Keyword(s.getObject().toString());
+                keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
+                dim.add(keyword);
+            }
+        }
+        return dim;
     }
 
     protected Dimension getDimensionKeywords(Resource dimensionResource)

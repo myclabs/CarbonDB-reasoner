@@ -25,12 +25,12 @@ class MacroRelation {
     public ArrayList<MicroRelation> translate()
     {
         ArrayList<MicroRelation> microRelations = new ArrayList<MicroRelation>();
-        DimensionSet.UnionResult unionResult = source.dimSet.union(coeff.dimSet);
+        DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
         Integer alpha1 = unionResult.alpha;
-        Integer alpha2 = unionResult.dimSet.alpha(destination.dimSet);
+        Integer alpha2 = unionResult.dimSet.alpha(destination.dimSetWithCommonKeywords);
         HashMap<String, ArrayList<Dimension>> coeffs = createGroupHashTable(coeff, unionResult.commonKeywords, alpha1);
 
-        Dimension commonKeywordsGp1GcGp2 = unionResult.dimSet.getCommonKeywords(destination.dimSet);
+        Dimension commonKeywordsGp1GcGp2 = unionResult.dimSet.getCommonKeywords(destination.dimSetWithCommonKeywords);
         HashMap<String, ArrayList<Dimension>> destinationProcesses = createGroupHashTable(destination, commonKeywordsGp1GcGp2, alpha2);
 
         for (Dimension sourceProcess: source.elements.dimensions) {
