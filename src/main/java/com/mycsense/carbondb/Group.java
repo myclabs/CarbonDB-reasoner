@@ -31,14 +31,14 @@ public class Group
 
     public Group(DimensionSet dimSet) {
         this.dimSet = dimSet;
-        dimSetWithCommonKeywords = dimSet;
+        dimSetWithCommonKeywords = new DimensionSet(dimSet);
         commonKeywords = new Dimension();
         createElements();
     }
 
     public Group(DimensionSet dimSet, Dimension commonKeywords) {
         this.dimSet = dimSet;
-        dimSetWithCommonKeywords = dimSet;
+        dimSetWithCommonKeywords = new DimensionSet(dimSet);
         setCommonKeywords(commonKeywords);
         createElements();
     }

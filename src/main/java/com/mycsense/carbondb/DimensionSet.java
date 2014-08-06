@@ -25,6 +25,13 @@ public class DimensionSet
         }
     }
 
+    public DimensionSet(DimensionSet dimSet) {
+        dimensions = new HashSet<Dimension>();
+        for (Dimension dim: dimSet.dimensions) {
+            dimensions.add(dim);
+        }
+    }
+
     public int size() {
         return dimensions.size();
     }
