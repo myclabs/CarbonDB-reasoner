@@ -191,7 +191,7 @@ public class Reasoner {
     {
         if (Math.abs(v1 + v2) == 0)
             return 0.0;
-        else if (Math.pow(v1 * u1, 2) + Math.pow(v2 * u2, 2) == 0.0) {
+        else if (Math.pow(v1 * u1, 2) + Math.pow(v2 * u2, 2) == 0.0)
             return 0.0;
         return Math.sqrt(Math.pow(v1 * u1, 2) + Math.pow(v2 * u2, 2)) / Math.abs(v1 + v2);
     }
