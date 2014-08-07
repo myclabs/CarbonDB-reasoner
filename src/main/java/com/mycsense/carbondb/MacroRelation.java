@@ -36,13 +36,13 @@ class MacroRelation {
         for (Dimension sourceProcess: source.elements.dimensions) {
             String hashKey = getHashKey(sourceProcess, unionResult.commonKeywords, alpha1);
             if (!hashKey.equals("#nullHashKey#")) {
-                for (Dimension coeff: coeffs.get(hashKey)) {
+                for (Dimension singleCoeff: coeffs.get(hashKey)) {
                     Dimension sourceAndCoeffKeywords = new Dimension(sourceProcess);
-                    sourceAndCoeffKeywords.keywords.addAll(coeff.keywords);
+                    sourceAndCoeffKeywords.keywords.addAll(singleCoeff.keywords);
                     String hashKey2 = getHashKey(sourceAndCoeffKeywords, commonKeywordsGp1GcGp2, alpha2);
                     if (!hashKey2.equals("#nullHashKey#")) {
                         for (Dimension destinationProcess: destinationProcesses.get(hashKey2)) {
-                            microRelations.add(new MicroRelation(sourceProcess, coeff, destinationProcess));
+                            microRelations.add(new MicroRelation(sourceProcess, source.getUnitURI(), singleCoeff, coeff.getUnitURI(), destinationProcess, destination.getUnitURI()));
                         }
                     }
                 }

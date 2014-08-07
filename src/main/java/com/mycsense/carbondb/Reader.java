@@ -111,7 +111,7 @@ public class Reader {
         System.out.println(getGroup(ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#fp1")));
         System.out.println("+++ group fc +++");
         System.out.println(getGroup(ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#fc")));
-        System.out.println(getProcessForDimension(dimA1));
+        System.out.println(getProcessForDimension(dimA1, null));
 
         /*try {
             FileOutputStream out = new FileOutputStream("ontologies/bc-test-inferred-java.rdf");
@@ -122,17 +122,17 @@ public class Reader {
         }*/
     }
 
-    public Resource getProcessForDimension(Dimension dimension)
+    public Resource getProcessForDimension(Dimension dimension, String unit)
     {
-        return getElementForDimension(dimension, Datatype.SingleProcess);
+        return getElementForDimension(dimension, unit, Datatype.SingleProcess);
     }
 
-    public Resource getCoefficientForDimension(Dimension dimension)
+    public Resource getCoefficientForDimension(Dimension dimension, String unit)
     {
-        return getElementForDimension(dimension, Datatype.SingleCoefficient);
+        return getElementForDimension(dimension, unit, Datatype.SingleCoefficient);
     }
 
-    protected Resource getElementForDimension(Dimension dimension, Resource singleType)
+    protected Resource getElementForDimension(Dimension dimension, String unit, Resource singleType)
     {
         // @todo: throw an exception instead of returning null when the element could not be found?
         if (dimension.size() == 0) {
@@ -145,10 +145,14 @@ public class Reader {
         ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasTag, keywordResource);
         List<Resource> candidates = statementIter.toList();
         Iterator<Resource> i = candidates.iterator();
-        // ...and remove the candidates with a wrong type and not enough keywords
+        // ...and remove the candidates with a wrong type or not enough keywords or not the good unit
         while (i.hasNext()) {
             Resource candidate = i.next();
             if (!model.contains(candidate, RDF.type, (RDFNode) singleType)) {
+                i.remove();
+            }
+            else if (getUnitURI(candidate) != unit) {
+                //System.out.println("removed candidate with a wrong unit " + getUnitURI(candidate) + " != " + unit);
                 i.remove();
             }
             else {
@@ -192,6 +196,7 @@ public class Reader {
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
         group.setUnit(getUnit(groupResource));
+        group.setUnitURI(getUnitURI(groupResource));
         return group;
     }
 
@@ -202,6 +207,7 @@ public class Reader {
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
         group.setUnit(getUnit(groupResource));
+        group.setUnitURI(getUnitURI(groupResource));
         return group;
     }
 
@@ -214,6 +220,14 @@ public class Reader {
             }
         }
         return new String();
+    }
+
+    protected String getUnitURI(Resource element)
+    {
+        if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
+            return element.getProperty(Datatype.hasUnit).getResource().getURI();
+        }
+        return null;
     }
 
     public ArrayList<Group> getProcessGroups()

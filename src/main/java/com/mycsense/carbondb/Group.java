@@ -11,18 +11,23 @@ public class Group
     protected String uri;
     protected String id;
     protected String unit;
+    protected String unitURI;
 
     public Group() {
         dimSet = new DimensionSet();
         dimSetWithCommonKeywords = new DimensionSet();
         commonKeywords = new Dimension();
         elements = new DimensionSet();
+        unit = new String();
+        unitURI = new String();
     }
 
     public Group(Dimension... dimensions) {
         dimSet = new DimensionSet();
         dimSetWithCommonKeywords = new DimensionSet();
         commonKeywords = new Dimension();
+        unit = new String();
+        unitURI = new String();
         for (Dimension dimension: dimensions) {
             addDimension(dimension);
         }
@@ -33,12 +38,16 @@ public class Group
         this.dimSet = dimSet;
         dimSetWithCommonKeywords = new DimensionSet(dimSet);
         commonKeywords = new Dimension();
+        unit = new String();
+        unitURI = new String();
         createElements();
     }
 
     public Group(DimensionSet dimSet, Dimension commonKeywords) {
         this.dimSet = dimSet;
         dimSetWithCommonKeywords = new DimensionSet(dimSet);
+        unit = new String();
+        unitURI = new String();
         setCommonKeywords(commonKeywords);
         createElements();
     }
@@ -65,7 +74,7 @@ public class Group
     }
 
     public String toString() {
-        return "elements: " + elements.toString() + " dimSet: " + dimSet.toString();
+        return "elements: " + elements.toString() + " dimSet: " + dimSet.toString() + " unit: " + unit;
     }
 
     public DimensionSet getElements() {
@@ -102,5 +111,13 @@ public class Group
 
     public String getUnit() {
         return unit;
+    }
+
+    public void setUnitURI(String unitURI) {
+        this.unitURI = unitURI;
+    }
+
+    public String getUnitURI() {
+        return unitURI;
     }
 }

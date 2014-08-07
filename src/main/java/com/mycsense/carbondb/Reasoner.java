@@ -52,17 +52,43 @@ public class Reasoner {
         reader = new Reader(infModel);
         writer = new Writer(infModel);
         for (MacroRelation macroRelation: reader.getMacroRelations()) {
-            createMicroRelations(macroRelation.translate());
+                createMicroRelations(macroRelation.translate());
         }
 
         processes = reader.getSingleProcesses();
         elementaryFlowNatures = reader.getElementaryFlowNatures();
 
         createEcologicalMatrix();
-        createMatrices();
-        iterativeCalculation();
-        ecologicalCumulatedFlowCalculation();
+
+        // version with uncertainty calculation
+        //createMatrices();
+        //iterativeCalculation();
+        //ecologicalCumulatedFlowCalculation();
+
+        // version without uncertainty calculation
+        createMatrix();
+        calculateCumulatedEcologicalFlows();
+
         createCumulatedEcologicalFlows();
+    }
+
+    public void createMatrix() {
+        dependencyMatrix = new CCSMatrix(processes.size(), processes.size());
+        for (int i = 0; i < processes.size(); i++) {
+            dependencyMatrix.set(i, i, 1.0);
+            ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
+            for (Resource relation : relations) {
+                RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
+                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, -reader.getCoefficientValueForRelation(relation));
+            }
+        }
+    }
+
+    public void calculateCumulatedEcologicalFlows()
+    {
+        MatrixInverter inverter = dependencyMatrix.withInverter(LinearAlgebra.GAUSS_JORDAN);
+        transitiveDependencyMatrix = inverter.inverse(LinearAlgebra.DENSE_FACTORY);
+        cumulativeEcologicalMatrix = transitiveDependencyMatrix.multiply(ecologicalMatrix);
     }
 
     protected void iterativeCalculation()
@@ -145,6 +171,8 @@ public class Reasoner {
 
     protected double productUncertainty(double u1, double u2)
     {
+        if (Math.pow(u1, 2) + Math.pow(u2, 2) == 0.0)
+            return 0.0;
         return Math.sqrt(Math.pow(u1, 2) + Math.pow(u2, 2));
     }
 
@@ -161,12 +189,11 @@ public class Reasoner {
 
     protected double sumUncertainty(double v1, double u1, double v2, double u2)
     {
-        if (Math.abs(v1 + v2) == 0) {
+        if (Math.abs(v1 + v2) == 0)
             return 0.0;
-        }
-        else {
-            return Math.sqrt(Math.pow(v1 * u1, 2) + Math.pow(v2 * u2, 2)) / Math.abs(v1 + v2);
-        }
+        else if (Math.pow(v1 * u1, 2) + Math.pow(v2 * u2, 2) == 0.0) {
+            return 0.0;
+        return Math.sqrt(Math.pow(v1 * u1, 2) + Math.pow(v2 * u2, 2)) / Math.abs(v1 + v2);
     }
 
     protected Matrix sqrtMatrix(Matrix m)
@@ -174,7 +201,7 @@ public class Reasoner {
         Matrix r = m.copy();
         for (int i = 0; i < m.rows(); i++) {
             for (int j = 0; j < m.columns(); j++) {
-                r.set(i, j, Math.sqrt(m.get(i,j)));
+                r.set(i, j, m.get(i,j) == 0.0 ? 0.0 : Math.sqrt(m.get(i,j)));
             }
         }
         return r;
@@ -226,7 +253,8 @@ public class Reasoner {
                 writer.addCumulatedEcologicalFlow(processes.get(i),
                                                   elementaryFlowNatures.get(j),
                                                   cumulativeEcologicalMatrix.get(i, j),
-                                                  cumulativeEcologicalUncertaintyMatrix.get(i,j)
+                                                  //cumulativeEcologicalUncertaintyMatrix.get(i,j)
+                                                  0.0
                                                  );
             }
         }
@@ -235,10 +263,13 @@ public class Reasoner {
     protected void createMicroRelations(ArrayList<MicroRelation> microRelations)
     {
         for (MicroRelation microRelation: microRelations) {
-            Resource sourceProcess = reader.getElementForDimension(microRelation.source, Datatype.SingleProcess);
-            Resource coeff = reader.getElementForDimension(microRelation.coeff, Datatype.SingleCoefficient);
-            Resource destinationProcess = reader.getElementForDimension(microRelation.destination, Datatype.SingleProcess);
-            if (sourceProcess != null && coeff != null && destinationProcess != null) {
+            Resource sourceProcess = reader.getElementForDimension(microRelation.source, microRelation.sourceUnit, Datatype.SingleProcess);
+            Resource coeff = reader.getElementForDimension(microRelation.coeff, microRelation.coeffUnit, Datatype.SingleCoefficient);
+            Resource destinationProcess = reader.getElementForDimension(microRelation.destination, microRelation.destinationUnit, Datatype.SingleProcess);
+            if (sourceProcess != null && coeff != null) {
+                if (destinationProcess == null) {
+                    destinationProcess = writer.createProcess(microRelation.destination, microRelation.destinationUnit);
+                }
                 writer.addMicroRelation(sourceProcess, coeff, destinationProcess);
             }
         }

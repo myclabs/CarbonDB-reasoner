@@ -5,17 +5,29 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 class MicroRelation {
     Dimension source;
+    String sourceUnit;
     Dimension coeff;
+    String coeffUnit;
     Dimension destination;
+    String destinationUnit;
 
-    public MicroRelation(Dimension source, Dimension coeff, Dimension destination) {
+    public MicroRelation(Dimension source,
+                         String sourceUnit,
+                         Dimension coeff,
+                         String coeffUnit,
+                         Dimension destination,
+                         String destinationUnit
+    ) {
         this.source = source;
+        this.sourceUnit = sourceUnit;
         this.coeff = coeff;
+        this.coeffUnit = coeffUnit;
         this.destination = destination;
+        this.destinationUnit = destinationUnit;
     }
 
     public String toString() {
-        return source + " x " + coeff + " -> " + destination;
+        return source + " ( " + sourceUnit + ")" + " x " + coeff + " ( " + coeffUnit + ")" + " -> " + destination + " ( " + destinationUnit + ")";
     }
 
     @Override
@@ -28,8 +40,11 @@ class MicroRelation {
         MicroRelation rhs = (MicroRelation) obj;
         return new EqualsBuilder()
                   .append(source, rhs.source)
+                  .append(sourceUnit, rhs.sourceUnit)
                   .append(coeff, rhs.coeff)
+                  .append(coeffUnit, rhs.coeffUnit)
                   .append(destination, rhs.destination)
+                  .append(destinationUnit, rhs.destinationUnit)
                   .isEquals();
     }
 
@@ -37,8 +52,11 @@ class MicroRelation {
     public int hashCode() {
         return new HashCodeBuilder(23, 47)
                   .append(source)
+                  .append(sourceUnit)
                   .append(coeff)
+                  .append(coeffUnit)
                   .append(destination)
+                  .append(destinationUnit)
                   .toHashCode();
     }
 }

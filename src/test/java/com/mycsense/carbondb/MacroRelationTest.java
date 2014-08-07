@@ -19,6 +19,7 @@ public class MacroRelationTest
 {
     Keyword kw1, kw2, kw3, kw4;
     Dimension dim12, dim34;
+    String unit;
 
     @Before
     public void setUp() {
@@ -29,6 +30,8 @@ public class MacroRelationTest
 
         dim12 = new Dimension(kw1, kw2);
         dim34 = new Dimension(kw3, kw4);
+
+        unit = "";
     }
 
     /**
@@ -154,10 +157,10 @@ public class MacroRelationTest
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedMicroRelations.add(new MicroRelation(dim13, dim13, dim13));
-        expectedMicroRelations.add(new MicroRelation(dim14, dim14, dim14));
-        expectedMicroRelations.add(new MicroRelation(dim23, dim23, dim23));
-        expectedMicroRelations.add(new MicroRelation(dim24, dim24, dim24));
+        expectedMicroRelations.add(new MicroRelation(dim13, unit, dim13, unit, dim13, unit));
+        expectedMicroRelations.add(new MicroRelation(dim14, unit, dim14, unit, dim14, unit));
+        expectedMicroRelations.add(new MicroRelation(dim23, unit, dim23, unit, dim23, unit));
+        expectedMicroRelations.add(new MicroRelation(dim24, unit, dim24, unit, dim24, unit));
         assertEquals(4, microRelations.size());
         assertTrue(microRelations.containsAll(expectedMicroRelations));
     }
@@ -184,10 +187,10 @@ public class MacroRelationTest
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedMicroRelations.add(new MicroRelation(dim13, dim13, dim1));
-        expectedMicroRelations.add(new MicroRelation(dim14, dim14, dim1));
-        expectedMicroRelations.add(new MicroRelation(dim23, dim23, dim2));
-        expectedMicroRelations.add(new MicroRelation(dim24, dim24, dim2));
+        expectedMicroRelations.add(new MicroRelation(dim13, unit, dim13, unit, dim1, unit));
+        expectedMicroRelations.add(new MicroRelation(dim14, unit, dim14, unit, dim1, unit));
+        expectedMicroRelations.add(new MicroRelation(dim23, unit, dim23, unit, dim2, unit));
+        expectedMicroRelations.add(new MicroRelation(dim24, unit, dim24, unit, dim2, unit));
         assertEquals(4, microRelations.size());
         assertTrue(microRelations.containsAll(expectedMicroRelations));
     }
@@ -214,10 +217,10 @@ public class MacroRelationTest
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedMicroRelations.add(new MicroRelation(dim1, dim1, dim13));
-        expectedMicroRelations.add(new MicroRelation(dim1, dim1, dim14));
-        expectedMicroRelations.add(new MicroRelation(dim2, dim2, dim23));
-        expectedMicroRelations.add(new MicroRelation(dim2, dim2, dim24));
+        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim13, unit));
+        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim14, unit));
+        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim23, unit));
+        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim24, unit));
         assertEquals(4, microRelations.size());
         assertTrue(microRelations.containsAll(expectedMicroRelations));
     }
@@ -240,8 +243,8 @@ public class MacroRelationTest
         ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim23 = new Dimension(kw2, kw3);
-        expectedMicroRelations.add(new MicroRelation(dim13, dim13, dim13));
-        expectedMicroRelations.add(new MicroRelation(dim23, dim23, dim23));
+        expectedMicroRelations.add(new MicroRelation(dim13, unit, dim13, unit, dim13, unit));
+        expectedMicroRelations.add(new MicroRelation(dim23, unit, dim23, unit, dim23, unit));
         assertEquals(2, microRelations.size());
         assertTrue(microRelations.containsAll(expectedMicroRelations));
     }
@@ -266,10 +269,10 @@ public class MacroRelationTest
         Dimension dim2 = new Dimension(kw2);
         Dimension dim3 = new Dimension(kw3);
         Dimension dim4 = new Dimension(kw4);
-        expectedMicroRelations.add(new MicroRelation(dim1, dim1, dim3));
-        expectedMicroRelations.add(new MicroRelation(dim1, dim1, dim4));
-        expectedMicroRelations.add(new MicroRelation(dim2, dim2, dim3));
-        expectedMicroRelations.add(new MicroRelation(dim2, dim2, dim4));
+        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim3, unit));
+        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim4, unit));
+        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim3, unit));
+        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim4, unit));
         assertEquals(4, microRelations.size());
         assertTrue(microRelations.containsAll(expectedMicroRelations));
     }
@@ -296,10 +299,10 @@ public class MacroRelationTest
         Dimension dim14c = new Dimension(kw1, kw4, commonKeyword);
         Dimension dim23c = new Dimension(kw2, kw3, commonKeyword);
         Dimension dim24c = new Dimension(kw2, kw4, commonKeyword);
-        expectedMicroRelations.add(new MicroRelation(dim13c, dim13c, dim13c));
-        expectedMicroRelations.add(new MicroRelation(dim14c, dim14c, dim14c));
-        expectedMicroRelations.add(new MicroRelation(dim23c, dim23c, dim23c));
-        expectedMicroRelations.add(new MicroRelation(dim24c, dim24c, dim24c));
+        expectedMicroRelations.add(new MicroRelation(dim13c, unit, dim13c, unit, dim13c, unit));
+        expectedMicroRelations.add(new MicroRelation(dim14c, unit, dim14c, unit, dim14c, unit));
+        expectedMicroRelations.add(new MicroRelation(dim23c, unit, dim23c, unit, dim23c, unit));
+        expectedMicroRelations.add(new MicroRelation(dim24c, unit, dim24c, unit, dim24c, unit));
         assertEquals(4, microRelations.size());
         assertTrue(microRelations.containsAll(expectedMicroRelations));
     }

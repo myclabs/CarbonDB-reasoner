@@ -37,4 +37,18 @@ public class Writer {
             .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
             .addProperty(RDF.type, Datatype.CalculateElementaryFlow));
     }
+
+    public Resource createProcess(Dimension dimension, String unitURI)
+    {
+        Resource process = model.createResource(Datatype.getURI() + AnonId.create().toString())
+                            .addProperty(RDF.type, Datatype.SingleProcess);
+        if (null != unitURI) {
+            process.addProperty(Datatype.hasUnit, model.createResource(unitURI));
+        }
+        for (Keyword keyword: dimension.keywords) {
+            Resource keywordResource = model.createResource(keyword.name);
+            process.addProperty(Datatype.hasTag, keywordResource);
+        }
+        return process;
+    }
 }
