@@ -310,6 +310,12 @@ public class Reader {
         return dim;
     }
 
+    public Keyword getKeyword(Resource keywordResource) {
+        Keyword keyword = new Keyword(keywordResource.getURI());
+        keyword.setLabel(getLabelOrURI(keywordResource));
+        return keyword;
+    }
+
     protected Dimension getDimensionKeywords(Resource dimensionResource)
     {
         Selector selector = new SimpleSelector(dimensionResource, Datatype.hasKeyword, (RDFNode) null);

@@ -79,7 +79,8 @@ public class Reasoner {
             ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
                 RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
-                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, -reader.getCoefficientValueForRelation(relation));
+                double value = dependencyMatrix.get(processes.indexOf(downStreamProcess), i);
+                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, value-reader.getCoefficientValueForRelation(relation));
             }
         }
     }
@@ -227,8 +228,11 @@ public class Reasoner {
             ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
                 RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
-                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, reader.getCoefficientValueForRelation(relation));
-                uncertaintyMatrix.set(processes.indexOf(downStreamProcess), i, reader.getCoefficientUncertaintyForRelation(relation));
+                double value = dependencyMatrix.get(processes.indexOf(downStreamProcess), i);
+                double uncertainty = uncertaintyMatrix.get(processes.indexOf(downStreamProcess), i);
+                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, value+reader.getCoefficientValueForRelation(relation));
+                // @todo: check if the uncertainties should be added
+                uncertaintyMatrix.set(processes.indexOf(downStreamProcess), i, uncertainty+reader.getCoefficientUncertaintyForRelation(relation));
             }
         }
     }
