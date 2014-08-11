@@ -52,7 +52,7 @@ public class Reasoner {
         reader = new Reader(infModel);
         writer = new Writer(infModel);
         for (MacroRelation macroRelation: reader.getMacroRelations()) {
-                createMicroRelations(macroRelation.translate());
+            createMicroRelations(macroRelation.translate());
         }
 
         processes = reader.getSingleProcesses();
@@ -266,7 +266,10 @@ public class Reasoner {
             Resource sourceProcess = reader.getElementForDimension(microRelation.source, microRelation.sourceUnit, Datatype.SingleProcess);
             Resource coeff = reader.getElementForDimension(microRelation.coeff, microRelation.coeffUnit, Datatype.SingleCoefficient);
             Resource destinationProcess = reader.getElementForDimension(microRelation.destination, microRelation.destinationUnit, Datatype.SingleProcess);
-            if (sourceProcess != null && coeff != null) {
+            if (coeff != null) {
+                if (sourceProcess == null) {
+                    sourceProcess = writer.createProcess(microRelation.source, microRelation.sourceUnit);
+                }
                 if (destinationProcess == null) {
                     destinationProcess = writer.createProcess(microRelation.destination, microRelation.destinationUnit);
                 }
