@@ -12,9 +12,19 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.util.FileManager;
 
+import com.mycsense.carbondb.dimension.Orientation;
+import com.mycsense.carbondb.group.Type;
+
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
+
+import org.json.JSONObject;
+
 public class Reader {
 
     public Model model;
+    protected HashMap<String, Double> unitsConversionFactors = new HashMap<String, Double>();
 
     public Reader (Model model) {
         this.model = model;
@@ -152,7 +162,6 @@ public class Reader {
                 i.remove();
             }
             else if (getUnitURI(candidate) != unit) {
-                //System.out.println("removed candidate with a wrong unit " + getUnitURI(candidate) + " != " + unit);
                 i.remove();
             }
             else {
@@ -197,6 +206,7 @@ public class Reader {
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
         group.setUnit(getUnit(groupResource));
         group.setUnitURI(getUnitURI(groupResource));
+        group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
         return group;
     }
 
@@ -208,6 +218,7 @@ public class Reader {
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
         group.setUnit(getUnit(groupResource));
         group.setUnitURI(getUnitURI(groupResource));
+        group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
         return group;
     }
 
@@ -287,7 +298,13 @@ public class Reader {
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                dimSet.add(getDimensionKeywords((Resource) s.getObject()));
+                Resource dimensionResource = s.getObject().asResource();
+                Dimension dim = getDimensionKeywords(dimensionResource);
+                if (groupResource.hasProperty(Datatype.hasHorizontalDimension, dimensionResource))
+                    dim.setOrientation(Orientation.HORIZONTAL);
+                else if (groupResource.hasProperty(Datatype.hasVerticalDimension, dimensionResource))
+                    dim.setOrientation(Orientation.VERTICAL);
+                dimSet.add(dim);
             }
         }
         return dimSet;
@@ -377,8 +394,12 @@ public class Reader {
 
     public Double getCoefficientValueForRelation(Resource relation) {
         Resource coefficient = relation.getProperty(Datatype.hasWeight).getResource();
-
-        return coefficient.getProperty(Datatype.value).getDouble();
+        Double value = coefficient.getProperty(Datatype.value).getDouble();
+        String unitID = getUnit(coefficient);
+        if (!unitID.equals("")) {
+            value *= getUnitConversionFactor(unitID);
+        }
+        return value;
     }
 
     public Double getCoefficientUncertaintyForRelation(Resource relation) {
@@ -390,13 +411,20 @@ public class Reader {
     {
         HashMap<Resource, Value> emissions = new HashMap<Resource, Value>();
         StmtIterator iter = process.listProperties(Datatype.hasFlow);
+        Double conversionFactor = new Double(1.0);
+        if (iter.hasNext()) {
+            String unitID = getUnit(process);
+            if (!unitID.equals("")) {
+                conversionFactor = getUnitConversionFactor(unitID);
+            }
+        }
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
             if (emission.hasProperty(Datatype.hasNature) && null != emission.getProperty(Datatype.hasNature)
                 && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
                 Resource nature = emission.getProperty(Datatype.hasNature).getResource();
-                Double value = emission.getProperty(Datatype.value).getDouble();
+                Double value = emission.getProperty(Datatype.value).getDouble() / conversionFactor;
                 Double uncertainty = getUncertainty(emission);
 
                 emissions.put(nature, new Value(value, uncertainty));
@@ -426,5 +454,48 @@ public class Reader {
             emissions.put(nature, new Value(value, uncertainty));
         }
         return emissions;
+    }
+
+    public Double getUnitConversionFactor(String unitID)
+    {
+        if (!unitsConversionFactors.containsKey(unitID)) {
+            String unit;
+            Response response = ClientBuilder.newClient()
+                    .target("http://units.myc-sense.com/api")
+                    .path("unit-of-reference")
+                    .path(unitID)
+                    .request(MediaType.TEXT_PLAIN_TYPE)
+                    .get();
+            if (response.getStatus() == 200) {
+                JSONObject obj = new JSONObject(response.readEntity(String.class));
+                String unitOfReference = obj.getString("id");
+                if (unitID.equals(unitOfReference)) {
+                    unitsConversionFactors.put(unitID, new Double(1.0));
+                }
+                else {
+                    response = ClientBuilder.newClient()
+                            .target("http://units.myc-sense.com/api")
+                            .path("conversion-factor")
+                            .queryParam("unit2", unitID)
+                            .queryParam("unit1", unitOfReference)
+                            .request(MediaType.TEXT_PLAIN_TYPE)
+                            .get();
+                    if (response.getStatus() == 200) {
+                        Double conversionFactor = new Double(response.readEntity(String.class));
+                        unitsConversionFactors.put(unitID, conversionFactor);
+                    }
+                    else {
+                        // it must be incompatible units
+                        unitsConversionFactors.put(unitID, new Double(1.0));
+                    }
+                }
+            }
+            else {
+                // unit not found (or error)
+                System.out.println("unit not found: " + unitID);
+                unitsConversionFactors.put(unitID, new Double(1.0));
+            }
+        }
+        return unitsConversionFactors.get(unitID);
     }
 }

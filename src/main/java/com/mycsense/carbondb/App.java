@@ -56,6 +56,8 @@ public class App
         }
 
         model.read( in, null );
+        Reasoner reasoner = new Reasoner(model);
+        reasoner.run();
         Reader reader = new Reader(model);
 
         Category cat = reader.getCategoriesTree();

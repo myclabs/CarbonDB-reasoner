@@ -1,12 +1,15 @@
-package com.mycsense.carbondb; 
+package com.mycsense.carbondb;
 
 import java.util.HashSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import com.mycsense.carbondb.dimension.Orientation;
+
 public class Dimension
 {
     public HashSet<Keyword> keywords;
+    public Orientation orientation = Orientation.NONE;
 
     public Dimension() {
         keywords = new HashSet<Keyword>();
@@ -76,5 +79,13 @@ public class Dimension
             }
         }
         return false;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
     }
 }

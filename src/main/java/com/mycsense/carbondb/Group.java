@@ -1,4 +1,6 @@
-package com.mycsense.carbondb; 
+package com.mycsense.carbondb;
+
+import com.mycsense.carbondb.group.Type;
 
 public class Group
 {
@@ -6,6 +8,7 @@ public class Group
     public DimensionSet dimSetWithCommonKeywords;
     public DimensionSet elements;
     public Dimension commonKeywords;
+    public Type type = Type.PROCESS;
 
     protected String label;
     protected String uri;
@@ -119,5 +122,13 @@ public class Group
 
     public String getUnitURI() {
         return unitURI;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public Type getType() {
+        return type;
     }
 }

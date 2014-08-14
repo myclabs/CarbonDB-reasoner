@@ -65,9 +65,13 @@ public class Reasoner {
         //iterativeCalculation();
         //ecologicalCumulatedFlowCalculation();
 
-        // version without uncertainty calculation
-        createMatrix();
-        calculateCumulatedEcologicalFlows();
+        // matrix inversion method
+        //createMatrix();
+        //calculateCumulatedEcologicalFlows();
+
+        createMatrices();
+        iterativeCalculationWithoutUncertainties();
+        cumulativeEcologicalMatrix = transitiveDependencyMatrix.multiply(ecologicalMatrix);
 
         createCumulatedEcologicalFlows();
     }
@@ -88,8 +92,33 @@ public class Reasoner {
     public void calculateCumulatedEcologicalFlows()
     {
         MatrixInverter inverter = dependencyMatrix.withInverter(LinearAlgebra.GAUSS_JORDAN);
-        transitiveDependencyMatrix = inverter.inverse(LinearAlgebra.DENSE_FACTORY);
+        transitiveDependencyMatrix = inverter.inverse(LinearAlgebra.SPARSE_FACTORY);
         cumulativeEcologicalMatrix = transitiveDependencyMatrix.multiply(ecologicalMatrix);
+    }
+
+    protected void iterativeCalculationWithoutUncertainties()
+    {
+        Matrix dependencyProduct, prevTransitiveDependencyMatrix;
+
+        // R^0
+        transitiveDependencyMatrix = new CCSMatrix(processes.size(), processes.size());
+        for (int i = 0; i < transitiveDependencyMatrix.rows(); i++)
+            transitiveDependencyMatrix.set(i, i, 1.0);
+
+        // R^0 + R^1
+        prevTransitiveDependencyMatrix = transitiveDependencyMatrix.copy();
+        transitiveDependencyMatrix = transitiveDependencyMatrix.add(dependencyMatrix);
+        dependencyProduct = dependencyMatrix;
+
+        int maxIter = 0;
+        while (differenceGreaterThanThreshold(prevTransitiveDependencyMatrix, transitiveDependencyMatrix) && maxIter < 100) {
+            prevTransitiveDependencyMatrix = transitiveDependencyMatrix.copy();
+            // R^n-1 + R^n
+            dependencyProduct = dependencyProduct.multiply(dependencyMatrix);
+            transitiveDependencyMatrix = transitiveDependencyMatrix.add(dependencyProduct);
+
+            maxIter++;
+        }
     }
 
     protected void iterativeCalculation()
@@ -128,7 +157,6 @@ public class Reasoner {
         transitiveUncertaintyMatrix = uncertaintySum;
         transitiveDependencyMatrix = transitiveDependencySum;
     }
-
 
     protected void ecologicalCumulatedFlowCalculation()
     {
@@ -243,9 +271,15 @@ public class Reasoner {
 
         for (int i = 0; i < processes.size(); i++) {
             HashMap<Resource, Value> emissions = reader.getEmissionsForProcess(processes.get(i));
-            for (Entry<Resource, Value> e : emissions.entrySet()) {
-                ecologicalMatrix.set(i, elementaryFlowNatures.indexOf(e.getKey()), e.getValue().value);
-                ecologicalUncertaintyMatrix.set(i, elementaryFlowNatures.indexOf(e.getKey()), e.getValue().uncertainty);
+            for (int j = 0; j < elementaryFlowNatures.size(); j++) {
+                if (emissions.containsKey(elementaryFlowNatures.get(j))) {
+                    ecologicalMatrix.set(i, j, emissions.get(elementaryFlowNatures.get(j)).value);
+                    ecologicalUncertaintyMatrix.set(i, j, emissions.get(elementaryFlowNatures.get(j)).uncertainty);
+                }
+                else {
+                    ecologicalMatrix.set(i, j, 0.0);
+                    ecologicalUncertaintyMatrix.set(i, j, 0.0);
+                }
             }
         }
     }
@@ -254,9 +288,15 @@ public class Reasoner {
     {
         for (int i = 0; i < processes.size(); i++) {
             for (int j = 0; j < elementaryFlowNatures.size(); j++) {
+                String unitID = reader.getUnit(processes.get(i));
+                double value = cumulativeEcologicalMatrix.get(i, j);
+                if (!unitID.equals("")) {
+                     value *= reader.getUnitConversionFactor(unitID);
+                }
+
                 writer.addCumulatedEcologicalFlow(processes.get(i),
                                                   elementaryFlowNatures.get(j),
-                                                  cumulativeEcologicalMatrix.get(i, j),
+                                                  value,
                                                   //cumulativeEcologicalUncertaintyMatrix.get(i,j)
                                                   0.0
                                                  );
