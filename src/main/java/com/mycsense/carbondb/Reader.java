@@ -77,6 +77,11 @@ public class Reader {
                 getGroup(macroRelResource.getProperty(Datatype.hasDestination).getResource())
             );
             macroRelation.setURI(macroRelResource.getURI());
+            if (macroRelResource.hasProperty(Datatype.exponent)
+                && null != macroRelResource.getProperty(Datatype.exponent)
+            ) {
+                macroRelation.setExponent(macroRelResource.getProperty(Datatype.exponent).getInt());
+            }
             macroRelations.add(macroRelation);
         }
 
@@ -395,9 +400,11 @@ public class Reader {
     public Double getCoefficientValueForRelation(Resource relation) {
         Resource coefficient = relation.getProperty(Datatype.hasWeight).getResource();
         Double value = coefficient.getProperty(Datatype.value).getDouble();
+        int exponent = relation.getProperty(Datatype.exponent).getInt();
         String unitID = getUnit(coefficient);
-        if (!unitID.equals("")) {
-            value *= getUnitConversionFactor(unitID);
+        value *= getUnitConversionFactor(unitID);
+        if (-1 == exponent) {
+            value = 1 / value;
         }
         return value;
     }

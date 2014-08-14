@@ -43,6 +43,7 @@ public class Datatype {
     public static final Property hasParent = property("hasParent");
     public static final Property isParentOf = property("isParentOf");
     public static final Property hasWeight = property("hasWeight");
+    public static final Property exponent = property("exponent");
     public static final Property hasOrigin = property("hasOrigin");
     public static final Property hasDestination = property("hasDestination");
     public static final Property hasKeyword = property("hasKeyword");

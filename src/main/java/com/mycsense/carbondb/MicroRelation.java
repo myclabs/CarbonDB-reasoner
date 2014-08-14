@@ -10,6 +10,7 @@ class MicroRelation {
     String coeffUnit;
     Dimension destination;
     String destinationUnit;
+    int exponent;
 
     public MicroRelation(Dimension source,
                          String sourceUnit,
@@ -18,16 +19,28 @@ class MicroRelation {
                          Dimension destination,
                          String destinationUnit
     ) {
+        this(source, sourceUnit, coeff, coeffUnit, destination, destinationUnit, 1);
+    }
+
+    public MicroRelation(Dimension source,
+                         String sourceUnit,
+                         Dimension coeff,
+                         String coeffUnit,
+                         Dimension destination,
+                         String destinationUnit,
+                         int exponent
+    ) {
         this.source = source;
         this.sourceUnit = sourceUnit;
         this.coeff = coeff;
         this.coeffUnit = coeffUnit;
         this.destination = destination;
         this.destinationUnit = destinationUnit;
+        this.exponent = exponent;
     }
 
     public String toString() {
-        return source + " ( " + sourceUnit + ")" + " x " + coeff + " ( " + coeffUnit + ")" + " -> " + destination + " ( " + destinationUnit + ")";
+        return source + " ( " + sourceUnit + ")" + " x " + coeff + " ( " + coeffUnit + ")" + " -> " + destination + " ( " + destinationUnit + ") ^" + exponent;
     }
 
     @Override
@@ -45,6 +58,7 @@ class MicroRelation {
                   .append(coeffUnit, rhs.coeffUnit)
                   .append(destination, rhs.destination)
                   .append(destinationUnit, rhs.destinationUnit)
+                  .append(exponent, rhs.exponent)
                   .isEquals();
     }
 
@@ -57,6 +71,7 @@ class MicroRelation {
                   .append(coeffUnit)
                   .append(destination)
                   .append(destinationUnit)
+                  .append(exponent)
                   .toHashCode();
     }
 }

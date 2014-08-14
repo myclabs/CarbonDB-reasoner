@@ -18,14 +18,15 @@ public class Writer {
         this.model = model;
     }
 
-    public void addMicroRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess)
+    public void addMicroRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess, int exponent)
     {
         sourceProcess.addProperty(Datatype.hasDetailedRelation,
             model.createResource(Datatype.getURI() + AnonId.create().toString())
             .addProperty(RDF.type, Datatype.Relation)
             .addProperty(Datatype.hasOrigin, sourceProcess)
             .addProperty(Datatype.hasWeight, coeff)
-            .addProperty(Datatype.hasDestination, destinationProcess));
+            .addProperty(Datatype.hasDestination, destinationProcess)
+            .addProperty(Datatype.exponent, model.createTypedLiteral(exponent)));
     }
 
     public void addCumulatedEcologicalFlow(Resource process, Resource elementaryFlowNature, double value, double uncertainty)

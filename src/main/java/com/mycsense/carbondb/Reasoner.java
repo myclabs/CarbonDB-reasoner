@@ -317,7 +317,7 @@ public class Reasoner {
                 if (destinationProcess == null) {
                     destinationProcess = writer.createProcess(microRelation.destination, microRelation.destinationUnit);
                 }
-                writer.addMicroRelation(sourceProcess, coeff, destinationProcess);
+                writer.addMicroRelation(sourceProcess, coeff, destinationProcess, microRelation.exponent);
             }
         }
     }

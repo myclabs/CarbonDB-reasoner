@@ -11,6 +11,7 @@ class MacroRelation {
     public Group destination;
 
     protected String uri;
+    protected int exponent = 1;
 
     public MacroRelation(Group source, Group coeff, Group destination) {
         this.source = source;
@@ -33,6 +34,7 @@ class MacroRelation {
         Dimension commonKeywordsGp1GcGp2 = unionResult.dimSet.getCommonKeywords(destination.dimSetWithCommonKeywords);
         HashMap<String, ArrayList<Dimension>> destinationProcesses = createGroupHashTable(destination, commonKeywordsGp1GcGp2, alpha2);
 
+        try {
         for (Dimension sourceProcess: source.elements.dimensions) {
             String hashKey = getHashKey(sourceProcess, unionResult.commonKeywords, alpha1);
             if (!hashKey.equals("#nullHashKey#")) {
@@ -42,11 +44,25 @@ class MacroRelation {
                     String hashKey2 = getHashKey(sourceAndCoeffKeywords, commonKeywordsGp1GcGp2, alpha2);
                     if (!hashKey2.equals("#nullHashKey#")) {
                         for (Dimension destinationProcess: destinationProcesses.get(hashKey2)) {
-                            microRelations.add(new MicroRelation(sourceProcess, source.getUnitURI(), singleCoeff, coeff.getUnitURI(), destinationProcess, destination.getUnitURI()));
+                            microRelations.add(new MicroRelation(sourceProcess,
+                                                                 source.getUnitURI(),
+                                                                 singleCoeff,
+                                                                 coeff.getUnitURI(),
+                                                                 destinationProcess,
+                                                                 destination.getUnitURI(),
+                                                                 exponent));
                         }
                     }
                 }
             }
+        }
+        }
+        catch (Exception e) {
+            System.out.println("error in macroRelation: " + uri);
+            System.out.println("source: " + source.getURI());
+            System.out.println("coeff: " + coeff.getURI());
+            System.out.println("destination: " + destination.getURI());
+            throw e;
         }
 
         return microRelations;
@@ -103,5 +119,13 @@ class MacroRelation {
 
     public String getURI() {
         return uri;
+    }
+
+    public void setExponent(int exponent) {
+        this.exponent = exponent;
+    }
+
+    public int getExponent() {
+        return exponent;
     }
 }
