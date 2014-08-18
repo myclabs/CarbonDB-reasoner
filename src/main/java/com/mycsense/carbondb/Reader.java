@@ -70,19 +70,8 @@ public class Reader {
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Relation);
         while (i.hasNext()) {
-            Resource macroRelResource = i.next();
-            MacroRelation macroRelation = new MacroRelation(
-                getGroup(macroRelResource.getProperty(Datatype.hasOrigin).getResource()),
-                getGroup(macroRelResource.getProperty(Datatype.hasWeight).getResource()),
-                getGroup(macroRelResource.getProperty(Datatype.hasDestination).getResource())
-            );
-            macroRelation.setURI(macroRelResource.getURI());
-            if (macroRelResource.hasProperty(Datatype.exponent)
-                && null != macroRelResource.getProperty(Datatype.exponent)
-            ) {
-                macroRelation.setExponent(macroRelResource.getProperty(Datatype.exponent).getInt());
-            }
-            macroRelations.add(macroRelation);
+            Resource macroRelationResource = i.next();
+            macroRelations.add(getMacroRelation(macroRelationResource));
         }
 
         return macroRelations;
@@ -93,15 +82,26 @@ public class Reader {
 
         ResIterator i = model.listSubjectsWithProperty(Datatype.involves, group);
         while (i.hasNext()) {
-            Resource macroRelation = i.next();
-            macroRelations.add(new MacroRelation(
-                getSimpleGroup(macroRelation.getProperty(Datatype.hasOrigin).getResource()),
-                getSimpleGroup(macroRelation.getProperty(Datatype.hasWeight).getResource()),
-                getSimpleGroup(macroRelation.getProperty(Datatype.hasDestination).getResource())
-            ));
+            Resource macroRelationResource = i.next();
+            macroRelations.add(getMacroRelation(macroRelationResource));
         }
 
         return macroRelations;
+    }
+
+    protected MacroRelation getMacroRelation(Resource macroRelationResource) {
+        MacroRelation macroRelation = new MacroRelation(
+            getSimpleGroup(macroRelationResource.getProperty(Datatype.hasOrigin).getResource()),
+            getSimpleGroup(macroRelationResource.getProperty(Datatype.hasWeight).getResource()),
+            getSimpleGroup(macroRelationResource.getProperty(Datatype.hasDestination).getResource())
+        );
+        macroRelation.setURI(macroRelationResource.getURI());
+        if (macroRelationResource.hasProperty(Datatype.exponent)
+            && null != macroRelationResource.getProperty(Datatype.exponent)
+        ) {
+            macroRelation.setExponent(macroRelationResource.getProperty(Datatype.exponent).getInt());
+        }
+        return macroRelation;
     }
 
     public void tests (String inputFileName) {
