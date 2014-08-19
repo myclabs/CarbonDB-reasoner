@@ -197,4 +197,26 @@ public class DimensionSet
         }
         return hashTable;
     }
+
+    public int numberOfIntersections(Dimension dimension) {
+        int intersections = 0;
+        for (Dimension dim: dimensions) {
+            if (dim.hasCommonKeywords(dimension)) {
+                intersections++;
+            }
+        }
+        return intersections;
+    }
+
+    public boolean isCompatible(DimensionSet dimSet) {
+        for (Dimension dim: dimensions) {
+            if (dimSet.numberOfIntersections(dim) > 1)
+                return false;
+        }
+        for (Dimension dim: dimSet.dimensions) {
+            if (numberOfIntersections(dim) > 1)
+                return false;
+        }
+        return true;
+    }
 }

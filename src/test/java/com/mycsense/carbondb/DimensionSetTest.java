@@ -322,4 +322,52 @@ public class DimensionSetTest
         );
         assertTrue(ur.dimSet.equals(expectedDimSet));
     }
+
+    /**
+     * Test for DimensionSet.numberOfIntersections
+     */
+    @Test public void numberOfIntersections()
+    {
+        DimensionSet dimSet = new DimensionSet(dim12);
+
+        assertEquals(0, dimSet.numberOfIntersections(dim34));
+        assertEquals(1, dimSet.numberOfIntersections(dim12));
+    }
+
+    /**
+     * Test for DimensionSet.isCompatible
+     */
+    @Test public void isCompatibleWithDisjointDimSets()
+    {
+        DimensionSet dimSet1 = new DimensionSet(dim12);
+        DimensionSet dimSet2 = new DimensionSet(dim34);
+
+        assertTrue(dimSet1.isCompatible(dimSet2));
+        assertTrue(dimSet2.isCompatible(dimSet1));
+    }
+
+    /**
+     * Test for DimensionSet.isCompatible
+     */
+    @Test public void isCompatibleWithOverlappingDimSets()
+    {
+        DimensionSet dimSet1 = new DimensionSet(dim12, dim34);
+        DimensionSet dimSet2 = new DimensionSet(dim12);
+
+        assertTrue(dimSet1.isCompatible(dimSet2));
+        assertTrue(dimSet2.isCompatible(dimSet1));
+    }
+
+    /**
+     * Test for DimensionSet.isCompatible
+     */
+    @Test public void isCompatibleWithIncompatibleDimSets()
+    {
+        DimensionSet dimSet1 = new DimensionSet(dim12, dim34);
+        Dimension dim = new Dimension(kw1, kw3);
+        DimensionSet dimSet2 = new DimensionSet(dim12, dim);
+
+        assertFalse(dimSet1.isCompatible(dimSet2));
+        assertFalse(dimSet2.isCompatible(dimSet1));
+    }
 }
