@@ -15,12 +15,6 @@ import com.hp.hpl.jena.util.FileManager;
 import com.mycsense.carbondb.dimension.Orientation;
 import com.mycsense.carbondb.group.Type;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.MediaType;
-
-import org.json.JSONObject;
-
 public class Reader {
 
     public Model model;
@@ -65,13 +59,12 @@ public class Reader {
         return category;
     }
 
-    public ArrayList<MacroRelation> getMacroRelations() {
-        ArrayList<MacroRelation> macroRelations = new ArrayList<MacroRelation>();
+    public ArrayList<Resource> getMacroRelationsResources() {
+        ArrayList<Resource> macroRelations = new ArrayList<Resource>();
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Relation);
         while (i.hasNext()) {
-            Resource macroRelationResource = i.next();
-            macroRelations.add(getMacroRelation(macroRelationResource));
+            macroRelations.add(i.next());
         }
 
         return macroRelations;
@@ -91,9 +84,9 @@ public class Reader {
 
     protected MacroRelation getMacroRelation(Resource macroRelationResource) {
         MacroRelation macroRelation = new MacroRelation(
-            getSimpleGroup(macroRelationResource.getProperty(Datatype.hasOrigin).getResource()),
-            getSimpleGroup(macroRelationResource.getProperty(Datatype.hasWeight).getResource()),
-            getSimpleGroup(macroRelationResource.getProperty(Datatype.hasDestination).getResource())
+            getGroup(macroRelationResource.getProperty(Datatype.hasOrigin).getResource()),
+            getGroup(macroRelationResource.getProperty(Datatype.hasWeight).getResource()),
+            getGroup(macroRelationResource.getProperty(Datatype.hasDestination).getResource())
         );
         macroRelation.setURI(macroRelationResource.getURI());
         if (macroRelationResource.hasProperty(Datatype.exponent)
@@ -126,7 +119,7 @@ public class Reader {
         System.out.println(getGroup(ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#fp1")));
         System.out.println("+++ group fc +++");
         System.out.println(getGroup(ResourceFactory.createResource("http://www.myc-sense.com/ontologies/bc#fc")));
-        System.out.println(getProcessForDimension(dimA1, null));
+        //System.out.println(getProcessForDimension(dimA1, null));
 
         /*try {
             FileOutputStream out = new FileOutputStream("ontologies/bc-test-inferred-java.rdf");
@@ -138,16 +131,19 @@ public class Reader {
     }
 
     public Resource getProcessForDimension(Dimension dimension, String unit)
+        throws MultipleElementsFoundException, NoElementFoundException
     {
         return getElementForDimension(dimension, unit, Datatype.SingleProcess);
     }
 
     public Resource getCoefficientForDimension(Dimension dimension, String unit)
+        throws MultipleElementsFoundException, NoElementFoundException
     {
         return getElementForDimension(dimension, unit, Datatype.SingleCoefficient);
     }
 
     protected Resource getElementForDimension(Dimension dimension, String unit, Resource singleType)
+        throws MultipleElementsFoundException, NoElementFoundException
     {
         // @todo: throw an exception instead of returning null when the element could not be found?
         if (dimension.size() == 0) {
@@ -193,7 +189,13 @@ public class Reader {
         }
 
         if (candidates.isEmpty()) {
-            return (Resource) null;
+            throw new NoElementFoundException("No " + (singleType == Datatype.SingleProcess ? "process" : "coefficient")
+                                              + " found with keywords: " + dimension.keywords + " and unit: " + unit);
+        }
+        if (candidates.size() > 1) {
+            throw new MultipleElementsFoundException("Found multiple " + (singleType == Datatype.SingleProcess ? "processes" : "coefficients")
+                                                     + " with keywords: " + dimension.keywords + " and unit " + unit
+                                                     + " (using: " + candidates.get(0).getURI() + ")");
         }
         return candidates.get(0);
     }
@@ -233,6 +235,9 @@ public class Reader {
             Resource unit = element.getProperty(Datatype.hasUnit).getResource();
             if (unit.hasProperty(Datatype.foreignUnitID) && null != unit.getProperty(Datatype.foreignUnitID)) {
                 return unit.getProperty(Datatype.foreignUnitID).getString();
+            }
+            else {
+                //report.addError(element.getURI() + " has no unit");
             }
         }
         return new String();
@@ -402,7 +407,7 @@ public class Reader {
         Double value = coefficient.getProperty(Datatype.value).getDouble();
         int exponent = relation.getProperty(Datatype.exponent).getInt();
         String unitID = getUnit(coefficient);
-        value *= getUnitConversionFactor(unitID);
+        value *= UnitsRepoWebService.getConversionFactor(unitID);
         if (-1 == exponent) {
             value = 1 / value;
         }
@@ -422,7 +427,7 @@ public class Reader {
         if (iter.hasNext()) {
             String unitID = getUnit(process);
             if (!unitID.equals("")) {
-                conversionFactor = getUnitConversionFactor(unitID);
+                conversionFactor = UnitsRepoWebService.getConversionFactor(unitID);
             }
         }
 
@@ -461,48 +466,5 @@ public class Reader {
             emissions.put(nature, new Value(value, uncertainty));
         }
         return emissions;
-    }
-
-    public Double getUnitConversionFactor(String unitID)
-    {
-        if (!unitsConversionFactors.containsKey(unitID)) {
-            String unit;
-            Response response = ClientBuilder.newClient()
-                    .target("http://units.myc-sense.com/api")
-                    .path("unit-of-reference")
-                    .path(unitID)
-                    .request(MediaType.TEXT_PLAIN_TYPE)
-                    .get();
-            if (response.getStatus() == 200) {
-                JSONObject obj = new JSONObject(response.readEntity(String.class));
-                String unitOfReference = obj.getString("id");
-                if (unitID.equals(unitOfReference)) {
-                    unitsConversionFactors.put(unitID, new Double(1.0));
-                }
-                else {
-                    response = ClientBuilder.newClient()
-                            .target("http://units.myc-sense.com/api")
-                            .path("conversion-factor")
-                            .queryParam("unit2", unitID)
-                            .queryParam("unit1", unitOfReference)
-                            .request(MediaType.TEXT_PLAIN_TYPE)
-                            .get();
-                    if (response.getStatus() == 200) {
-                        Double conversionFactor = new Double(response.readEntity(String.class));
-                        unitsConversionFactors.put(unitID, conversionFactor);
-                    }
-                    else {
-                        // it must be incompatible units
-                        unitsConversionFactors.put(unitID, new Double(1.0));
-                    }
-                }
-            }
-            else {
-                // unit not found (or error)
-                System.out.println("unit not found: " + unitID);
-                unitsConversionFactors.put(unitID, new Double(1.0));
-            }
-        }
-        return unitsConversionFactors.get(unitID);
     }
 }

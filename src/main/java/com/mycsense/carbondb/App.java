@@ -58,8 +58,10 @@ public class App
         model.read( in, null );
         Reasoner reasoner = new Reasoner(model);
         reasoner.run();
-        Reader reader = new Reader(model);
+        System.out.println(reasoner.report.errors);
+        System.out.println(reasoner.report.warnings);
 
+        Reader reader = new Reader(model);
         Category cat = reader.getCategoriesTree();
         for (Object child: cat.getChildren()) {
             if (child instanceof Category) {

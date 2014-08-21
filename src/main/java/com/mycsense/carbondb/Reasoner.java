@@ -2,13 +2,11 @@ package com.mycsense.carbondb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.InfModel;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.AnonId;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import org.la4j.matrix.sparse.CCSMatrix;
@@ -33,6 +31,7 @@ public class Reasoner {
     protected Matrix ecologicalUncertaintyMatrix, cumulativeEcologicalUncertaintyMatrix;
     protected ArrayList<Resource> elementaryFlowNatures, processes;
     protected Double threshold = new Double(0.1);
+    public ReasonnerReport report = new ReasonnerReport();
 
     public Reasoner (Model model) {
         this.model = model;
@@ -45,19 +44,33 @@ public class Reasoner {
         convert macro relations -> macrorelations convert
         calculate ecological flows -> calculate ecological flows
         */
+        System.out.println("beginning reasonning");
         infModel = ModelFactory.createInfModel( jenaReasoner, model );
         ((PelletInfGraph) infModel.getGraph()).classify();
         ((PelletInfGraph) infModel.getGraph()).realize();
 
         reader = new Reader(infModel);
         writer = new Writer(infModel);
-        for (MacroRelation macroRelation: reader.getMacroRelations()) {
-            createMicroRelations(macroRelation.translate());
+        System.out.println("loading and translating macroRelations");
+        for (Resource macroRelationResource: reader.getMacroRelationsResources()) {
+            try {
+                MacroRelation macroRelation = reader.getMacroRelation(macroRelationResource);
+                createMicroRelations(macroRelation.translate());
+            }
+            catch (IncompatibleDimSetException e) {
+                report.addError(e.getMessage());
+            }
+            catch (IncompatibleUnitsException e) {
+                report.addError(e.getMessage());
+            }
         }
 
+        System.out.println("getting single processes");
         processes = reader.getSingleProcesses();
+        System.out.println("getting elementary flows");
         elementaryFlowNatures = reader.getElementaryFlowNatures();
 
+        System.out.println("creating ecological matrix");
         createEcologicalMatrix();
 
         // version with uncertainty calculation
@@ -69,11 +82,15 @@ public class Reasoner {
         //createMatrix();
         //calculateCumulatedEcologicalFlows();
 
+        System.out.println("creating matrix");
         createMatrices();
+        System.out.println("calculating cumulative flows");
         iterativeCalculationWithoutUncertainties();
         cumulativeEcologicalMatrix = transitiveDependencyMatrix.multiply(ecologicalMatrix);
 
+        System.out.println("creating calculated flows");
         createCumulatedEcologicalFlows();
+        System.out.println("reasoning finished");
     }
 
     public void createMatrix() {
@@ -291,7 +308,7 @@ public class Reasoner {
                 String unitID = reader.getUnit(processes.get(i));
                 double value = cumulativeEcologicalMatrix.get(i, j);
                 if (!unitID.equals("")) {
-                     value *= reader.getUnitConversionFactor(unitID);
+                     value *= UnitsRepoWebService.getConversionFactor(unitID);
                 }
 
                 writer.addCumulatedEcologicalFlow(processes.get(i),
@@ -305,19 +322,41 @@ public class Reasoner {
     }
 
     protected void createMicroRelations(ArrayList<MicroRelation> microRelations)
+        throws IllegalArgumentException
     {
+        Resource coeff = null, sourceProcess = null, destinationProcess = null;
         for (MicroRelation microRelation: microRelations) {
-            Resource sourceProcess = reader.getElementForDimension(microRelation.source, microRelation.sourceUnit, Datatype.SingleProcess);
-            Resource coeff = reader.getElementForDimension(microRelation.coeff, microRelation.coeffUnit, Datatype.SingleCoefficient);
-            Resource destinationProcess = reader.getElementForDimension(microRelation.destination, microRelation.destinationUnit, Datatype.SingleProcess);
+            try  {
+                coeff = reader.getElementForDimension(microRelation.coeff, microRelation.coeffUnit, Datatype.SingleCoefficient);
+            }
+            catch (NoElementFoundException e) {
+                // having a null coefficient is a common use case
+            }
+            catch (MultipleElementsFoundException e) {
+                report.addWarning(e.getMessage());
+            }
             if (coeff != null) {
-                if (sourceProcess == null) {
+                try  {
+                    sourceProcess = reader.getElementForDimension(microRelation.source, microRelation.sourceUnit, Datatype.SingleProcess);
+                }
+                catch (NoElementFoundException e) {
                     sourceProcess = writer.createProcess(microRelation.source, microRelation.sourceUnit);
                 }
-                if (destinationProcess == null) {
+                catch (MultipleElementsFoundException e) {
+                    report.addWarning(e.getMessage());
+                }
+                try  {
+                    destinationProcess = reader.getElementForDimension(microRelation.destination, microRelation.destinationUnit, Datatype.SingleProcess);
+                }
+                catch (NoElementFoundException e) {
                     destinationProcess = writer.createProcess(microRelation.destination, microRelation.destinationUnit);
                 }
-                writer.addMicroRelation(sourceProcess, coeff, destinationProcess, microRelation.exponent);
+                catch (MultipleElementsFoundException e) {
+                    report.addWarning(e.getMessage());
+                }
+                if (null != sourceProcess && null != coeff && null != destinationProcess) {
+                    writer.addMicroRelation(sourceProcess, coeff, destinationProcess, microRelation.exponent);
+                }
             }
         }
     }

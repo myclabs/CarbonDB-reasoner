@@ -24,24 +24,44 @@ class MacroRelation {
     }
 
     public ArrayList<MicroRelation> translate()
+        throws IncompatibleDimSetException, IncompatibleUnitsException
     {
+        if (!source.dimSetWithCommonKeywords.isCompatible(coeff.dimSetWithCommonKeywords)) {
+            throw new IncompatibleDimSetException("The source group and the coeff group are incompatible "
+                                                  + "in the macro relation: " + uri);
+        }
+        if (!source.dimSetWithCommonKeywords.isCompatible(destination.dimSetWithCommonKeywords)) {
+            throw new IncompatibleDimSetException("The source group and the destination group are incompatible "
+                                                  + "in the macro relation: " + uri);
+        }
+        if (!coeff.dimSetWithCommonKeywords.isCompatible(destination.dimSetWithCommonKeywords)) {
+            throw new IncompatibleDimSetException("The coeff group and the destination group are incompatible "
+                                                  + "in the macro relation: " + uri);
+        }
+        if (!UnitsRepoWebService.areCompatible(source.getUnit(), coeff.getUnit())) {
+            throw new IncompatibleUnitsException("The source group unit and the coeff group unit are incompatible "
+                    + "in the macro relation: " + uri);
+        }
         ArrayList<MicroRelation> microRelations = new ArrayList<MicroRelation>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
+        if (!unionResult.dimSet.isCompatible(destination.dimSetWithCommonKeywords)) {
+            throw new IncompatibleDimSetException("The union of the source with the coeff groups and the destination "
+                                                  + "group are incompatible in the macro relation " + uri);
+        }
         Integer alpha1 = unionResult.alpha;
         Integer alpha2 = unionResult.dimSet.alpha(destination.dimSetWithCommonKeywords);
         HashMap<String, ArrayList<Dimension>> coeffs = createGroupHashTable(coeff, unionResult.commonKeywords, alpha1);
 
         Dimension commonKeywordsGp1GcGp2 = unionResult.dimSet.getCommonKeywords(destination.dimSetWithCommonKeywords);
         HashMap<String, ArrayList<Dimension>> destinationProcesses = createGroupHashTable(destination, commonKeywordsGp1GcGp2, alpha2);
-
-        try {
+        String hashKey2;
         for (Dimension sourceProcess: source.elements.dimensions) {
             String hashKey = getHashKey(sourceProcess, unionResult.commonKeywords, alpha1);
             if (!hashKey.equals("#nullHashKey#")) {
                 for (Dimension singleCoeff: coeffs.get(hashKey)) {
                     Dimension sourceAndCoeffKeywords = new Dimension(sourceProcess);
                     sourceAndCoeffKeywords.keywords.addAll(singleCoeff.keywords);
-                    String hashKey2 = getHashKey(sourceAndCoeffKeywords, commonKeywordsGp1GcGp2, alpha2);
+                    hashKey2 = getHashKey(sourceAndCoeffKeywords, commonKeywordsGp1GcGp2, alpha2);
                     if (!hashKey2.equals("#nullHashKey#")) {
                         for (Dimension destinationProcess: destinationProcesses.get(hashKey2)) {
                             microRelations.add(new MicroRelation(sourceProcess,
@@ -56,14 +76,6 @@ class MacroRelation {
                 }
             }
         }
-        }
-        catch (Exception e) {
-            System.out.println("error in macroRelation: " + uri);
-            System.out.println("source: " + source.getURI());
-            System.out.println("coeff: " + coeff.getURI());
-            System.out.println("destination: " + destination.getURI());
-            throw e;
-        }
 
         return microRelations;
     }
@@ -74,7 +86,7 @@ class MacroRelation {
             return "#emptyHashKey#";
         }
 
-        ArrayList<String> keywordInKey = new ArrayList<String>();
+        ArrayList<String> keywordInKey = new ArrayList<>();
         for (Keyword keyword: dimension.keywords) {
             if (commonKeywords.contains(keyword)) {
                 keywordInKey.add(keyword.toString());
@@ -85,12 +97,12 @@ class MacroRelation {
         }
 
         Collections.sort(keywordInKey);
-        return implode(",", keywordInKey.toArray(new String[0]));
+        return implode(",", keywordInKey.toArray(new String[keywordInKey.size()]));
     }
 
     protected static HashMap<String, ArrayList<Dimension>> createGroupHashTable(Group group, Dimension commonKeywords, Integer alpha)
     {
-        HashMap<String, ArrayList<Dimension>> elements = new HashMap<String, ArrayList<Dimension>>();
+        HashMap<String, ArrayList<Dimension>> elements = new HashMap<>();
         for (Dimension element: group.elements.dimensions) {
             String hashKey = getHashKey(element, commonKeywords, alpha);
             if (!hashKey.equals("#nullHashKey#")) {
