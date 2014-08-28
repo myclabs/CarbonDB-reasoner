@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.lang.StringBuilder;
 import java.util.Collections;
 
-class MacroRelation {
+public class MacroRelation {
     public Group source;
     public Group coeff;
     public Group destination;

@@ -30,6 +30,8 @@ public class Datatype {
 
     public static final Resource Category = resource("Category");
     public static final Resource Relation = resource("Relation");
+    public static final Resource MacroRelation = resource("MacroRelation");
+    public static final Resource DetailedRelation = resource("DetailedRelation");
     public static final Resource SingleProcess = resource("SingleProcess");
     public static final Resource SingleCoefficient = resource("SingleCoefficient");
     public static final Resource CalculateElementaryFlow = resource("CalculatedElementaryFlow");

@@ -18,7 +18,7 @@ import com.mycsense.carbondb.group.Type;
 public class Reader {
 
     public Model model;
-    protected HashMap<String, Double> unitsConversionFactors = new HashMap<String, Double>();
+    protected HashMap<String, Double> unitsConversionFactors = new HashMap<>();
 
     public Reader (Model model) {
         this.model = model;
@@ -60,9 +60,9 @@ public class Reader {
     }
 
     public ArrayList<Resource> getMacroRelationsResources() {
-        ArrayList<Resource> macroRelations = new ArrayList<Resource>();
+        ArrayList<Resource> macroRelations = new ArrayList<>();
 
-        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Relation);
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.MacroRelation);
         while (i.hasNext()) {
             macroRelations.add(i.next());
         }
@@ -71,7 +71,7 @@ public class Reader {
     }
 
     public ArrayList<MacroRelation> getMacroRelationsForProcessGroup(Resource group) {
-        ArrayList<MacroRelation> macroRelations = new ArrayList<MacroRelation>();
+        ArrayList<MacroRelation> macroRelations = new ArrayList<>();
 
         ResIterator i = model.listSubjectsWithProperty(Datatype.involves, group);
         while (i.hasNext()) {
@@ -82,7 +82,7 @@ public class Reader {
         return macroRelations;
     }
 
-    protected MacroRelation getMacroRelation(Resource macroRelationResource) {
+    public MacroRelation getMacroRelation(Resource macroRelationResource) {
         MacroRelation macroRelation = new MacroRelation(
             getGroup(macroRelationResource.getProperty(Datatype.hasOrigin).getResource()),
             getGroup(macroRelationResource.getProperty(Datatype.hasWeight).getResource()),
@@ -267,7 +267,7 @@ public class Reader {
 
     protected ArrayList<Group> getGroups(Resource groupType)
     {
-        ArrayList<Group> groups = new ArrayList<Group>();
+        ArrayList<Group> groups = new ArrayList<>();
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, groupType);
         while (i.hasNext()) {
@@ -364,7 +364,7 @@ public class Reader {
         Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ElementaryFlowNature);
         StmtIterator iter = model.listStatements( selector );
 
-        ArrayList<Resource> elementaryFlowNatures = new ArrayList<Resource>();
+        ArrayList<Resource> elementaryFlowNatures = new ArrayList<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
@@ -378,7 +378,7 @@ public class Reader {
         Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.SingleProcess);
         StmtIterator iter = model.listStatements( selector );
 
-        ArrayList<Resource> processes = new ArrayList<Resource>();
+        ArrayList<Resource> processes = new ArrayList<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
@@ -392,7 +392,7 @@ public class Reader {
         Selector selector = new SimpleSelector(null, Datatype.hasOrigin, process);
         StmtIterator iter = model.listStatements( selector );
 
-        ArrayList<Resource> relations = new ArrayList<Resource>();
+        ArrayList<Resource> relations = new ArrayList<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
@@ -421,7 +421,7 @@ public class Reader {
 
     public HashMap<Resource, Value> getEmissionsForProcess(Resource process)
     {
-        HashMap<Resource, Value> emissions = new HashMap<Resource, Value>();
+        HashMap<Resource, Value> emissions = new HashMap<>();
         StmtIterator iter = process.listProperties(Datatype.hasFlow);
         Double conversionFactor = new Double(1.0);
         if (iter.hasNext()) {
@@ -455,7 +455,7 @@ public class Reader {
 
     public HashMap<Resource, Value> getCalculatedEmissionsForProcess(Resource process)
     {
-        HashMap<Resource, Value> emissions = new HashMap<Resource, Value>();
+        HashMap<Resource, Value> emissions = new HashMap<>();
         StmtIterator iter = process.listProperties(Datatype.hasCalculatedFlow);
 
         while (iter.hasNext()) {

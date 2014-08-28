@@ -22,7 +22,7 @@ public class Writer {
     {
         sourceProcess.addProperty(Datatype.hasDetailedRelation,
             model.createResource(Datatype.getURI() + AnonId.create().toString())
-            .addProperty(RDF.type, Datatype.Relation)
+            .addProperty(RDF.type, Datatype.DetailedRelation)
             .addProperty(Datatype.hasOrigin, sourceProcess)
             .addProperty(Datatype.hasWeight, coeff)
             .addProperty(Datatype.hasDestination, destinationProcess)
