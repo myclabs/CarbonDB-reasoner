@@ -13,11 +13,11 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-public class UnitsRepoWebService {
-    protected static HashMap<String, Double> conversionFactors = new HashMap<String, Double>();
-    protected static HashMap<String, ArrayList<String>> compatibleUnits = new HashMap<String, ArrayList<String>>();
+public class UnitsRepoWebService implements UnitsRepo {
+    protected HashMap<String, Double> conversionFactors = new HashMap<String, Double>();
+    protected HashMap<String, ArrayList<String>> compatibleUnits = new HashMap<String, ArrayList<String>>();
 
-    public static Double getConversionFactor(String unitID)
+    public Double getConversionFactor(String unitID)
     {
         if (!conversionFactors.containsKey(unitID)) {
             String unitOfReference = findUnitOfReference(unitID);
@@ -37,7 +37,7 @@ public class UnitsRepoWebService {
         return conversionFactors.get(unitID);
     }
 
-    public static boolean areCompatible(String unitID1, String unitID2)
+    public boolean areCompatible(String unitID1, String unitID2)
     {
         return true;
         /*boolean compatible = false;
@@ -53,7 +53,7 @@ public class UnitsRepoWebService {
         return compatible;*/
     }
 
-    public static String getUnitsMultiplication(String unitID1, String unitID2, int exponent)
+    public String getUnitsMultiplication(String unitID1, String unitID2, int exponent)
     {
         String unit = null;
         Response response = buildBaseWebTarget()
@@ -72,7 +72,7 @@ public class UnitsRepoWebService {
         return unit;
     }
 
-    protected static String findUnitOfReference(String unitID)
+    protected String findUnitOfReference(String unitID)
     {
         String unitOfReference = null;
         Response response = buildBaseWebTarget()
@@ -87,7 +87,7 @@ public class UnitsRepoWebService {
         return unitOfReference;
     }
 
-    protected static Double findConversionFactor(String sourceUnitID, String destinationUnitID)
+    protected Double findConversionFactor(String sourceUnitID, String destinationUnitID)
     {
         Double conversionFactor = new Double(1.0);
         Response response = buildBaseWebTarget()
@@ -102,7 +102,7 @@ public class UnitsRepoWebService {
         return conversionFactor;
     }
 
-    protected static ArrayList<String> findCompatibleUnits(String unitID)
+    protected ArrayList<String> findCompatibleUnits(String unitID)
     {
         ArrayList<String> units = new ArrayList<String>();
         Response response = buildBaseWebTarget()
@@ -120,7 +120,7 @@ public class UnitsRepoWebService {
         return units;
     }
 
-    protected static WebTarget buildBaseWebTarget()
+    protected WebTarget buildBaseWebTarget()
     {
         return ClientBuilder.newClient()
                .target("http://units.myc-sense.com/api");

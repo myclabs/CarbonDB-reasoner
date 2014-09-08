@@ -23,6 +23,7 @@ public class App
 
     public static void runAll(String inputFileName, String outputFileName)
     {
+        UnitsRepo unitRepo = new UnitsRepoWebService();
         Model model = ModelFactory.createDefaultModel( );
 
         InputStream in = FileManager.get().open( inputFileName );
@@ -33,7 +34,7 @@ public class App
 
         model.read( in, null );
 
-        Reasoner reasoner = new Reasoner(model);
+        Reasoner reasoner = new Reasoner(model, unitRepo);
         reasoner.run();
 
         try {
@@ -47,6 +48,7 @@ public class App
     }
 
     public static void run(String inputFileName) {
+        UnitsRepo unitsRepo = new UnitsRepoWebService();
         Model model = ModelFactory.createDefaultModel( );
 
         InputStream in = FileManager.get().open( inputFileName );
@@ -56,12 +58,12 @@ public class App
         }
 
         model.read( in, null );
-        Reasoner reasoner = new Reasoner(model);
+        Reasoner reasoner = new Reasoner(model, unitsRepo);
         reasoner.run();
         System.out.println(reasoner.report.errors);
         System.out.println(reasoner.report.warnings);
 
-        Reader reader = new Reader(model);
+        Reader reader = new Reader(model, unitsRepo);
         Category cat = reader.getCategoriesTree();
         for (Object child: cat.getChildren()) {
             if (child instanceof Category) {

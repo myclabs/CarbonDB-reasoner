@@ -32,9 +32,11 @@ public class Reasoner {
     protected ArrayList<Resource> elementaryFlowNatures, processes;
     protected Double threshold = new Double(0.1);
     public ReasonnerReport report = new ReasonnerReport();
+    protected UnitsRepo unitsRepo;
 
-    public Reasoner (Model model) {
+    public Reasoner (Model model, UnitsRepo unitsRepo) {
         this.model = model;
+        this.unitsRepo = unitsRepo;
         jenaReasoner = PelletReasonerFactory.theInstance().create();
     }
 
@@ -49,7 +51,7 @@ public class Reasoner {
         ((PelletInfGraph) infModel.getGraph()).classify();
         ((PelletInfGraph) infModel.getGraph()).realize();
 
-        reader = new Reader(infModel);
+        reader = new Reader(infModel, unitsRepo);
         writer = new Writer(infModel);
         System.out.println("loading and translating macroRelations");
         for (Resource macroRelationResource: reader.getMacroRelationsResources()) {
@@ -308,7 +310,7 @@ public class Reasoner {
                 String unitID = reader.getUnit(processes.get(i));
                 double value = cumulativeEcologicalMatrix.get(i, j);
                 if (!unitID.equals("")) {
-                     value *= UnitsRepoWebService.getConversionFactor(unitID);
+                     value *= unitsRepo.getConversionFactor(unitID);
                 }
 
                 writer.addCumulatedEcologicalFlow(processes.get(i),

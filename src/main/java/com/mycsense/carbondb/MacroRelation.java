@@ -12,11 +12,13 @@ public class MacroRelation {
 
     protected String uri;
     protected int exponent = 1;
+    protected UnitsRepo unitsRepo;
 
-    public MacroRelation(Group source, Group coeff, Group destination) {
+    public MacroRelation(Group source, Group coeff, Group destination, UnitsRepo unitsRepo) {
         this.source = source;
         this.coeff = coeff;
         this.destination = destination;
+        this.unitsRepo = unitsRepo;
     }
 
     public String toString() {
@@ -38,7 +40,7 @@ public class MacroRelation {
             throw new IncompatibleDimSetException("The coeff group and the destination group are incompatible "
                                                   + "in the macro relation: " + uri);
         }
-        if (!UnitsRepoWebService.areCompatible(source.getUnit(), coeff.getUnit())) {
+        if (!unitsRepo.areCompatible(source.getUnit(), coeff.getUnit())) {
             throw new IncompatibleUnitsException("The source group unit and the coeff group unit are incompatible "
                     + "in the macro relation: " + uri);
         }

@@ -18,10 +18,12 @@ import com.mycsense.carbondb.group.Type;
 public class Reader {
 
     public Model model;
+    protected UnitsRepo unitsRepo;
     protected HashMap<String, Double> unitsConversionFactors = new HashMap<>();
 
-    public Reader (Model model) {
+    public Reader (Model model, UnitsRepo unitsRepo) {
         this.model = model;
+        this.unitsRepo = unitsRepo;
     }
 
     public Category getCategoriesTree() {
@@ -86,7 +88,8 @@ public class Reader {
         MacroRelation macroRelation = new MacroRelation(
             getGroup(macroRelationResource.getProperty(Datatype.hasOrigin).getResource()),
             getGroup(macroRelationResource.getProperty(Datatype.hasWeight).getResource()),
-            getGroup(macroRelationResource.getProperty(Datatype.hasDestination).getResource())
+            getGroup(macroRelationResource.getProperty(Datatype.hasDestination).getResource()),
+            unitsRepo
         );
         macroRelation.setURI(macroRelationResource.getURI());
         if (macroRelationResource.hasProperty(Datatype.exponent)
@@ -407,7 +410,7 @@ public class Reader {
         Double value = coefficient.getProperty(Datatype.value).getDouble();
         int exponent = relation.getProperty(Datatype.exponent).getInt();
         String unitID = getUnit(coefficient);
-        value *= UnitsRepoWebService.getConversionFactor(unitID);
+        value *= unitsRepo.getConversionFactor(unitID);
         if (-1 == exponent) {
             value = 1 / value;
         }
@@ -427,7 +430,7 @@ public class Reader {
         if (iter.hasNext()) {
             String unitID = getUnit(process);
             if (!unitID.equals("")) {
-                conversionFactor = UnitsRepoWebService.getConversionFactor(unitID);
+                conversionFactor = unitsRepo.getConversionFactor(unitID);
             }
         }
 
