@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class MacroRelationTest
     Keyword kw1, kw2, kw3, kw4;
     Dimension dim12, dim34;
     String unit;
+    UnitsRepo unitsRepo;
 
     @Before
     public void setUp() {
@@ -32,6 +34,10 @@ public class MacroRelationTest
         dim34 = new Dimension(kw3, kw4);
 
         unit = "";
+
+        unitsRepo = Mockito.mock(UnitsRepo.class);
+        Mockito.when(unitsRepo.getConversionFactor(Mockito.anyString())).thenReturn(1.0);
+        Mockito.when(unitsRepo.areCompatible(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
     }
 
     /**
@@ -130,14 +136,12 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet);
         Group coeffGroup = new Group(dimSet);
         Group downstreamGroup = new Group(dimSet);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
             microRelations = macroRelation.translate();
-        } catch (IncompatibleDimSetException e) {
-            e.printStackTrace();
-        } catch (IncompatibleUnitsException e) {
+        } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
@@ -153,14 +157,12 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet);
         Group coeffGroup = new Group(dimSet);
         Group downstreamGroup = new Group(dimSet);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
             microRelations = macroRelation.translate();
-        } catch (IncompatibleDimSetException e) {
-            e.printStackTrace();
-        } catch (IncompatibleUnitsException e) {
+        } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
@@ -187,14 +189,12 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet1234);
         Group coeffGroup = new Group(dimSet1234);
         Group downstreamGroup = new Group(dimSet12);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
             microRelations = macroRelation.translate();
-        } catch (IncompatibleDimSetException e) {
-            e.printStackTrace();
-        } catch (IncompatibleUnitsException e) {
+        } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
@@ -223,14 +223,12 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet12);
         Group coeffGroup = new Group(dimSet12);
         Group downstreamGroup = new Group(dimSet1234);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
             microRelations = macroRelation.translate();
-        } catch (IncompatibleDimSetException e) {
-            e.printStackTrace();
-        } catch (IncompatibleUnitsException e) {
+        } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
@@ -259,14 +257,12 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet1234);
         Group coeffGroup = new Group(dimSet1234);
         Group downstreamGroup = new Group(dimSet123);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
             microRelations = macroRelation.translate();
-        } catch (IncompatibleDimSetException e) {
-            e.printStackTrace();
-        } catch (IncompatibleUnitsException e) {
+        } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
@@ -289,14 +285,12 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet12);
         Group coeffGroup = new Group(dimSet12);
         Group downstreamGroup = new Group(dimSet34);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
             microRelations = macroRelation.translate();
-        } catch (IncompatibleDimSetException e) {
-            e.printStackTrace();
-        } catch (IncompatibleUnitsException e) {
+        } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
@@ -325,14 +319,12 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet, commonKeywords);
         Group coeffGroup = new Group(dimSet, commonKeywords);
         Group downstreamGroup = new Group(dimSet, commonKeywords);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup);
+        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
             microRelations = macroRelation.translate();
-        } catch (IncompatibleDimSetException e) {
-            e.printStackTrace();
-        } catch (IncompatibleUnitsException e) {
+        } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
