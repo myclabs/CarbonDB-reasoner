@@ -19,4 +19,8 @@ public class Value {
                           / Math.abs(value);
         return this;
     }
+
+    public String toString() {
+        return "{value: " + value + ", uncertainty:" + uncertainty + "}";
+    }
 }

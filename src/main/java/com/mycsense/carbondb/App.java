@@ -98,11 +98,11 @@ public class App
         check if SWRL rules are executed with Pellet: OK
         cut the onto in two parts (vocabulary and data): TODO
         calculate uncertainties: TODO
-        use a class to store the ontology classes and property: TODO
-        units?
+        use a class to store the ontology classes and property: OK
+        units: OK
         flow type?
         generator group?
-        use OWL API instead of Jena: ???
+        use OWL API instead of Jena: Nope
         add property isReferenced for the link between elements and groups: NO (useless?)
 
         improve architecture:

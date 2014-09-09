@@ -1,8 +1,6 @@
 package com.mycsense.carbondb; 
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.HashMap;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -14,42 +12,51 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 public class UnitsRepoWebService implements UnitsRepo {
-    protected HashMap<String, Double> conversionFactors = new HashMap<String, Double>();
-    protected HashMap<String, ArrayList<String>> compatibleUnits = new HashMap<String, ArrayList<String>>();
+    protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
+    protected HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache = new HashMap<>();
 
     public Double getConversionFactor(String unitID)
     {
-        if (!conversionFactors.containsKey(unitID)) {
+        if (!conversionFactorsCache.containsKey(unitID)) {
+            System.out.println("fetching conversion factor for " + unitID);
             String unitOfReference = findUnitOfReference(unitID);
             if (null == unitOfReference) {
                 // unit not found (or error)
                 //report.addError("unit not found: " + unitID + " (response status from units API: " + response.getStatus() + ")");
                 System.out.println("unit not found: " + unitID);
-                conversionFactors.put(unitID, new Double(1.0));
+                conversionFactorsCache.put(unitID, new Double(1.0));
             }
             else if (unitID.equals(unitOfReference)) {
-                conversionFactors.put(unitID, new Double(1.0));
+                System.out.println("conversion factor for unitID="+unitID+" = "+1.0);
+                conversionFactorsCache.put(unitID, new Double(1.0));
             }
             else  {
-                conversionFactors.put(unitID, findConversionFactor(unitID, unitOfReference));
+                System.out.println("conversion factor for unitID="+unitID+" = "+findConversionFactor(unitID, unitOfReference));
+                conversionFactorsCache.put(unitID, findConversionFactor(unitID, unitOfReference));
             }
         }
-        return conversionFactors.get(unitID);
+        return conversionFactorsCache.get(unitID);
     }
 
     public boolean areCompatible(String unitID1, String unitID2)
     {
-        boolean compatible = false;
-        Response response = buildBaseWebTarget()
-                .path("compatible")
-                .queryParam("unit[0]", unitID1)
-                .queryParam("unit[1]", unitID2)
-                .request(MediaType.TEXT_PLAIN_TYPE)
-                .get();
-        if (response.getStatus() == 200) {
-            compatible = Boolean.parseBoolean(response.readEntity(String.class));
+        if (!compatibleUnitsCache.containsKey(unitID1)) {
+            compatibleUnitsCache.put(unitID1, new HashMap<String, Boolean>());
         }
-        return compatible;
+        if (!compatibleUnitsCache.get(unitID1).containsKey(unitID2)) {
+            System.out.println("fetching compatibility between " + unitID1 + " & " + unitID2);
+            Response response = buildBaseWebTarget()
+                    .path("compatible")
+                    .queryParam("units[0]", unitID1)
+                    .queryParam("units[1]", unitID2)
+                    .request(MediaType.TEXT_PLAIN_TYPE)
+                    .get();
+            String result = response.readEntity(String.class);
+            if (response.getStatus() == 200) {
+                compatibleUnitsCache.get(unitID1).put(unitID2, Boolean.parseBoolean(result));
+            }
+        }
+        return compatibleUnitsCache.get(unitID1).get(unitID2);
     }
 
     public String getUnitsMultiplication(String unitID1, String unitID2, int exponent)
@@ -69,6 +76,22 @@ public class UnitsRepoWebService implements UnitsRepo {
             unit = obj.getString("unitId");
         }
         return unit;
+    }
+
+    public HashMap<String, Double> getConversionFactorsCache() {
+        return conversionFactorsCache;
+    }
+
+    public void setConversionFactorsCache(HashMap<String, Double> conversionFactorsCache) {
+        this.conversionFactorsCache = conversionFactorsCache;
+    }
+
+    public HashMap<String, HashMap<String, Boolean>> getCompatibleUnitsCache() {
+        return compatibleUnitsCache;
+    }
+
+    public void setCompatibleUnitsCache(HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache) {
+        this.compatibleUnitsCache = compatibleUnitsCache;
     }
 
     protected String findUnitOfReference(String unitID)

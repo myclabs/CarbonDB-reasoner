@@ -40,9 +40,9 @@ public class MacroRelation {
             throw new IncompatibleDimSetException("The coeff group and the destination group are incompatible "
                                                   + "in the macro relation: " + uri);
         }
-        if (!unitsRepo.areCompatible(source.getUnit(), coeff.getUnit())) {
-            throw new IncompatibleUnitsException("The source group unit and the coeff group unit are incompatible "
-                    + "in the macro relation: " + uri);
+        if (!unitsRepo.areCompatible(source.getUnit(), unitsRepo.getUnitsMultiplication(destination.getUnit(), coeff.getUnit(), 1))) {
+            throw new IncompatibleUnitsException("The units are incompatible "
+                                                 + "in the macro relation: " + uri);
         }
         ArrayList<MicroRelation> microRelations = new ArrayList<MicroRelation>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
