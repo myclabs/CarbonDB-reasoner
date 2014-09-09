@@ -39,8 +39,7 @@ public class UnitsRepoWebService implements UnitsRepo {
 
     public boolean areCompatible(String unitID1, String unitID2)
     {
-        return true;
-        /*boolean compatible = false;
+        boolean compatible = false;
         Response response = buildBaseWebTarget()
                 .path("compatible")
                 .queryParam("unit[0]", unitID1)
@@ -50,7 +49,7 @@ public class UnitsRepoWebService implements UnitsRepo {
         if (response.getStatus() == 200) {
             compatible = Boolean.parseBoolean(response.readEntity(String.class));
         }
-        return compatible;*/
+        return compatible;
     }
 
     public String getUnitsMultiplication(String unitID1, String unitID2, int exponent)
