@@ -363,7 +363,7 @@ public class Reader {
     }
 
     public ArrayList<Resource> getElementaryFlowNatures() {
-        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ElementaryFlowNature);
+        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ElementaryFlowType);
         StmtIterator iter = model.listStatements( selector );
 
         ArrayList<Resource> elementaryFlowNatures = new ArrayList<>();
@@ -435,9 +435,9 @@ public class Reader {
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
-            if (emission.hasProperty(Datatype.hasNature) && null != emission.getProperty(Datatype.hasNature)
+            if (emission.hasProperty(Datatype.hasElementaryFlowType) && null != emission.getProperty(Datatype.hasElementaryFlowType)
                 && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
-                Resource nature = emission.getProperty(Datatype.hasNature).getResource();
+                Resource nature = emission.getProperty(Datatype.hasElementaryFlowType).getResource();
                 Double value = emission.getProperty(Datatype.value).getDouble() / conversionFactor;
                 Double uncertainty = getUncertainty(emission);
 
@@ -462,7 +462,7 @@ public class Reader {
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
-            Resource nature = emission.getProperty(Datatype.hasNature).getResource();
+            Resource nature = emission.getProperty(Datatype.hasElementaryFlowType).getResource();
             Double value = emission.getProperty(Datatype.value).getDouble();
             Double uncertainty = getUncertainty(emission);
             emissions.put(nature, new Value(value, uncertainty));

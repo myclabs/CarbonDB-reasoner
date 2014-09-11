@@ -26,7 +26,7 @@ public class Writer {
     {
         process.addProperty(Datatype.hasCalculatedFlow,
             model.createResource(Datatype.getURI() + AnonId.create().toString())
-            .addProperty(Datatype.hasNature, elementaryFlowNature)
+            .addProperty(Datatype.hasElementaryFlowType, elementaryFlowNature)
             .addProperty(Datatype.value, model.createTypedLiteral(value))
             .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
             .addProperty(RDF.type, Datatype.CalculateElementaryFlow));

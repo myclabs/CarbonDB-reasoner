@@ -46,7 +46,7 @@ public class Reasoner {
         convert macro relations -> macrorelations convert
         calculate ecological flows -> calculate ecological flows
         */
-        System.out.println("beginning reasonning");
+        System.out.println("begin reasonning");
         infModel = ModelFactory.createInfModel( jenaReasoner, model );
         ((PelletInfGraph) infModel.getGraph()).classify();
         ((PelletInfGraph) infModel.getGraph()).realize();

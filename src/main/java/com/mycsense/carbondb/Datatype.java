@@ -29,21 +29,18 @@ public class Datatype {
     }
 
     public static final Resource Category = resource("Category");
-    public static final Resource Relation = resource("Relation");
     public static final Resource MacroRelation = resource("MacroRelation");
     public static final Resource DetailedRelation = resource("DetailedRelation");
     public static final Resource SingleProcess = resource("SingleProcess");
     public static final Resource SingleCoefficient = resource("SingleCoefficient");
     public static final Resource CalculateElementaryFlow = resource("CalculatedElementaryFlow");
-    public static final Resource ElementaryFlowNature = resource("ElementaryFlowNature");
+    public static final Resource ElementaryFlowType = resource("ElementaryFlowType");
     public static final Resource Group = resource("Group");
     public static final Resource ProcessGroup = resource("ProcessGroup");
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
 
     public static final Property hasCategory = property("hasCategory");
-    public static final Property hasGroup = property("hasGroup");
     public static final Property hasParent = property("hasParent");
-    public static final Property isParentOf = property("isParentOf");
     public static final Property hasWeight = property("hasWeight");
     public static final Property exponent = property("exponent");
     public static final Property hasOrigin = property("hasOrigin");
@@ -57,7 +54,7 @@ public class Datatype {
     public static final Property hasDetailedRelation = property("hasDetailedRelation");
     public static final Property hasFlow = property("hasFlow");
     public static final Property hasCalculatedFlow = property("hasCalculatedFlow");
-    public static final Property hasNature = property("hasNature");
+    public static final Property hasElementaryFlowType = property("hasElementaryFlowType");
     public static final Property value = property("value");
     public static final Property uncertainty = property("uncertainty");
     public static final Property involves = property("involves");
