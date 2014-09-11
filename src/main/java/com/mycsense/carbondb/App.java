@@ -82,7 +82,7 @@ public class App
                 printCategory((Category) child, prefix + "  ");
             }
             else if (child instanceof Group) {
-                System.out.println(prefix + ((Group)child).getLabel() );
+                System.out.println(prefix + "  " + ((Group)child).getLabel() );
             }
         }
     }
