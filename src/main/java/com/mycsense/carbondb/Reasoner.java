@@ -59,10 +59,7 @@ public class Reasoner {
                 MacroRelation macroRelation = reader.getMacroRelation(macroRelationResource);
                 createMicroRelations(macroRelation.translate());
             }
-            catch (IncompatibleDimSetException e) {
-                report.addError(e.getMessage());
-            }
-            catch (IncompatibleUnitsException e) {
+            catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
                 report.addError(e.getMessage());
             }
         }

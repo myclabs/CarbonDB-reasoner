@@ -19,7 +19,6 @@ public class Reader {
 
     public Model model;
     protected UnitsRepo unitsRepo;
-    protected HashMap<String, Double> unitsConversionFactors = new HashMap<>();
 
     public Reader (Model model, UnitsRepo unitsRepo) {
         this.model = model;
@@ -165,7 +164,7 @@ public class Reader {
             if (!model.contains(candidate, RDF.type, (RDFNode) singleType)) {
                 i.remove();
             }
-            else if (getUnitURI(candidate) != unit) {
+            else if (!getUnitURI(candidate).equals(unit)) {
                 i.remove();
             }
             else {
@@ -393,7 +392,7 @@ public class Reader {
 
     public ArrayList<Resource> getRelationsForProcess(Resource process) {
         Selector selector = new SimpleSelector(null, Datatype.hasOrigin, process);
-        StmtIterator iter = model.listStatements( selector );
+        StmtIterator iter = model.listStatements(selector);
 
         ArrayList<Resource> relations = new ArrayList<>();
         if (iter.hasNext()) {
@@ -426,7 +425,7 @@ public class Reader {
     {
         HashMap<Resource, Value> emissions = new HashMap<>();
         StmtIterator iter = process.listProperties(Datatype.hasFlow);
-        Double conversionFactor = new Double(1.0);
+        Double conversionFactor = 1.0;
         if (iter.hasNext()) {
             String unitID = getUnit(process);
             if (!unitID.equals("")) {
@@ -453,7 +452,7 @@ public class Reader {
         if (resource.hasProperty(Datatype.uncertainty) && null != resource.getProperty(Datatype.uncertainty)) {
             return resource.getProperty(Datatype.uncertainty).getDouble();
         }
-        return new Double(0);
+        return 0.0;
     }
 
     public HashMap<Resource, Value> getCalculatedEmissionsForProcess(Resource process)

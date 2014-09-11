@@ -20,11 +20,11 @@ public class Datatype {
         return uri;
     }
 
-    protected static final Resource resource( String local ) {
+    protected static Resource resource( String local ) {
         return ResourceFactory.createResource( uri + local );
     }
 
-    protected static final Property property( String local ) {
+    protected static Property property( String local ) {
         return ResourceFactory.createProperty( uri, local );
     }
 

@@ -1,8 +1,6 @@
 package com.mycsense.carbondb;
 
 import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.vocabulary.*;
-import com.hp.hpl.jena.ontology.*;
 import java.io.*;
 import java.io.FileOutputStream;
 import com.hp.hpl.jena.util.FileManager;

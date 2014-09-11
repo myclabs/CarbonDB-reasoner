@@ -1,14 +1,7 @@
 package com.mycsense.carbondb; 
 
-import java.io.InputStream;
-import java.util.ArrayList;
-
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.util.FileManager;
-
-import java.util.Iterator;
-import java.util.List;
 
 public class Writer {
 

@@ -23,10 +23,10 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
             if (null == unitOfReference) {
                 // unit not found (or error)
                 //report.addError("unit not found: " + unitID + " (response status from units API: " + response.getStatus() + ")");
-                conversionFactorsCache.put(unitID, new Double(1.0));
+                conversionFactorsCache.put(unitID, 1.0);
             }
             else if (unitID.equals(unitOfReference)) {
-                conversionFactorsCache.put(unitID, new Double(1.0));
+                conversionFactorsCache.put(unitID, 1.0);
             }
             else  {
                 conversionFactorsCache.put(unitID, findConversionFactor(unitID, unitOfReference));
@@ -108,7 +108,7 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
 
     protected Double findConversionFactor(String sourceUnitID, String destinationUnitID)
     {
-        Double conversionFactor = new Double(1.0);
+        Double conversionFactor = 1.0;
         Response response = buildBaseWebTarget()
                 .path("conversion-factor")
                 .queryParam("unit2", sourceUnitID)
@@ -123,7 +123,7 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
 
     protected ArrayList<String> findCompatibleUnits(String unitID)
     {
-        ArrayList<String> units = new ArrayList<String>();
+        ArrayList<String> units = new ArrayList<>();
         Response response = buildBaseWebTarget()
                 .path("compatible-units")
                 .path(unitID)

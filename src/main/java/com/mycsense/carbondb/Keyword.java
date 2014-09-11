@@ -26,7 +26,7 @@ public class Keyword
     }
 
     public String toString() {
-        return name.toString();
+        return name;
     }
 
     @Override

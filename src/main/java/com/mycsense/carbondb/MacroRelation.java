@@ -44,7 +44,7 @@ public class MacroRelation {
             throw new IncompatibleUnitsException("The units are incompatible "
                                                  + "in the macro relation: " + uri);
         }
-        ArrayList<MicroRelation> microRelations = new ArrayList<MicroRelation>();
+        ArrayList<MicroRelation> microRelations = new ArrayList<>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
         if (!unionResult.dimSet.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The union of the source with the coeff groups and the destination "

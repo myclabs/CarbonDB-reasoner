@@ -1,5 +1,6 @@
 package com.mycsense.carbondb;
 
+import java.util.Collections;
 import java.util.HashSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -12,14 +13,12 @@ public class Dimension
     public Orientation orientation = Orientation.NONE;
 
     public Dimension() {
-        keywords = new HashSet<Keyword>();
+        keywords = new HashSet<>();
     }
 
     public Dimension(Keyword... pKeywords) {
-        keywords = new HashSet<Keyword>();
-        for (Keyword kw: pKeywords) {
-            keywords.add(kw);
-        }
+        keywords = new HashSet<>();
+        Collections.addAll(keywords, pKeywords);
     }
 
     public Dimension(Dimension dimension) {

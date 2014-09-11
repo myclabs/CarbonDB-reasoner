@@ -15,18 +15,18 @@ public class DimensionSet
     public HashSet<Dimension> dimensions;
 
     public DimensionSet() {
-        dimensions = new HashSet<Dimension>();
+        dimensions = new HashSet<>();
     }
 
     public DimensionSet(Dimension... dimensions) {
-        this.dimensions = new HashSet<Dimension>();
+        this.dimensions = new HashSet<>();
         for (Dimension dim: dimensions) {
             this.dimensions.add(dim);
         }
     }
 
     public DimensionSet(DimensionSet dimSet) {
-        dimensions = new HashSet<Dimension>();
+        dimensions = new HashSet<>();
         for (Dimension dim: dimSet.dimensions) {
             dimensions.add(dim);
         }
@@ -152,7 +152,6 @@ public class DimensionSet
         r.dimSet = new DimensionSet();
         r.alpha = 0;
         r.commonKeywords = new Dimension();
-        Integer dimIndex = -1;
 
         HashMap<Keyword, Dimension> hashTableRhs = new HashMap<Keyword, Dimension>();
         DimensionSet unusedDimsInRhs = new DimensionSet();

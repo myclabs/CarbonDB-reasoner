@@ -6,7 +6,7 @@ public class Category
 {
     protected String uri;
     protected String label;
-    protected ArrayList<Object> children = new ArrayList<Object>();
+    protected ArrayList<Object> children = new ArrayList<>();
 
     public Category() {
         uri = new String();
