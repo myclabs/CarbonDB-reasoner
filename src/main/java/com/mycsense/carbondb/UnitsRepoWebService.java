@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
-public class UnitsRepoWebService implements UnitsRepo {
+public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
     protected HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache = new HashMap<>();
 
@@ -23,15 +23,12 @@ public class UnitsRepoWebService implements UnitsRepo {
             if (null == unitOfReference) {
                 // unit not found (or error)
                 //report.addError("unit not found: " + unitID + " (response status from units API: " + response.getStatus() + ")");
-                System.out.println("unit not found: " + unitID);
                 conversionFactorsCache.put(unitID, new Double(1.0));
             }
             else if (unitID.equals(unitOfReference)) {
-                System.out.println("conversion factor for unitID="+unitID+" = "+1.0);
                 conversionFactorsCache.put(unitID, new Double(1.0));
             }
             else  {
-                System.out.println("conversion factor for unitID="+unitID+" = "+findConversionFactor(unitID, unitOfReference));
                 conversionFactorsCache.put(unitID, findConversionFactor(unitID, unitOfReference));
             }
         }
