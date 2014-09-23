@@ -16,9 +16,9 @@ public class Writer {
         sourceProcess.addProperty(Datatype.hasDetailedRelation,
             model.createResource(Datatype.getURI() + AnonId.create().toString())
             .addProperty(RDF.type, Datatype.DetailedRelation)
-            .addProperty(Datatype.hasOrigin, sourceProcess)
-            .addProperty(Datatype.hasWeight, coeff)
-            .addProperty(Datatype.hasDestination, destinationProcess)
+            .addProperty(Datatype.hasOriginProcess, sourceProcess)
+            .addProperty(Datatype.hasWeightCoefficient, coeff)
+            .addProperty(Datatype.hasDestinationProcess, destinationProcess)
             .addProperty(Datatype.exponent, model.createTypedLiteral(exponent)));
     }
 

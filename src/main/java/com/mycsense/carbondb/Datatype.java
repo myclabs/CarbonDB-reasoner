@@ -41,10 +41,10 @@ public class Datatype {
 
     public static final Property hasCategory = property("hasCategory");
     public static final Property hasParent = property("hasParent");
-    public static final Property hasWeight = property("hasWeight");
+    public static final Property hasWeightCoefficient = property("hasWeightCoefficient");
     public static final Property exponent = property("exponent");
-    public static final Property hasOrigin = property("hasOrigin");
-    public static final Property hasDestination = property("hasDestination");
+    public static final Property hasOriginProcess = property("hasOriginProcess");
+    public static final Property hasDestinationProcess = property("hasDestinationProcess");
     public static final Property hasKeyword = property("hasKeyword");
     public static final Property hasTag = property("hasTag");
     public static final Property hasDimension = property("hasDimension");
@@ -57,7 +57,7 @@ public class Datatype {
     public static final Property hasElementaryFlowType = property("hasElementaryFlowType");
     public static final Property value = property("value");
     public static final Property uncertainty = property("uncertainty");
-    public static final Property involves = property("involves");
+    public static final Property involvesElement = property("involvesElement");
     public static final Property hasUnit = property("hasUnit");
     public static final Property foreignUnitID = property("foreignUnitID");
 

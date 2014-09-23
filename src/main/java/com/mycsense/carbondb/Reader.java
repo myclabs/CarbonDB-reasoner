@@ -74,7 +74,7 @@ public class Reader {
     public ArrayList<MacroRelation> getMacroRelationsForProcessGroup(Resource group) {
         ArrayList<MacroRelation> macroRelations = new ArrayList<>();
 
-        ResIterator i = model.listSubjectsWithProperty(Datatype.involves, group);
+        ResIterator i = model.listSubjectsWithProperty(Datatype.involvesElement, group);
         while (i.hasNext()) {
             Resource macroRelationResource = i.next();
             macroRelations.add(getMacroRelation(macroRelationResource));
@@ -85,9 +85,9 @@ public class Reader {
 
     public MacroRelation getMacroRelation(Resource macroRelationResource) {
         MacroRelation macroRelation = new MacroRelation(
-            getGroup(macroRelationResource.getProperty(Datatype.hasOrigin).getResource()),
-            getGroup(macroRelationResource.getProperty(Datatype.hasWeight).getResource()),
-            getGroup(macroRelationResource.getProperty(Datatype.hasDestination).getResource()),
+            getGroup(macroRelationResource.getProperty(Datatype.hasOriginProcess).getResource()),
+            getGroup(macroRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource()),
+            getGroup(macroRelationResource.getProperty(Datatype.hasDestinationProcess).getResource()),
             unitsRepo
         );
         macroRelation.setURI(macroRelationResource.getURI());
@@ -391,7 +391,7 @@ public class Reader {
     }
 
     public ArrayList<Resource> getRelationsForProcess(Resource process) {
-        Selector selector = new SimpleSelector(null, Datatype.hasOrigin, process);
+        Selector selector = new SimpleSelector(null, Datatype.hasOriginProcess, process);
         StmtIterator iter = model.listStatements(selector);
 
         ArrayList<Resource> relations = new ArrayList<>();
@@ -405,7 +405,7 @@ public class Reader {
     }
 
     public Double getCoefficientValueForRelation(Resource relation) {
-        Resource coefficient = relation.getProperty(Datatype.hasWeight).getResource();
+        Resource coefficient = relation.getProperty(Datatype.hasWeightCoefficient).getResource();
         Double value = coefficient.getProperty(Datatype.value).getDouble();
         int exponent = relation.getProperty(Datatype.exponent).getInt();
         String unitID = getUnit(coefficient);
@@ -417,7 +417,7 @@ public class Reader {
     }
 
     public Double getCoefficientUncertaintyForRelation(Resource relation) {
-        Resource coefficient = relation.getProperty(Datatype.hasWeight).getResource();
+        Resource coefficient = relation.getProperty(Datatype.hasWeightCoefficient).getResource();
         return getUncertainty(coefficient);
     }
 

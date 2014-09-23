@@ -98,7 +98,7 @@ public class Reasoner {
             dependencyMatrix.set(i, i, 1.0);
             ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
-                RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
+                RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestinationProcess).getResource();
                 double value = dependencyMatrix.get(processes.indexOf(downStreamProcess), i);
                 dependencyMatrix.set(processes.indexOf(downStreamProcess), i, value-reader.getCoefficientValueForRelation(relation));
             }
@@ -271,7 +271,7 @@ public class Reasoner {
         for (int i = 0; i < processes.size(); i++) {
             ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
-                RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestination).getResource();
+                RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestinationProcess).getResource();
                 double value = dependencyMatrix.get(processes.indexOf(downStreamProcess), i);
                 double uncertainty = uncertaintyMatrix.get(processes.indexOf(downStreamProcess), i);
                 dependencyMatrix.set(processes.indexOf(downStreamProcess), i, value+reader.getCoefficientValueForRelation(relation));
