@@ -1,4 +1,4 @@
-package com.mycsense.carbondb.group;
+package com.mycsense.carbondb.domain.group;
 
 public enum Type {
     PROCESS, COEFFICIENT

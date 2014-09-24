@@ -2,6 +2,8 @@ package com.mycsense.carbondb;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.mycsense.carbondb.domain.Dimension;
+import com.mycsense.carbondb.domain.Keyword;
 
 public class Writer {
 

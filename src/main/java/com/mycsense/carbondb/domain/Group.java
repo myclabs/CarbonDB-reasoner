@@ -1,6 +1,6 @@
-package com.mycsense.carbondb;
+package com.mycsense.carbondb.domain;
 
-import com.mycsense.carbondb.group.Type;
+import com.mycsense.carbondb.domain.group.Type;
 
 public class Group
 {

@@ -1,4 +1,4 @@
-package com.mycsense.carbondb;
+package com.mycsense.carbondb.architecture;
 
 public interface UnitsRepo {
     public Double getConversionFactor(String unitID);

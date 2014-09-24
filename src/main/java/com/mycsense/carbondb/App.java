@@ -4,6 +4,11 @@ import com.hp.hpl.jena.rdf.model.*;
 import java.io.*;
 import java.io.FileOutputStream;
 import com.hp.hpl.jena.util.FileManager;
+import com.mycsense.carbondb.architecture.RepoFactory;
+import com.mycsense.carbondb.architecture.UnitsRepo;
+import com.mycsense.carbondb.architecture.UnitsRepoWebService;
+import com.mycsense.carbondb.domain.Category;
+import com.mycsense.carbondb.domain.Group;
 
 public class App
 {
@@ -61,8 +66,7 @@ public class App
         System.out.println(reasoner.report.errors);
         System.out.println(reasoner.report.warnings);
 
-        Reader reader = new Reader(model, unitsRepo);
-        Category cat = reader.getCategoriesTree();
+        Category cat = RepoFactory.getCategoryRepo().getCategoriesTree();
         for (Object child: cat.getChildren()) {
             if (child instanceof Category) {
                 printCategory((Category) child, "");

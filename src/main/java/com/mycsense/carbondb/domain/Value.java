@@ -1,4 +1,4 @@
-package com.mycsense.carbondb;
+package com.mycsense.carbondb.domain;
 
 public class Value {
     public Double value;

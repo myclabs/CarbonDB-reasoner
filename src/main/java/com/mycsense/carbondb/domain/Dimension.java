@@ -1,11 +1,11 @@
-package com.mycsense.carbondb;
+package com.mycsense.carbondb.domain;
 
 import java.util.Collections;
 import java.util.HashSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import com.mycsense.carbondb.dimension.Orientation;
+import com.mycsense.carbondb.domain.dimension.Orientation;
 
 public class Dimension
 {

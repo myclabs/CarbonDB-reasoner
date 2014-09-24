@@ -1,4 +1,4 @@
-package com.mycsense.carbondb; 
+package com.mycsense.carbondb.domain;
 
 import java.util.HashMap;
 import java.util.HashSet;

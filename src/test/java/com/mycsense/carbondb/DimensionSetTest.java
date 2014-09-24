@@ -4,10 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import com.mycsense.carbondb.domain.Dimension;
+import com.mycsense.carbondb.domain.DimensionSet;
+import com.mycsense.carbondb.domain.Keyword;
 import org.junit.Test;
 import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 /**
  * Unit test for DimensionSet.

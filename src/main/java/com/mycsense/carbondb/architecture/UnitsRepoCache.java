@@ -1,4 +1,4 @@
-package com.mycsense.carbondb;
+package com.mycsense.carbondb.architecture;
 
 import java.util.HashMap;
 

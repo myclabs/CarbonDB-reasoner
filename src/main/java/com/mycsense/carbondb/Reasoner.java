@@ -9,6 +9,13 @@ import com.hp.hpl.jena.rdf.model.InfModel;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
+import com.mycsense.carbondb.architecture.RelationRepo;
+import com.mycsense.carbondb.architecture.RepoFactory;
+import com.mycsense.carbondb.architecture.SingleElementsRepo;
+import com.mycsense.carbondb.architecture.UnitsRepo;
+import com.mycsense.carbondb.domain.MacroRelation;
+import com.mycsense.carbondb.domain.MicroRelation;
+import com.mycsense.carbondb.domain.Value;
 import org.la4j.matrix.sparse.CCSMatrix;
 import org.la4j.matrix.Matrix;
 import org.la4j.vector.Vector;
@@ -22,7 +29,9 @@ public class Reasoner {
 
     protected Model model;
     protected InfModel infModel;
-    protected Reader reader;
+    protected RelationRepo relationRepo;
+    protected SingleElementsRepo singleElementsRepo;
+
     protected Writer writer;
     protected com.hp.hpl.jena.reasoner.Reasoner jenaReasoner;
     protected Matrix dependencyMatrix, transitiveDependencyMatrix;
@@ -51,12 +60,15 @@ public class Reasoner {
         ((PelletInfGraph) infModel.getGraph()).classify();
         ((PelletInfGraph) infModel.getGraph()).realize();
 
-        reader = new Reader(infModel, unitsRepo);
+        RepoFactory.setModel(infModel);
+        RepoFactory.setUnitsRepo(unitsRepo);
+        relationRepo = RepoFactory.getRelationRepo();
+        singleElementsRepo = RepoFactory.getSingleElementsRepo();
         writer = new Writer(infModel);
         System.out.println("loading and translating macroRelations");
-        for (Resource macroRelationResource: reader.getMacroRelationsResources()) {
+        for (Resource macroRelationResource: relationRepo.getMacroRelationsResources()) {
             try {
-                MacroRelation macroRelation = reader.getMacroRelation(macroRelationResource);
+                MacroRelation macroRelation = relationRepo.getMacroRelation(macroRelationResource);
                 createMicroRelations(macroRelation.translate());
             }
             catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
@@ -65,9 +77,9 @@ public class Reasoner {
         }
 
         System.out.println("getting single processes");
-        processes = reader.getSingleProcesses();
+        processes = singleElementsRepo.getSingleProcesses();
         System.out.println("getting elementary flows");
-        elementaryFlowNatures = reader.getElementaryFlowNatures();
+        elementaryFlowNatures = singleElementsRepo.getElementaryFlowNatures();
 
         System.out.println("creating ecological matrix");
         createEcologicalMatrix();
@@ -96,11 +108,15 @@ public class Reasoner {
         dependencyMatrix = new CCSMatrix(processes.size(), processes.size());
         for (int i = 0; i < processes.size(); i++) {
             dependencyMatrix.set(i, i, 1.0);
-            ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
+            ArrayList<Resource> relations = relationRepo.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
                 RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestinationProcess).getResource();
                 double value = dependencyMatrix.get(processes.indexOf(downStreamProcess), i);
-                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, value-reader.getCoefficientValueForRelation(relation));
+                dependencyMatrix.set(
+                    processes.indexOf(downStreamProcess),
+                    i,
+                    value-relationRepo.getCoefficientValueForRelation(relation)
+                );
             }
         }
     }
@@ -269,14 +285,22 @@ public class Reasoner {
         dependencyMatrix = new CCSMatrix(processes.size(), processes.size());
         uncertaintyMatrix = new CCSMatrix(processes.size(), processes.size());
         for (int i = 0; i < processes.size(); i++) {
-            ArrayList<Resource> relations = reader.getRelationsForProcess(processes.get(i));
+            ArrayList<Resource> relations = relationRepo.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
                 RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestinationProcess).getResource();
                 double value = dependencyMatrix.get(processes.indexOf(downStreamProcess), i);
                 double uncertainty = uncertaintyMatrix.get(processes.indexOf(downStreamProcess), i);
-                dependencyMatrix.set(processes.indexOf(downStreamProcess), i, value+reader.getCoefficientValueForRelation(relation));
+                dependencyMatrix.set(
+                    processes.indexOf(downStreamProcess),
+                    i,
+                    value+relationRepo.getCoefficientValueForRelation(relation)
+                );
                 // @todo: check if the uncertainties should be added
-                uncertaintyMatrix.set(processes.indexOf(downStreamProcess), i, uncertainty+reader.getCoefficientUncertaintyForRelation(relation));
+                uncertaintyMatrix.set(
+                    processes.indexOf(downStreamProcess),
+                    i,
+                    uncertainty+relationRepo.getCoefficientUncertaintyForRelation(relation)
+                );
             }
         }
     }
@@ -286,7 +310,7 @@ public class Reasoner {
         ecologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
 
         for (int i = 0; i < processes.size(); i++) {
-            HashMap<Resource, Value> emissions = reader.getEmissionsForProcess(processes.get(i));
+            HashMap<Resource, Value> emissions = singleElementsRepo.getEmissionsForProcess(processes.get(i));
             for (int j = 0; j < elementaryFlowNatures.size(); j++) {
                 if (emissions.containsKey(elementaryFlowNatures.get(j))) {
                     ecologicalMatrix.set(i, j, emissions.get(elementaryFlowNatures.get(j)).value);
@@ -304,7 +328,7 @@ public class Reasoner {
     {
         for (int i = 0; i < processes.size(); i++) {
             for (int j = 0; j < elementaryFlowNatures.size(); j++) {
-                String unitID = reader.getUnit(processes.get(i));
+                String unitID = singleElementsRepo.getUnit(processes.get(i));
                 double value = cumulativeEcologicalMatrix.get(i, j);
                 if (!unitID.equals("")) {
                      value *= unitsRepo.getConversionFactor(unitID);
@@ -326,7 +350,7 @@ public class Reasoner {
         Resource coeff = null, sourceProcess = null, destinationProcess = null;
         for (MicroRelation microRelation: microRelations) {
             try  {
-                coeff = reader.getElementForDimension(microRelation.coeff, microRelation.coeffUnit, Datatype.SingleCoefficient);
+                coeff = singleElementsRepo.getCoefficientForDimension(microRelation.coeff, microRelation.coeffUnit);
             }
             catch (NoElementFoundException e) {
                 // having a null coefficient is a common use case
@@ -336,7 +360,7 @@ public class Reasoner {
             }
             if (coeff != null) {
                 try  {
-                    sourceProcess = reader.getElementForDimension(microRelation.source, microRelation.sourceUnit, Datatype.SingleProcess);
+                    sourceProcess = singleElementsRepo.getProcessForDimension(microRelation.source, microRelation.sourceUnit);
                 }
                 catch (NoElementFoundException e) {
                     sourceProcess = writer.createProcess(microRelation.source, microRelation.sourceUnit);
@@ -345,7 +369,7 @@ public class Reasoner {
                     report.addWarning(e.getMessage());
                 }
                 try  {
-                    destinationProcess = reader.getElementForDimension(microRelation.destination, microRelation.destinationUnit, Datatype.SingleProcess);
+                    destinationProcess = singleElementsRepo.getProcessForDimension(microRelation.destination, microRelation.destinationUnit);
                 }
                 catch (NoElementFoundException e) {
                     destinationProcess = writer.createProcess(microRelation.destination, microRelation.destinationUnit);

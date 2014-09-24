@@ -1,16 +1,16 @@
-package com.mycsense.carbondb; 
+package com.mycsense.carbondb.domain;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-class MicroRelation {
-    Dimension source;
-    String sourceUnit;
-    Dimension coeff;
-    String coeffUnit;
-    Dimension destination;
-    String destinationUnit;
-    int exponent;
+public class MicroRelation {
+    public Dimension source;
+    public String sourceUnit;
+    public Dimension coeff;
+    public String coeffUnit;
+    public Dimension destination;
+    public String destinationUnit;
+    public int exponent;
 
     public MicroRelation(Dimension source,
                          String sourceUnit,

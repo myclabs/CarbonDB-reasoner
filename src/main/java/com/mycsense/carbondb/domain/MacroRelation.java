@@ -1,4 +1,8 @@
-package com.mycsense.carbondb; 
+package com.mycsense.carbondb.domain;
+
+import com.mycsense.carbondb.IncompatibleDimSetException;
+import com.mycsense.carbondb.IncompatibleUnitsException;
+import com.mycsense.carbondb.architecture.UnitsRepo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
