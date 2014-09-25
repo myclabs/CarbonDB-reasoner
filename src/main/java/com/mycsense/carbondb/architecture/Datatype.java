@@ -38,6 +38,7 @@ public class Datatype {
     public static final Resource Group = resource("Group");
     public static final Resource ProcessGroup = resource("ProcessGroup");
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
+    public static final Resource Impact = resource("Impact");
 
     public static final Property hasCategory = property("hasCategory");
     public static final Property hasParent = property("hasParent");

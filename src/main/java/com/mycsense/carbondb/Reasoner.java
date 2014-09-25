@@ -34,7 +34,7 @@ public class Reasoner {
     protected Matrix uncertaintyMatrix, transitiveUncertaintyMatrix;
     protected Matrix ecologicalMatrix, cumulativeEcologicalMatrix;
     protected Matrix ecologicalUncertaintyMatrix, cumulativeEcologicalUncertaintyMatrix;
-    protected ArrayList<Resource> elementaryFlowNatures, processes;
+    protected ArrayList<Resource> elementaryFlowNatures, processes, typeOfImpacts;
     protected Double threshold = new Double(0.1);
     public ReasonnerReport report = new ReasonnerReport();
     protected UnitsRepo unitsRepo;
@@ -94,8 +94,15 @@ public class Reasoner {
         iterativeCalculationWithoutUncertainties();
         cumulativeEcologicalMatrix = transitiveDependencyMatrix.multiply(ecologicalMatrix);
 
+        // @todo calculate impacts (I = W.D^t)
+        // W -> cols = EFT, rows = TofI
+        // D = cumulativeEcologicalMatrix
+
         System.out.println("creating calculated flows");
         createCumulatedEcologicalFlows();
+
+        // @todo create impacts
+
         System.out.println("reasoning finished");
     }
 
