@@ -20,7 +20,7 @@ public class RepoFactory {
 
     public static void checkProperlyInitialized() throws RuntimeException {
         if (null == model || null == unitsRepo) {
-            throw new RuntimeException("The RepoFactory could not be used without setting the Model and UnitsRepo first");
+            throw new RuntimeException("The RepoFactory cannot be used without setting the Model and UnitsRepo first");
         }
     }
 
