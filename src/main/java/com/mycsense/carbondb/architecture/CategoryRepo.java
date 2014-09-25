@@ -5,7 +5,6 @@ import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.mycsense.carbondb.domain.Category;
-import com.mycsense.carbondb.Datatype;
 
 public class CategoryRepo extends AbstractRepo {
 

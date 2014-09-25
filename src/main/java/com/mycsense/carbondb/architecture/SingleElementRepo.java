@@ -12,11 +12,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class SingleElementsRepo extends AbstractRepo {
+public class SingleElementRepo extends AbstractRepo {
 
     protected UnitsRepo unitsRepo;
 
-    public SingleElementsRepo(Model model, UnitsRepo unitsRepo) {
+    public SingleElementRepo(Model model, UnitsRepo unitsRepo) {
         super(model);
         this.unitsRepo = unitsRepo;
     }
@@ -166,5 +166,29 @@ public class SingleElementsRepo extends AbstractRepo {
             emissions.put(nature, new Value(value, uncertainty));
         }
         return emissions;
+    }
+
+    public Resource createProcess(Dimension dimension, String unitURI)
+    {
+        Resource process = model.createResource(Datatype.getURI() + AnonId.create().toString())
+                .addProperty(RDF.type, Datatype.SingleProcess);
+        if (null != unitURI) {
+            process.addProperty(Datatype.hasUnit, model.createResource(unitURI));
+        }
+        for (Keyword keyword: dimension.keywords) {
+            Resource keywordResource = model.createResource(keyword.name);
+            process.addProperty(Datatype.hasTag, keywordResource);
+        }
+        return process;
+    }
+
+    public void addCumulatedEcologicalFlow(Resource process, Resource elementaryFlowNature, double value, double uncertainty)
+    {
+        process.addProperty(Datatype.hasCalculatedFlow,
+                model.createResource(Datatype.getURI() + AnonId.create().toString())
+                        .addProperty(Datatype.hasElementaryFlowType, elementaryFlowNature)
+                        .addProperty(Datatype.value, model.createTypedLiteral(value))
+                        .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
+                        .addProperty(RDF.type, Datatype.CalculateElementaryFlow));
     }
 }

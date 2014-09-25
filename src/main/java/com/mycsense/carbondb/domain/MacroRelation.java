@@ -86,7 +86,7 @@ public class MacroRelation {
         return microRelations;
     }
 
-    protected static String getHashKey(Dimension dimension, Dimension commonKeywords, Integer alpha)
+    public static String getHashKey(Dimension dimension, Dimension commonKeywords, Integer alpha)
     {
         if (alpha == 0) {
             return "#emptyHashKey#";
@@ -106,7 +106,7 @@ public class MacroRelation {
         return implode(",", keywordInKey.toArray(new String[keywordInKey.size()]));
     }
 
-    protected static HashMap<String, ArrayList<Dimension>> createGroupHashTable(Group group, Dimension commonKeywords, Integer alpha)
+    public static HashMap<String, ArrayList<Dimension>> createGroupHashTable(Group group, Dimension commonKeywords, Integer alpha)
     {
         HashMap<String, ArrayList<Dimension>> elements = new HashMap<>();
         for (Dimension element: group.elements.dimensions) {

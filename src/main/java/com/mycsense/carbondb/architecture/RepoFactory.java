@@ -5,7 +5,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 public class RepoFactory {
     protected static CategoryRepo categoryRepo;
     protected static GroupRepo groupRepo;
-    protected static SingleElementsRepo singleElementsRepo;
+    protected static SingleElementRepo singleElementRepo;
     protected static RelationRepo relationRepo;
     protected static Model model;
     protected static UnitsRepo unitsRepo;
@@ -19,7 +19,7 @@ public class RepoFactory {
     }
 
     public static void checkProperlyInitialized() throws RuntimeException {
-        if (null != model && null != unitsRepo) {
+        if (null == model || null == unitsRepo) {
             throw new RuntimeException("The RepoFactory could not be used without setting the Model and UnitsRepo first");
         }
     }
@@ -38,11 +38,11 @@ public class RepoFactory {
         return groupRepo;
     }
 
-    public static SingleElementsRepo getSingleElementsRepo() {
+    public static SingleElementRepo getSingleElementRepo() {
         checkProperlyInitialized();
-        if (null == singleElementsRepo)
-            singleElementsRepo = new SingleElementsRepo(model, unitsRepo);
-        return singleElementsRepo;
+        if (null == singleElementRepo)
+            singleElementRepo = new SingleElementRepo(model, unitsRepo);
+        return singleElementRepo;
     }
 
     public static RelationRepo getRelationRepo() {

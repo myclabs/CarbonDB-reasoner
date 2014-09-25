@@ -2,7 +2,6 @@ package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
-import com.mycsense.carbondb.Datatype;
 import com.mycsense.carbondb.domain.MacroRelation;
 
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class RelationRepo  extends AbstractRepo {
 
     public Double getCoefficientUncertaintyForRelation(Resource relation) {
         Resource coefficient = relation.getProperty(Datatype.hasWeightCoefficient).getResource();
-        return RepoFactory.getSingleElementsRepo().getUncertainty(coefficient);
+        return RepoFactory.getSingleElementRepo().getUncertainty(coefficient);
     }
 
     public ArrayList<Resource> getRelationsForProcess(Resource process) {
@@ -85,5 +84,16 @@ public class RelationRepo  extends AbstractRepo {
             }
         }
         return relations;
+    }
+
+    public void addMicroRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess, int exponent)
+    {
+        sourceProcess.addProperty(Datatype.hasDetailedRelation,
+                model.createResource(Datatype.getURI() + AnonId.create().toString())
+                        .addProperty(RDF.type, Datatype.DetailedRelation)
+                        .addProperty(Datatype.hasOriginProcess, sourceProcess)
+                        .addProperty(Datatype.hasWeightCoefficient, coeff)
+                        .addProperty(Datatype.hasDestinationProcess, destinationProcess)
+                        .addProperty(Datatype.exponent, model.createTypedLiteral(exponent)));
     }
 }

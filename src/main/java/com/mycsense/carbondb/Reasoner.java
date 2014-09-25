@@ -9,10 +9,7 @@ import com.hp.hpl.jena.rdf.model.InfModel;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
-import com.mycsense.carbondb.architecture.RelationRepo;
-import com.mycsense.carbondb.architecture.RepoFactory;
-import com.mycsense.carbondb.architecture.SingleElementsRepo;
-import com.mycsense.carbondb.architecture.UnitsRepo;
+import com.mycsense.carbondb.architecture.*;
 import com.mycsense.carbondb.domain.MacroRelation;
 import com.mycsense.carbondb.domain.MicroRelation;
 import com.mycsense.carbondb.domain.Value;
@@ -30,9 +27,8 @@ public class Reasoner {
     protected Model model;
     protected InfModel infModel;
     protected RelationRepo relationRepo;
-    protected SingleElementsRepo singleElementsRepo;
+    protected SingleElementRepo singleElementRepo;
 
-    protected Writer writer;
     protected com.hp.hpl.jena.reasoner.Reasoner jenaReasoner;
     protected Matrix dependencyMatrix, transitiveDependencyMatrix;
     protected Matrix uncertaintyMatrix, transitiveUncertaintyMatrix;
@@ -63,8 +59,7 @@ public class Reasoner {
         RepoFactory.setModel(infModel);
         RepoFactory.setUnitsRepo(unitsRepo);
         relationRepo = RepoFactory.getRelationRepo();
-        singleElementsRepo = RepoFactory.getSingleElementsRepo();
-        writer = new Writer(infModel);
+        singleElementRepo = RepoFactory.getSingleElementRepo();
         System.out.println("loading and translating macroRelations");
         for (Resource macroRelationResource: relationRepo.getMacroRelationsResources()) {
             try {
@@ -77,9 +72,9 @@ public class Reasoner {
         }
 
         System.out.println("getting single processes");
-        processes = singleElementsRepo.getSingleProcesses();
+        processes = singleElementRepo.getSingleProcesses();
         System.out.println("getting elementary flows");
-        elementaryFlowNatures = singleElementsRepo.getElementaryFlowNatures();
+        elementaryFlowNatures = singleElementRepo.getElementaryFlowNatures();
 
         System.out.println("creating ecological matrix");
         createEcologicalMatrix();
@@ -310,7 +305,7 @@ public class Reasoner {
         ecologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
 
         for (int i = 0; i < processes.size(); i++) {
-            HashMap<Resource, Value> emissions = singleElementsRepo.getEmissionsForProcess(processes.get(i));
+            HashMap<Resource, Value> emissions = singleElementRepo.getEmissionsForProcess(processes.get(i));
             for (int j = 0; j < elementaryFlowNatures.size(); j++) {
                 if (emissions.containsKey(elementaryFlowNatures.get(j))) {
                     ecologicalMatrix.set(i, j, emissions.get(elementaryFlowNatures.get(j)).value);
@@ -328,13 +323,13 @@ public class Reasoner {
     {
         for (int i = 0; i < processes.size(); i++) {
             for (int j = 0; j < elementaryFlowNatures.size(); j++) {
-                String unitID = singleElementsRepo.getUnit(processes.get(i));
+                String unitID = singleElementRepo.getUnit(processes.get(i));
                 double value = cumulativeEcologicalMatrix.get(i, j);
                 if (!unitID.equals("")) {
                      value *= unitsRepo.getConversionFactor(unitID);
                 }
 
-                writer.addCumulatedEcologicalFlow(processes.get(i),
+                singleElementRepo.addCumulatedEcologicalFlow(processes.get(i),
                                                   elementaryFlowNatures.get(j),
                                                   value,
                                                   //cumulativeEcologicalUncertaintyMatrix.get(i,j)
@@ -350,7 +345,7 @@ public class Reasoner {
         Resource coeff = null, sourceProcess = null, destinationProcess = null;
         for (MicroRelation microRelation: microRelations) {
             try  {
-                coeff = singleElementsRepo.getCoefficientForDimension(microRelation.coeff, microRelation.coeffUnit);
+                coeff = singleElementRepo.getCoefficientForDimension(microRelation.coeff, microRelation.coeffUnit);
             }
             catch (NoElementFoundException e) {
                 // having a null coefficient is a common use case
@@ -360,25 +355,25 @@ public class Reasoner {
             }
             if (coeff != null) {
                 try  {
-                    sourceProcess = singleElementsRepo.getProcessForDimension(microRelation.source, microRelation.sourceUnit);
+                    sourceProcess = singleElementRepo.getProcessForDimension(microRelation.source, microRelation.sourceUnit);
                 }
                 catch (NoElementFoundException e) {
-                    sourceProcess = writer.createProcess(microRelation.source, microRelation.sourceUnit);
+                    sourceProcess = singleElementRepo.createProcess(microRelation.source, microRelation.sourceUnit);
                 }
                 catch (MultipleElementsFoundException e) {
                     report.addWarning(e.getMessage());
                 }
                 try  {
-                    destinationProcess = singleElementsRepo.getProcessForDimension(microRelation.destination, microRelation.destinationUnit);
+                    destinationProcess = singleElementRepo.getProcessForDimension(microRelation.destination, microRelation.destinationUnit);
                 }
                 catch (NoElementFoundException e) {
-                    destinationProcess = writer.createProcess(microRelation.destination, microRelation.destinationUnit);
+                    destinationProcess = singleElementRepo.createProcess(microRelation.destination, microRelation.destinationUnit);
                 }
                 catch (MultipleElementsFoundException e) {
                     report.addWarning(e.getMessage());
                 }
                 if (null != sourceProcess && null != coeff && null != destinationProcess) {
-                    writer.addMicroRelation(sourceProcess, coeff, destinationProcess, microRelation.exponent);
+                    relationRepo.addMicroRelation(sourceProcess, coeff, destinationProcess, microRelation.exponent);
                 }
             }
         }

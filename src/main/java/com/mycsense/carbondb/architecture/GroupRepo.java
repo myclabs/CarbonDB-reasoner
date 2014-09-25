@@ -2,7 +2,6 @@ package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
-import com.mycsense.carbondb.*;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.DimensionSet;

@@ -5,7 +5,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
-import com.mycsense.carbondb.Datatype;
 
 public abstract class AbstractRepo {
     public Model model;

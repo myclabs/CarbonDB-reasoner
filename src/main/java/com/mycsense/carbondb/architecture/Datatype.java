@@ -1,4 +1,4 @@
-package com.mycsense.carbondb;
+package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;

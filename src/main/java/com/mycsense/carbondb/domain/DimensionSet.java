@@ -80,7 +80,7 @@ public class DimensionSet
         return dimensions.contains(dim);
     }
 
-    DimensionSet getCombinations()
+    public DimensionSet getCombinations()
     {
         if (dimensions.size() == 0) {
             return new DimensionSet();
@@ -135,9 +135,9 @@ public class DimensionSet
     }
 
     public class UnionResult {
-        DimensionSet dimSet;
-        Integer alpha;
-        Dimension commonKeywords;
+        public DimensionSet dimSet;
+        public Integer alpha;
+        public Dimension commonKeywords;
 
         public String toString()
         {
