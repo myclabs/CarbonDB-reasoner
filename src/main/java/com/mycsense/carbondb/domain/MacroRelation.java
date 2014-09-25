@@ -58,7 +58,7 @@ public class MacroRelation {
         Integer alpha2 = unionResult.dimSet.alpha(destination.dimSetWithCommonKeywords);
         HashMap<String, ArrayList<Dimension>> coeffs = createGroupHashTable(coeff, unionResult.commonKeywords, alpha1);
 
-        Dimension commonKeywordsGp1GcGp2 = unionResult.dimSet.getCommonKeywords(destination.dimSetWithCommonKeywords);
+        Dimension commonKeywordsGp1GcGp2 = unionResult.dimSet.commonKeywords(destination.dimSetWithCommonKeywords);
         HashMap<String, ArrayList<Dimension>> destinationProcesses = createGroupHashTable(destination, commonKeywordsGp1GcGp2, alpha2);
         String hashKey2;
         for (Dimension sourceProcess: source.elements.dimensions) {

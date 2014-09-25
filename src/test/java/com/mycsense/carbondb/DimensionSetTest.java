@@ -84,22 +84,22 @@ public class DimensionSetTest
     }
 
     /**
-     * Test for DimensionSet.getCombinations
+     * Test for DimensionSet.combinations
      */
     @Test public void getCombinationsWithEmptySet()
     {
         DimensionSet dimSet = new DimensionSet();
-        assertEquals(0, dimSet.getCombinations().size());
+        assertEquals(0, dimSet.combinations().size());
     }
 
     /**
-     * Test for DimensionSet.getCombinations
+     * Test for DimensionSet.combinations
      */
     @Test public void getCombinationsWithOneDimensionDimSet()
     {
         DimensionSet dimSet = new DimensionSet(dim12);
 
-        DimensionSet dimSetResult = dimSet.getCombinations();
+        DimensionSet dimSetResult = dimSet.combinations();
 
         Dimension expectedDim1 = new Dimension(kw1);
         Dimension expectedDim2 = new Dimension(kw2);
@@ -111,13 +111,13 @@ public class DimensionSetTest
     }
 
     /**
-     * Test for DimensionSet.getCombinations
+     * Test for DimensionSet.combinations
      */
     @Test public void getCombinations()
     {
         DimensionSet dimSet = new DimensionSet(dim12, dim34);
 
-        DimensionSet dimSetResult = dimSet.getCombinations();
+        DimensionSet dimSetResult = dimSet.combinations();
 
         Dimension expectedDim1 = new Dimension(kw1, kw3);
         Dimension expectedDim2 = new Dimension(kw1, kw4);
@@ -131,29 +131,29 @@ public class DimensionSetTest
     }
 
     /**
-     * Test for DimensionSet.getCommonKeywords
+     * Test for DimensionSet.commonKeywords
      */
     @Test public void getCommonKeywordsWithEmptyDimSet()
     {
         DimensionSet dimSet1 = new DimensionSet(dim12);
         DimensionSet dimSet2 = new DimensionSet();
 
-        assertEquals(0, dimSet1.getCommonKeywords(dimSet2).size());
+        assertEquals(0, dimSet1.commonKeywords(dimSet2).size());
     }
 
     /**
-     * Test for DimensionSet.getCommonKeywords
+     * Test for DimensionSet.commonKeywords
      */
     @Test public void getCommonKeywordsWithDifferentDimSets()
     {
         DimensionSet dimSet1 = new DimensionSet(dim12);
         DimensionSet dimSet2 = new DimensionSet(dim34);
 
-        assertEquals(0, dimSet1.getCommonKeywords(dimSet2).size());
+        assertEquals(0, dimSet1.commonKeywords(dimSet2).size());
     }
 
     /**
-     * Test for DimensionSet.getCommonKeywords
+     * Test for DimensionSet.commonKeywords
      */
     @Test public void getCommonKeywordsWithOverlappingDimSets()
     {
@@ -166,7 +166,7 @@ public class DimensionSetTest
         dimSet2.add(dim1);
         dimSet2.add(dim2);
 
-        Dimension dimResult = dimSet1.getCommonKeywords(dimSet2);
+        Dimension dimResult = dimSet1.commonKeywords(dimSet2);
         Dimension expectedDim = new Dimension(kw1, kw2);
 
         assertEquals(2, dimResult.size());
@@ -260,7 +260,7 @@ public class DimensionSetTest
         assertTrue(ur.alpha.equals(2));
 
         assertEquals(4, ur.commonKeywords.size());
-        Dimension expectedCommonKeywords = dimSet.getCommonKeywords(dimSet);
+        Dimension expectedCommonKeywords = dimSet.commonKeywords(dimSet);
         assertTrue(ur.commonKeywords.equals(expectedCommonKeywords));
 
         assertEquals(2, ur.dimSet.size());
@@ -286,7 +286,7 @@ public class DimensionSetTest
         assertTrue(ur.alpha.equals(2));
 
         assertEquals(2, ur.commonKeywords.size());
-        Dimension expectedCommonKeywords = dimSet1.getCommonKeywords(dimSet2);
+        Dimension expectedCommonKeywords = dimSet1.commonKeywords(dimSet2);
         assertTrue(ur.commonKeywords.equals(expectedCommonKeywords));
 
         assertEquals(3, ur.dimSet.size());
@@ -312,7 +312,7 @@ public class DimensionSetTest
         assertTrue(ur.alpha.equals(0));
 
         assertEquals(0, ur.commonKeywords.size());
-        Dimension expectedCommonKeywords = dimSet1.getCommonKeywords(dimSet2);
+        Dimension expectedCommonKeywords = dimSet1.commonKeywords(dimSet2);
         assertTrue(ur.commonKeywords.equals(expectedCommonKeywords));
 
         assertEquals(2, ur.dimSet.size());

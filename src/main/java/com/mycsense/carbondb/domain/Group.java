@@ -73,7 +73,7 @@ public class Group
     }
 
     public void createElements() {
-        elements = dimSetWithCommonKeywords.getCombinations();
+        elements = dimSetWithCommonKeywords.combinations();
     }
 
     public String toString() {

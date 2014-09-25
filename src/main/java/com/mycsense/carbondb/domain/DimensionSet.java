@@ -80,7 +80,7 @@ public class DimensionSet
         return dimensions.contains(dim);
     }
 
-    public DimensionSet getCombinations()
+    public DimensionSet combinations()
     {
         if (dimensions.size() == 0) {
             return new DimensionSet();
@@ -105,10 +105,10 @@ public class DimensionSet
         return ret;
     }
 
-    public Dimension getCommonKeywords(DimensionSet dimSet)
+    public Dimension commonKeywords(DimensionSet dimSet)
     {
         Dimension commonKeywords = new Dimension();
-        Dimension hashTableRhs = dimSet.getKeywordsHashTable();
+        Dimension hashTableRhs = dimSet.keywordsHashTable();
 
         for (Dimension dimension: dimensions) {
             for (Keyword keyword: dimension.keywords) {
@@ -124,7 +124,7 @@ public class DimensionSet
     public Integer alpha(DimensionSet dimSet)
     {
         Integer alpha = 0;
-        Dimension hashTableRhs = dimSet.getKeywordsHashTable();
+        Dimension hashTableRhs = dimSet.keywordsHashTable();
 
         for (Dimension dimension: dimensions) {
             if (dimension.hasCommonKeywords(hashTableRhs)) {
@@ -186,7 +186,7 @@ public class DimensionSet
         return r;
     }
 
-    public Dimension getKeywordsHashTable()
+    public Dimension keywordsHashTable()
     {
         Dimension hashTable = new Dimension();
         for (Dimension dimension: dimensions) {
