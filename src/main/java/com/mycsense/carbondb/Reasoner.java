@@ -330,18 +330,21 @@ public class Reasoner {
     {
         for (int i = 0; i < processes.size(); i++) {
             for (int j = 0; j < elementaryFlowNatures.size(); j++) {
-                String unitID = singleElementRepo.getUnit(processes.get(i));
                 double value = cumulativeEcologicalMatrix.get(i, j);
-                if (!unitID.equals("")) {
-                     value *= unitsRepo.getConversionFactor(unitID);
-                }
+                if (value != 0.0) {
+                    String unitID = singleElementRepo.getUnit(processes.get(i));
+                    if (!unitID.equals("")) {
+                        value *= unitsRepo.getConversionFactor(unitID);
+                    }
 
-                singleElementRepo.addCumulatedEcologicalFlow(processes.get(i),
-                                                  elementaryFlowNatures.get(j),
-                                                  value,
-                                                  //cumulativeEcologicalUncertaintyMatrix.get(i,j)
-                                                  0.0
-                                                 );
+                    singleElementRepo.addCumulatedEcologicalFlow(
+                            processes.get(i),
+                            elementaryFlowNatures.get(j),
+                            value,
+                            //cumulativeEcologicalUncertaintyMatrix.get(i,j)
+                            0.0
+                    );
+                }
             }
         }
     }
@@ -355,6 +358,7 @@ public class Reasoner {
                 coeff = singleElementRepo.getCoefficientForDimension(microRelation.coeff, microRelation.coeffUnit);
             }
             catch (NoElementFoundException e) {
+                coeff = null;
                 // having a null coefficient is a common use case
             }
             catch (MultipleElementsFoundException e) {
