@@ -40,7 +40,7 @@ public class Datatype {
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
     public static final Resource Impact = resource("Impact");
 
-    public static final Property belongsToGategoryOfGroup = property("belongsToGategoryOfGroup");
+    public static final Property belongsToCategoryOfGroup = property("belongsToCategoryOfGroup");
     public static final Property hasParentCategoryOfGroup = property("hasParentCategoryOfGroup");
     public static final Property hasWeightCoefficient = property("hasWeightCoefficient");
     public static final Property exponent = property("exponent");

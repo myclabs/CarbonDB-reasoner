@@ -38,7 +38,7 @@ public class CategoryRepo extends AbstractRepo {
             Resource subCategoryResource = i.next();
             category.addChild(getCategory(subCategoryResource, category));
         }
-        i = model.listResourcesWithProperty(Datatype.belongsToGategoryOfGroup, categoryResource);
+        i = model.listResourcesWithProperty(Datatype.belongsToCategoryOfGroup, categoryResource);
         while (i.hasNext()) {
             Resource groupResource = i.next();
             category.addChild(RepoFactory.getGroupRepo().getSimpleGroup(groupResource));
