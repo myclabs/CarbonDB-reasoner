@@ -138,14 +138,14 @@ public class SourceRelationTest
         Group downstreamGroup = new Group(dimSet);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         try {
-            microRelations = sourceRelation.translate();
+            derivedRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        assertEquals(0, microRelations.size());
+        assertEquals(0, derivedRelations.size());
     }
 
     /**
@@ -159,24 +159,24 @@ public class SourceRelationTest
         Group downstreamGroup = new Group(dimSet);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         try {
-            microRelations = sourceRelation.translate();
+            derivedRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedMicroRelations.add(new MicroRelation(dim13, unit, dim13, unit, dim13, unit));
-        expectedMicroRelations.add(new MicroRelation(dim14, unit, dim14, unit, dim14, unit));
-        expectedMicroRelations.add(new MicroRelation(dim23, unit, dim23, unit, dim23, unit));
-        expectedMicroRelations.add(new MicroRelation(dim24, unit, dim24, unit, dim24, unit));
-        assertEquals(4, microRelations.size());
-        assertTrue(microRelations.containsAll(expectedMicroRelations));
+        expectedDerivedRelations.add(new DerivedRelation(dim13, unit, dim13, unit, dim13, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim14, unit, dim14, unit, dim14, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim23, unit, dim23, unit, dim23, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim24, unit, dim24, unit, dim24, unit));
+        assertEquals(4, derivedRelations.size());
+        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
     }
 
     /**
@@ -191,26 +191,26 @@ public class SourceRelationTest
         Group downstreamGroup = new Group(dimSet12);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         try {
-            microRelations = sourceRelation.translate();
+            derivedRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedMicroRelations.add(new MicroRelation(dim13, unit, dim13, unit, dim1, unit));
-        expectedMicroRelations.add(new MicroRelation(dim14, unit, dim14, unit, dim1, unit));
-        expectedMicroRelations.add(new MicroRelation(dim23, unit, dim23, unit, dim2, unit));
-        expectedMicroRelations.add(new MicroRelation(dim24, unit, dim24, unit, dim2, unit));
-        assertEquals(4, microRelations.size());
-        assertTrue(microRelations.containsAll(expectedMicroRelations));
+        expectedDerivedRelations.add(new DerivedRelation(dim13, unit, dim13, unit, dim1, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim14, unit, dim14, unit, dim1, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim23, unit, dim23, unit, dim2, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim24, unit, dim24, unit, dim2, unit));
+        assertEquals(4, derivedRelations.size());
+        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
     }
 
     /**
@@ -225,26 +225,26 @@ public class SourceRelationTest
         Group downstreamGroup = new Group(dimSet1234);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         try {
-            microRelations = sourceRelation.translate();
+            derivedRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim13, unit));
-        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim14, unit));
-        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim23, unit));
-        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim24, unit));
-        assertEquals(4, microRelations.size());
-        assertTrue(microRelations.containsAll(expectedMicroRelations));
+        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim13, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim14, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim23, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim24, unit));
+        assertEquals(4, derivedRelations.size());
+        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
     }
 
     /**
@@ -259,20 +259,20 @@ public class SourceRelationTest
         Group downstreamGroup = new Group(dimSet123);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         try {
-            microRelations = sourceRelation.translate();
+            derivedRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim23 = new Dimension(kw2, kw3);
-        expectedMicroRelations.add(new MicroRelation(dim13, unit, dim13, unit, dim13, unit));
-        expectedMicroRelations.add(new MicroRelation(dim23, unit, dim23, unit, dim23, unit));
-        assertEquals(2, microRelations.size());
-        assertTrue(microRelations.containsAll(expectedMicroRelations));
+        expectedDerivedRelations.add(new DerivedRelation(dim13, unit, dim13, unit, dim13, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim23, unit, dim23, unit, dim23, unit));
+        assertEquals(2, derivedRelations.size());
+        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
     }
 
     /**
@@ -287,24 +287,24 @@ public class SourceRelationTest
         Group downstreamGroup = new Group(dimSet34);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         try {
-            microRelations = sourceRelation.translate();
+            derivedRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim3 = new Dimension(kw3);
         Dimension dim4 = new Dimension(kw4);
-        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim3, unit));
-        expectedMicroRelations.add(new MicroRelation(dim1, unit, dim1, unit, dim4, unit));
-        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim3, unit));
-        expectedMicroRelations.add(new MicroRelation(dim2, unit, dim2, unit, dim4, unit));
-        assertEquals(4, microRelations.size());
-        assertTrue(microRelations.containsAll(expectedMicroRelations));
+        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim3, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim4, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim3, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim4, unit));
+        assertEquals(4, derivedRelations.size());
+        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
     }
 
     /**
@@ -321,23 +321,23 @@ public class SourceRelationTest
         Group downstreamGroup = new Group(dimSet, commonKeywords);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         try {
-            microRelations = sourceRelation.translate();
+            derivedRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<MicroRelation> expectedMicroRelations = new ArrayList<MicroRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
         Dimension dim13c = new Dimension(kw1, kw3, commonKeyword);
         Dimension dim14c = new Dimension(kw1, kw4, commonKeyword);
         Dimension dim23c = new Dimension(kw2, kw3, commonKeyword);
         Dimension dim24c = new Dimension(kw2, kw4, commonKeyword);
-        expectedMicroRelations.add(new MicroRelation(dim13c, unit, dim13c, unit, dim13c, unit));
-        expectedMicroRelations.add(new MicroRelation(dim14c, unit, dim14c, unit, dim14c, unit));
-        expectedMicroRelations.add(new MicroRelation(dim23c, unit, dim23c, unit, dim23c, unit));
-        expectedMicroRelations.add(new MicroRelation(dim24c, unit, dim24c, unit, dim24c, unit));
-        assertEquals(4, microRelations.size());
-        assertTrue(microRelations.containsAll(expectedMicroRelations));
+        expectedDerivedRelations.add(new DerivedRelation(dim13c, unit, dim13c, unit, dim13c, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim14c, unit, dim14c, unit, dim14c, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim23c, unit, dim23c, unit, dim23c, unit));
+        expectedDerivedRelations.add(new DerivedRelation(dim24c, unit, dim24c, unit, dim24c, unit));
+        assertEquals(4, derivedRelations.size());
+        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
     }
 }

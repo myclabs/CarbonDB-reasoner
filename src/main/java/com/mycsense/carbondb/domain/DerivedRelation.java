@@ -3,7 +3,7 @@ package com.mycsense.carbondb.domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class MicroRelation {
+public class DerivedRelation {
     public Dimension source;
     public String sourceUnit;
     public Dimension coeff;
@@ -12,23 +12,23 @@ public class MicroRelation {
     public String destinationUnit;
     public int exponent;
 
-    public MicroRelation(Dimension source,
-                         String sourceUnit,
-                         Dimension coeff,
-                         String coeffUnit,
-                         Dimension destination,
-                         String destinationUnit
+    public DerivedRelation(Dimension source,
+                           String sourceUnit,
+                           Dimension coeff,
+                           String coeffUnit,
+                           Dimension destination,
+                           String destinationUnit
     ) {
         this(source, sourceUnit, coeff, coeffUnit, destination, destinationUnit, 1);
     }
 
-    public MicroRelation(Dimension source,
-                         String sourceUnit,
-                         Dimension coeff,
-                         String coeffUnit,
-                         Dimension destination,
-                         String destinationUnit,
-                         int exponent
+    public DerivedRelation(Dimension source,
+                           String sourceUnit,
+                           Dimension coeff,
+                           String coeffUnit,
+                           Dimension destination,
+                           String destinationUnit,
+                           int exponent
     ) {
         this.source = source;
         this.sourceUnit = sourceUnit;
@@ -45,12 +45,12 @@ public class MicroRelation {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof MicroRelation))
+        if (!(obj instanceof DerivedRelation))
             return false;
         if (obj == this)
             return true;
 
-        MicroRelation rhs = (MicroRelation) obj;
+        DerivedRelation rhs = (DerivedRelation) obj;
         return new EqualsBuilder()
                   .append(source, rhs.source)
                   .append(sourceUnit, rhs.sourceUnit)

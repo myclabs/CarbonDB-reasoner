@@ -29,7 +29,7 @@ public class SourceRelation {
         return source + " x " + coeff + " -> " + destination;
     }
 
-    public ArrayList<MicroRelation> translate()
+    public ArrayList<DerivedRelation> translate()
         throws IncompatibleDimSetException, IncompatibleUnitsException
     {
         if (!source.dimSetWithCommonKeywords.isCompatible(coeff.dimSetWithCommonKeywords)) {
@@ -48,7 +48,7 @@ public class SourceRelation {
             throw new IncompatibleUnitsException("The units are incompatible "
                                                  + "in the source relation: " + uri);
         }
-        ArrayList<MicroRelation> microRelations = new ArrayList<>();
+        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
         if (!unionResult.dimSet.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The union of the source with the coeff groups and the destination "
@@ -70,7 +70,7 @@ public class SourceRelation {
                     hashKey2 = getHashKey(sourceAndCoeffKeywords, commonKeywordsGp1GcGp2, alpha2);
                     if (!hashKey2.equals("#nullHashKey#")) {
                         for (Dimension destinationProcess: destinationProcesses.get(hashKey2)) {
-                            microRelations.add(new MicroRelation(sourceProcess,
+                            derivedRelations.add(new DerivedRelation(sourceProcess,
                                                                  source.getUnitURI(),
                                                                  singleCoeff,
                                                                  coeff.getUnitURI(),
@@ -83,7 +83,7 @@ public class SourceRelation {
             }
         }
 
-        return microRelations;
+        return derivedRelations;
     }
 
     public static String getHashKey(Dimension dimension, Dimension commonKeywords, Integer alpha)

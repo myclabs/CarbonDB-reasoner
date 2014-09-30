@@ -11,7 +11,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import com.mycsense.carbondb.architecture.*;
 import com.mycsense.carbondb.domain.SourceRelation;
-import com.mycsense.carbondb.domain.MicroRelation;
+import com.mycsense.carbondb.domain.DerivedRelation;
 import com.mycsense.carbondb.domain.Value;
 import org.la4j.matrix.sparse.CCSMatrix;
 import org.la4j.matrix.Matrix;
@@ -64,7 +64,7 @@ public class Reasoner {
         for (Resource sourceRelationResource: relationRepo.getSourceRelationsResources()) {
             try {
                 SourceRelation sourceRelation = relationRepo.getSourceRelation(sourceRelationResource);
-                createMicroRelations(sourceRelation.translate());
+                createDerivedRelations(sourceRelation.translate());
             }
             catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
                 report.addError(e.getMessage());
@@ -349,13 +349,13 @@ public class Reasoner {
         }
     }
 
-    protected void createMicroRelations(ArrayList<MicroRelation> microRelations)
+    protected void createDerivedRelations(ArrayList<DerivedRelation> derivedRelations)
         throws IllegalArgumentException
     {
         Resource coeff = null, sourceProcess = null, destinationProcess = null;
-        for (MicroRelation microRelation: microRelations) {
+        for (DerivedRelation derivedRelation : derivedRelations) {
             try  {
-                coeff = singleElementRepo.getCoefficientForDimension(microRelation.coeff, microRelation.coeffUnit);
+                coeff = singleElementRepo.getCoefficientForDimension(derivedRelation.coeff, derivedRelation.coeffUnit);
             }
             catch (NoElementFoundException e) {
                 coeff = null;
@@ -366,25 +366,25 @@ public class Reasoner {
             }
             if (coeff != null) {
                 try  {
-                    sourceProcess = singleElementRepo.getProcessForDimension(microRelation.source, microRelation.sourceUnit);
+                    sourceProcess = singleElementRepo.getProcessForDimension(derivedRelation.source, derivedRelation.sourceUnit);
                 }
                 catch (NoElementFoundException e) {
-                    sourceProcess = singleElementRepo.createProcess(microRelation.source, microRelation.sourceUnit);
+                    sourceProcess = singleElementRepo.createProcess(derivedRelation.source, derivedRelation.sourceUnit);
                 }
                 catch (MultipleElementsFoundException e) {
                     report.addWarning(e.getMessage());
                 }
                 try  {
-                    destinationProcess = singleElementRepo.getProcessForDimension(microRelation.destination, microRelation.destinationUnit);
+                    destinationProcess = singleElementRepo.getProcessForDimension(derivedRelation.destination, derivedRelation.destinationUnit);
                 }
                 catch (NoElementFoundException e) {
-                    destinationProcess = singleElementRepo.createProcess(microRelation.destination, microRelation.destinationUnit);
+                    destinationProcess = singleElementRepo.createProcess(derivedRelation.destination, derivedRelation.destinationUnit);
                 }
                 catch (MultipleElementsFoundException e) {
                     report.addWarning(e.getMessage());
                 }
                 if (null != sourceProcess && null != coeff && null != destinationProcess) {
-                    relationRepo.addMicroRelation(sourceProcess, coeff, destinationProcess, microRelation.exponent);
+                    relationRepo.addDerivedRelation(sourceProcess, coeff, destinationProcess, derivedRelation.exponent);
                 }
             }
         }

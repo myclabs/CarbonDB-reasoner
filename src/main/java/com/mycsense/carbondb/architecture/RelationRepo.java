@@ -86,7 +86,7 @@ public class RelationRepo  extends AbstractRepo {
         return relations;
     }
 
-    public void addMicroRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess, int exponent)
+    public void addDerivedRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess, int exponent)
     {
         sourceProcess.addProperty(Datatype.hasDetailedRelation,
                 model.createResource(Datatype.getURI() + AnonId.create().toString())
