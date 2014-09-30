@@ -2,7 +2,7 @@ package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
-import com.mycsense.carbondb.domain.MacroRelation;
+import com.mycsense.carbondb.domain.SourceRelation;
 
 import java.util.ArrayList;
 
@@ -15,44 +15,44 @@ public class RelationRepo  extends AbstractRepo {
         this.unitsRepo = unitsRepo;
     }
 
-    public ArrayList<Resource> getMacroRelationsResources() {
-        ArrayList<Resource> macroRelations = new ArrayList<>();
+    public ArrayList<Resource> getSourceRelationsResources() {
+        ArrayList<Resource> sourceRelations = new ArrayList<>();
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SourceRelation);
         while (i.hasNext()) {
-            macroRelations.add(i.next());
+            sourceRelations.add(i.next());
         }
 
-        return macroRelations;
+        return sourceRelations;
     }
 
-    public ArrayList<MacroRelation> getMacroRelationsForProcessGroup(Resource group) {
-        ArrayList<MacroRelation> macroRelations = new ArrayList<>();
+    public ArrayList<SourceRelation> getSourceRelationsForProcessGroup(Resource group) {
+        ArrayList<SourceRelation> sourceRelations = new ArrayList<>();
 
         ResIterator i = model.listSubjectsWithProperty(Datatype.involvesElement, group);
         while (i.hasNext()) {
-            Resource macroRelationResource = i.next();
-            macroRelations.add(getMacroRelation(macroRelationResource));
+            Resource sourceRelationResource = i.next();
+            sourceRelations.add(getSourceRelation(sourceRelationResource));
         }
 
-        return macroRelations;
+        return sourceRelations;
     }
 
-    public MacroRelation getMacroRelation(Resource macroRelationResource) {
+    public SourceRelation getSourceRelation(Resource sourceRelationResource) {
         GroupRepo groupRepo = RepoFactory.getGroupRepo();
-        MacroRelation macroRelation = new MacroRelation(
-                groupRepo.getGroup(macroRelationResource.getProperty(Datatype.hasOriginProcess).getResource()),
-                groupRepo.getGroup(macroRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource()),
-                groupRepo.getGroup(macroRelationResource.getProperty(Datatype.hasDestinationProcess).getResource()),
+        SourceRelation sourceRelation = new SourceRelation(
+                groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource()),
+                groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource()),
+                groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource()),
                 unitsRepo
         );
-        macroRelation.setURI(macroRelationResource.getURI());
-        if (macroRelationResource.hasProperty(Datatype.exponent)
-                && null != macroRelationResource.getProperty(Datatype.exponent)
+        sourceRelation.setURI(sourceRelationResource.getURI());
+        if (sourceRelationResource.hasProperty(Datatype.exponent)
+                && null != sourceRelationResource.getProperty(Datatype.exponent)
                 ) {
-            macroRelation.setExponent(macroRelationResource.getProperty(Datatype.exponent).getInt());
+            sourceRelation.setExponent(sourceRelationResource.getProperty(Datatype.exponent).getInt());
         }
-        return macroRelation;
+        return sourceRelation;
     }
 
     public Double getCoefficientValueForRelation(Resource relation) {

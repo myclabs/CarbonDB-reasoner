@@ -93,9 +93,9 @@ public class App
         read, write RDF files: OK
         query model: OK
         run calculation: OK
-        convert macro-relations: OK
+        convert source-relations: OK
         use Pellet to infer the ontology with java: OK (downgraded jena to 2.10.0 ... try with pellet/master?)
-        in conversion: foreach over all the macroRelations: OK
+        in conversion: foreach over all the sourceRelations: OK
         rename ontology concept for group -> group: OK
         check if SWRL rules are executed with Pellet: OK
         cut the onto in two parts (vocabulary and data): TODO
@@ -121,6 +121,6 @@ public class App
         Limits: no units conversions
                 no uncertainty (is montecarlo necessary?)
                 no flow type (economic, conversion...)
-                macroRelations involving single elements
+                sourceRelations involving single elements
         **/
 }

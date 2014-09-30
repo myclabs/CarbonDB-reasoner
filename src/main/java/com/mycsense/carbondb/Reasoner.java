@@ -10,7 +10,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import com.mycsense.carbondb.architecture.*;
-import com.mycsense.carbondb.domain.MacroRelation;
+import com.mycsense.carbondb.domain.SourceRelation;
 import com.mycsense.carbondb.domain.MicroRelation;
 import com.mycsense.carbondb.domain.Value;
 import org.la4j.matrix.sparse.CCSMatrix;
@@ -48,7 +48,7 @@ public class Reasoner {
     public void run () {
         /*
         load the ontology -> ontologyloader
-        convert macro relations -> macrorelations convert
+        convert source relations -> sourceRelations convert
         calculate ecological flows -> calculate ecological flows
         */
         System.out.println("begin reasonning");
@@ -60,11 +60,11 @@ public class Reasoner {
         RepoFactory.setUnitsRepo(unitsRepo);
         relationRepo = RepoFactory.getRelationRepo();
         singleElementRepo = RepoFactory.getSingleElementRepo();
-        System.out.println("loading and translating macroRelations");
-        for (Resource macroRelationResource: relationRepo.getMacroRelationsResources()) {
+        System.out.println("loading and translating sourceRelations");
+        for (Resource sourceRelationResource: relationRepo.getSourceRelationsResources()) {
             try {
-                MacroRelation macroRelation = relationRepo.getMacroRelation(macroRelationResource);
-                createMicroRelations(macroRelation.translate());
+                SourceRelation sourceRelation = relationRepo.getSourceRelation(sourceRelationResource);
+                createMicroRelations(sourceRelation.translate());
             }
             catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
                 report.addError(e.getMessage());

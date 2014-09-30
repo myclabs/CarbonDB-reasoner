@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.lang.StringBuilder;
 import java.util.Collections;
 
-public class MacroRelation {
+public class SourceRelation {
     public Group source;
     public Group coeff;
     public Group destination;
@@ -18,7 +18,7 @@ public class MacroRelation {
     protected int exponent = 1;
     protected UnitsRepo unitsRepo;
 
-    public MacroRelation(Group source, Group coeff, Group destination, UnitsRepo unitsRepo) {
+    public SourceRelation(Group source, Group coeff, Group destination, UnitsRepo unitsRepo) {
         this.source = source;
         this.coeff = coeff;
         this.destination = destination;
@@ -34,25 +34,25 @@ public class MacroRelation {
     {
         if (!source.dimSetWithCommonKeywords.isCompatible(coeff.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The source group and the coeff group are incompatible "
-                                                  + "in the macro relation: " + uri);
+                                                  + "in the source relation: " + uri);
         }
         if (!source.dimSetWithCommonKeywords.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The source group and the destination group are incompatible "
-                                                  + "in the macro relation: " + uri);
+                                                  + "in the source relation: " + uri);
         }
         if (!coeff.dimSetWithCommonKeywords.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The coeff group and the destination group are incompatible "
-                                                  + "in the macro relation: " + uri);
+                                                  + "in the source relation: " + uri);
         }
         if (!unitsRepo.areCompatible(source.getUnit(), unitsRepo.getUnitsMultiplication(destination.getUnit(), coeff.getUnit(), exponent))) {
             throw new IncompatibleUnitsException("The units are incompatible "
-                                                 + "in the macro relation: " + uri);
+                                                 + "in the source relation: " + uri);
         }
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
         if (!unionResult.dimSet.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The union of the source with the coeff groups and the destination "
-                                                  + "group are incompatible in the macro relation " + uri);
+                                                  + "group are incompatible in the source relation " + uri);
         }
         Integer alpha1 = unionResult.alpha;
         Integer alpha2 = unionResult.dimSet.alpha(destination.dimSetWithCommonKeywords);

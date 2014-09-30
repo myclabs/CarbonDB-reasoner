@@ -16,7 +16,7 @@ import java.util.ArrayList;
 /**
  * Unit test for SourceRelation.
  */
-public class MacroRelationTest 
+public class SourceRelationTest
 {
     Keyword kw1, kw2, kw3, kw4;
     Dimension dim12, dim34;
@@ -45,7 +45,7 @@ public class MacroRelationTest
      */
     @Test public void getHashKeyWithZeroAlpha()
     {
-        assertTrue(MacroRelation.getHashKey(new Dimension(), new Dimension(), 0).equals("#emptyHashKey#"));
+        assertTrue(SourceRelation.getHashKey(new Dimension(), new Dimension(), 0).equals("#emptyHashKey#"));
     }
 
     /**
@@ -53,7 +53,7 @@ public class MacroRelationTest
      */
     @Test public void getHashKeyWithDifferentDimensions()
     {
-        assertTrue(MacroRelation.getHashKey(dim12, dim34, 1).equals("#nullHashKey#"));
+        assertTrue(SourceRelation.getHashKey(dim12, dim34, 1).equals("#nullHashKey#"));
     }
 
     /**
@@ -62,7 +62,7 @@ public class MacroRelationTest
     @Test public void getHashKeyWithOverlappingDimensionsAndAppropriateAlpha()
     {
         Dimension commonKeywords = new Dimension(kw4, kw1, kw3, kw2);
-        assertTrue(MacroRelation.getHashKey(dim12, commonKeywords, 2).equals("kw1,kw2"));
+        assertTrue(SourceRelation.getHashKey(dim12, commonKeywords, 2).equals("kw1,kw2"));
     }
 
     /**
@@ -71,7 +71,7 @@ public class MacroRelationTest
     @Test public void getHashKeyWithOverlappingDimensionsAndUnappropriateAlpha()
     {
         Dimension commonKeywords = new Dimension(kw4, kw1, kw3, kw2);
-        assertTrue(MacroRelation.getHashKey(dim12, commonKeywords, 1).equals("#nullHashKey#"));
+        assertTrue(SourceRelation.getHashKey(dim12, commonKeywords, 1).equals("#nullHashKey#"));
     }
 
     /**
@@ -81,7 +81,7 @@ public class MacroRelationTest
     {
         Group group = new Group(new DimensionSet(dim12, dim34));
         HashMap<String, ArrayList<Dimension>> groupHashTable;
-        groupHashTable = MacroRelation.createGroupHashTable(group, new Dimension(kw1, kw2, kw3, kw4), 2);
+        groupHashTable = SourceRelation.createGroupHashTable(group, new Dimension(kw1, kw2, kw3, kw4), 2);
 
         assertEquals(4, groupHashTable.size());
         assertEquals(1, groupHashTable.get("kw1,kw3").size());
@@ -106,7 +106,7 @@ public class MacroRelationTest
     {
         Group group = new Group(new DimensionSet(dim12, dim34));
         HashMap<String, ArrayList<Dimension>> groupHashTable;
-        groupHashTable = MacroRelation.createGroupHashTable(group, new Dimension(kw1, kw3, kw4), 2);
+        groupHashTable = SourceRelation.createGroupHashTable(group, new Dimension(kw1, kw3, kw4), 2);
 
         assertEquals(2, groupHashTable.size());
         assertEquals(1, groupHashTable.get("kw1,kw3").size());
@@ -136,11 +136,11 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet);
         Group coeffGroup = new Group(dimSet);
         Group downstreamGroup = new Group(dimSet);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
-            microRelations = macroRelation.translate();
+            microRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
@@ -151,17 +151,17 @@ public class MacroRelationTest
     /**
      * Test for SourceRelation.translate
      */
-    @Test public void translateNormalMacroRelation()
+    @Test public void translateNormalSourceRelation()
     {
         DimensionSet dimSet = new DimensionSet(dim12, dim34);
         Group upstreamGroup = new Group(dimSet);
         Group coeffGroup = new Group(dimSet);
         Group downstreamGroup = new Group(dimSet);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
-            microRelations = macroRelation.translate();
+            microRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
@@ -182,18 +182,18 @@ public class MacroRelationTest
     /**
      * Test for SourceRelation.translate
      */
-    @Test public void translateAggregationMacroRelation()
+    @Test public void translateAggregationSourceRelation()
     {
         DimensionSet dimSet1234 = new DimensionSet(dim12, dim34);
         DimensionSet dimSet12 = new DimensionSet(dim12);
         Group upstreamGroup = new Group(dimSet1234);
         Group coeffGroup = new Group(dimSet1234);
         Group downstreamGroup = new Group(dimSet12);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
-            microRelations = macroRelation.translate();
+            microRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
@@ -216,18 +216,18 @@ public class MacroRelationTest
     /**
      * Test for SourceRelation.translate
      */
-    @Test public void translateProjectionMacroRelation()
+    @Test public void translateProjectionSourceRelation()
     {
         DimensionSet dimSet1234 = new DimensionSet(dim12, dim34);
         DimensionSet dimSet12 = new DimensionSet(dim12);
         Group upstreamGroup = new Group(dimSet12);
         Group coeffGroup = new Group(dimSet12);
         Group downstreamGroup = new Group(dimSet1234);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
-            microRelations = macroRelation.translate();
+            microRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
@@ -250,18 +250,18 @@ public class MacroRelationTest
     /**
      * Test for SourceRelation.translate
      */
-    @Test public void translatePartialMacroRelation()
+    @Test public void translatePartialSourceRelation()
     {
         DimensionSet dimSet1234 = new DimensionSet(dim12, dim34);
         DimensionSet dimSet123 = new DimensionSet(dim12, new Dimension(kw3));
         Group upstreamGroup = new Group(dimSet1234);
         Group coeffGroup = new Group(dimSet1234);
         Group downstreamGroup = new Group(dimSet123);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
-            microRelations = macroRelation.translate();
+            microRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
@@ -285,11 +285,11 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet12);
         Group coeffGroup = new Group(dimSet12);
         Group downstreamGroup = new Group(dimSet34);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
-            microRelations = macroRelation.translate();
+            microRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
@@ -310,7 +310,7 @@ public class MacroRelationTest
     /**
      * Test for SourceRelation.translate
      */
-    @Test public void translateNormalMacroRelationWithCommonKeywords()
+    @Test public void translateNormalSourceRelationWithCommonKeywords()
     {
         DimensionSet dimSet = new DimensionSet(dim12, dim34);
         Keyword commonKeyword = new Keyword("commonKw");
@@ -319,11 +319,11 @@ public class MacroRelationTest
         Group upstreamGroup = new Group(dimSet, commonKeywords);
         Group coeffGroup = new Group(dimSet, commonKeywords);
         Group downstreamGroup = new Group(dimSet, commonKeywords);
-        MacroRelation macroRelation = new MacroRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<MicroRelation> microRelations = new ArrayList<>();
         try {
-            microRelations = macroRelation.translate();
+            microRelations = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
