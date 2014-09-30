@@ -29,8 +29,8 @@ public class Datatype {
     }
 
     public static final Resource Category = resource("Category");
-    public static final Resource MacroRelation = resource("MacroRelation");
-    public static final Resource DetailedRelation = resource("DetailedRelation");
+    public static final Resource SourceRelation = resource("SourceRelation");
+    public static final Resource DerivedRelation = resource("DerivedRelation");
     public static final Resource SingleProcess = resource("SingleProcess");
     public static final Resource SingleCoefficient = resource("SingleCoefficient");
     public static final Resource CalculateElementaryFlow = resource("CalculatedElementaryFlow");
@@ -40,18 +40,18 @@ public class Datatype {
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
     public static final Resource Impact = resource("Impact");
 
-    public static final Property hasCategory = property("hasCategory");
-    public static final Property hasParent = property("hasParent");
+    public static final Property belongsToGategoryOfGroup = property("belongsToGategoryOfGroup");
+    public static final Property hasParentCategoryOfGroup = property("hasParentCategoryOfGroup");
     public static final Property hasWeightCoefficient = property("hasWeightCoefficient");
     public static final Property exponent = property("exponent");
     public static final Property hasOriginProcess = property("hasOriginProcess");
     public static final Property hasDestinationProcess = property("hasDestinationProcess");
-    public static final Property hasKeyword = property("hasKeyword");
+    public static final Property containsKeyword = property("containsKeyword");
     public static final Property hasTag = property("hasTag");
     public static final Property hasDimension = property("hasDimension");
     public static final Property hasHorizontalDimension = property("hasHorizontalDimension");
     public static final Property hasVerticalDimension = property("hasVerticalDimension");
-    public static final Property hasCommonKeyword = property("hasCommonKeyword");
+    public static final Property hasCommonTag = property("hasCommonTag");
     public static final Property hasDetailedRelation = property("hasDetailedRelation");
     public static final Property hasFlow = property("hasFlow");
     public static final Property hasCalculatedFlow = property("hasCalculatedFlow");

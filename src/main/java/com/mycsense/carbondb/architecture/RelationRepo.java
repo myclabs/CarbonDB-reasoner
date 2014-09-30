@@ -18,7 +18,7 @@ public class RelationRepo  extends AbstractRepo {
     public ArrayList<Resource> getMacroRelationsResources() {
         ArrayList<Resource> macroRelations = new ArrayList<>();
 
-        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.MacroRelation);
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SourceRelation);
         while (i.hasNext()) {
             macroRelations.add(i.next());
         }
@@ -90,7 +90,7 @@ public class RelationRepo  extends AbstractRepo {
     {
         sourceProcess.addProperty(Datatype.hasDetailedRelation,
                 model.createResource(Datatype.getURI() + AnonId.create().toString())
-                        .addProperty(RDF.type, Datatype.DetailedRelation)
+                        .addProperty(RDF.type, Datatype.DerivedRelation)
                         .addProperty(Datatype.hasOriginProcess, sourceProcess)
                         .addProperty(Datatype.hasWeightCoefficient, coeff)
                         .addProperty(Datatype.hasDestinationProcess, destinationProcess)

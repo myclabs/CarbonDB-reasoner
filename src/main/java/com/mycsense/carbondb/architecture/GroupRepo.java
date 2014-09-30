@@ -96,7 +96,7 @@ public class GroupRepo extends AbstractRepo {
 
     protected Dimension getGroupCommonKeywords(Resource groupResource)
     {
-        Selector selector = new SimpleSelector(groupResource, Datatype.hasCommonKeyword, (RDFNode) null);
+        Selector selector = new SimpleSelector(groupResource, Datatype.hasCommonTag, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
         Dimension dim = new Dimension();
@@ -113,7 +113,7 @@ public class GroupRepo extends AbstractRepo {
 
     protected Dimension getDimensionKeywords(Resource dimensionResource)
     {
-        Selector selector = new SimpleSelector(dimensionResource, Datatype.hasKeyword, (RDFNode) null);
+        Selector selector = new SimpleSelector(dimensionResource, Datatype.containsKeyword, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
         Dimension dim = new Dimension();

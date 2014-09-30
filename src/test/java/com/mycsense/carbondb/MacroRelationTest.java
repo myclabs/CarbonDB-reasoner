@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 /**
- * Unit test for MacroRelation.
+ * Unit test for SourceRelation.
  */
 public class MacroRelationTest 
 {
@@ -41,7 +41,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.getHashKey
+     * Test for SourceRelation.getHashKey
      */
     @Test public void getHashKeyWithZeroAlpha()
     {
@@ -49,7 +49,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.getHashKey
+     * Test for SourceRelation.getHashKey
      */
     @Test public void getHashKeyWithDifferentDimensions()
     {
@@ -57,7 +57,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.getHashKey
+     * Test for SourceRelation.getHashKey
      */
     @Test public void getHashKeyWithOverlappingDimensionsAndAppropriateAlpha()
     {
@@ -66,7 +66,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.getHashKey
+     * Test for SourceRelation.getHashKey
      */
     @Test public void getHashKeyWithOverlappingDimensionsAndUnappropriateAlpha()
     {
@@ -75,7 +75,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.createGroupHashTable
+     * Test for SourceRelation.createGroupHashTable
      */
     @Test public void createGroupHashTable()
     {
@@ -100,7 +100,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.createGroupHashTable
+     * Test for SourceRelation.createGroupHashTable
      */
     @Test public void createGroupHashTableWithUnselectedElements()
     {
@@ -119,7 +119,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translate()
     {
@@ -128,7 +128,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translateWithEmptyGroups()
     {
@@ -149,7 +149,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translateNormalMacroRelation()
     {
@@ -180,7 +180,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translateAggregationMacroRelation()
     {
@@ -214,7 +214,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translateProjectionMacroRelation()
     {
@@ -248,7 +248,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translatePartialMacroRelation()
     {
@@ -276,7 +276,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translateWithDifferentGroups()
     {
@@ -308,7 +308,7 @@ public class MacroRelationTest
     }
 
     /**
-     * Test for MacroRelation.translate
+     * Test for SourceRelation.translate
      */
     @Test public void translateNormalMacroRelationWithCommonKeywords()
     {

@@ -18,8 +18,8 @@ public class CategoryRepo extends AbstractRepo {
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Category);
         while (i.hasNext()) {
             Resource categoryResource = i.next();
-            if (!categoryResource.hasProperty(Datatype.hasParent)
-                    || categoryResource.getProperty(Datatype.hasParent) == null
+            if (!categoryResource.hasProperty(Datatype.hasParentCategoryOfGroup)
+                    || categoryResource.getProperty(Datatype.hasParentCategoryOfGroup) == null
                     ) {
                 root.addChild(getCategory(categoryResource, root));
             }
@@ -33,12 +33,12 @@ public class CategoryRepo extends AbstractRepo {
                 categoryResource.getURI(),
                 getLabelOrURI(categoryResource),
                 parentCategory);
-        ResIterator i = model.listResourcesWithProperty(Datatype.hasParent, categoryResource);
+        ResIterator i = model.listResourcesWithProperty(Datatype.hasParentCategoryOfGroup, categoryResource);
         while (i.hasNext()) {
             Resource subCategoryResource = i.next();
             category.addChild(getCategory(subCategoryResource, category));
         }
-        i = model.listResourcesWithProperty(Datatype.hasCategory, categoryResource);
+        i = model.listResourcesWithProperty(Datatype.belongsToGategoryOfGroup, categoryResource);
         while (i.hasNext()) {
             Resource groupResource = i.next();
             category.addChild(RepoFactory.getGroupRepo().getSimpleGroup(groupResource));
