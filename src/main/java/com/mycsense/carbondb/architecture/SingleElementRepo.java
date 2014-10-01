@@ -207,9 +207,9 @@ public class SingleElementRepo extends AbstractRepo {
         return 0.0;
     }
 
-    public HashMap<Resource, Value> getCalculatedEmissionsForProcess(Resource process)
+    public HashMap<String, Value> getCalculatedEmissionsForProcess(Resource process)
     {
-        HashMap<Resource, Value> emissions = new HashMap<>();
+        HashMap<String, Value> emissions = new HashMap<>();
         StmtIterator iter = process.listProperties(Datatype.hasCalculatedFlow);
 
         while (iter.hasNext()) {
@@ -217,7 +217,7 @@ public class SingleElementRepo extends AbstractRepo {
             Resource nature = emission.getProperty(Datatype.hasElementaryFlowType).getResource();
             Double value = emission.getProperty(Datatype.value).getDouble();
             Double uncertainty = getUncertainty(emission);
-            emissions.put(nature, new Value(value, uncertainty));
+            emissions.put(nature.getURI(), new Value(value, uncertainty));
         }
         return emissions;
     }
