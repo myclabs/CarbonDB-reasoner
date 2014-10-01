@@ -35,6 +35,7 @@ public class Datatype {
     public static final Resource SingleCoefficient = resource("SingleCoefficient");
     public static final Resource CalculateElementaryFlow = resource("CalculatedElementaryFlow");
     public static final Resource ElementaryFlowType = resource("ElementaryFlowType");
+    public static final Resource ImpactType = resource("ImpactType");
     public static final Resource Group = resource("Group");
     public static final Resource ProcessGroup = resource("ProcessGroup");
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
@@ -54,6 +55,8 @@ public class Datatype {
     public static final Property hasCommonTag = property("hasCommonTag");
     public static final Property hasDetailedRelation = property("hasDetailedRelation");
     public static final Property hasFlow = property("hasFlow");
+    public static final Property hasImpact = property("hasImpact");
+    public static final Property hasImpactType = property("hasImpactType");
     public static final Property hasCalculatedFlow = property("hasCalculatedFlow");
     public static final Property hasElementaryFlowType = property("hasElementaryFlowType");
     public static final Property value = property("value");
@@ -61,5 +64,7 @@ public class Datatype {
     public static final Property involvesElement = property("involvesElement");
     public static final Property hasUnit = property("hasUnit");
     public static final Property foreignUnitID = property("foreignUnitID");
+    public static final Property hasComponentOfImpactType = property("hasComponentOfImpactType");
+    public static final Property isBasedOnElementaryFlowType = property("isBasedOnElementaryFlowType");
 
 }

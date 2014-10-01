@@ -84,7 +84,7 @@
             <classpath/>
             <argument>com.mycsense.carbondb.App</argument>
             <argument>input.rdf</argument>
-            <argument>output.rdf</argument>
+            <!-- <argument>output.rdf</argument> -->
           </arguments>
         </configuration>
       </plugin>

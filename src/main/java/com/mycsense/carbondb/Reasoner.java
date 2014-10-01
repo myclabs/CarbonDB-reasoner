@@ -33,8 +33,10 @@ public class Reasoner {
     protected Matrix dependencyMatrix, transitiveDependencyMatrix;
     protected Matrix uncertaintyMatrix, transitiveUncertaintyMatrix;
     protected Matrix ecologicalMatrix, cumulativeEcologicalMatrix;
+    protected Matrix flowToImpactsMatrix, flowToImpactsUncertaintyMatrix;
+    protected Matrix impactMatrix;
     protected Matrix ecologicalUncertaintyMatrix, cumulativeEcologicalUncertaintyMatrix;
-    protected ArrayList<Resource> elementaryFlowNatures, processes, typeOfImpacts;
+    protected ArrayList<Resource> elementaryFlowTypes, processes, impactTypes;
     protected Double threshold = new Double(0.1);
     public ReasonnerReport report = new ReasonnerReport();
     protected UnitsRepo unitsRepo;
@@ -73,11 +75,14 @@ public class Reasoner {
 
         System.out.println("getting single processes");
         processes = singleElementRepo.getSingleProcesses();
-        System.out.println("getting elementary flows");
-        elementaryFlowNatures = singleElementRepo.getElementaryFlowNatures();
+        System.out.println("getting elementary flow types");
+        elementaryFlowTypes = singleElementRepo.getElementaryFlowTypes();
+        System.out.println("getting impact types");
+        impactTypes = singleElementRepo.getImpactTypes();
 
-        System.out.println("creating ecological matrix");
+        System.out.println("creating ecological matrices");
         createEcologicalMatrix();
+        createFlowToImpactsMatrix();
 
         // version with uncertainty calculation
         //createMatrices();
@@ -93,6 +98,8 @@ public class Reasoner {
         System.out.println("calculating cumulative flows");
         iterativeCalculationWithoutUncertainties();
         cumulativeEcologicalMatrix = transitiveDependencyMatrix.multiply(ecologicalMatrix);
+        System.out.println("calculating impacts");
+        impactMatrix = cumulativeEcologicalMatrix.multiply(flowToImpactsMatrix.transpose());
 
         // @todo calculate impacts (I = W.D^t)
         // W -> cols = EFT, rows = TofI
@@ -100,6 +107,8 @@ public class Reasoner {
 
         System.out.println("creating calculated flows");
         createCumulatedEcologicalFlows();
+        System.out.println("creating impacts");
+        createImpacts();
 
         // @todo create impacts
 
@@ -194,11 +203,11 @@ public class Reasoner {
 
     protected void ecologicalCumulatedFlowCalculation()
     {
-        cumulativeEcologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
-        cumulativeEcologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
+        cumulativeEcologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
+        cumulativeEcologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
 
 
-        for (int j = 0; j < elementaryFlowNatures.size(); j++) {
+        for (int j = 0; j < elementaryFlowTypes.size(); j++) {
 
             Vector column = ecologicalMatrix.getColumn(j);
             Vector uncertaintyColumn = ecologicalUncertaintyMatrix.getColumn(j);
@@ -308,15 +317,15 @@ public class Reasoner {
     }
 
     protected void createEcologicalMatrix() {
-        ecologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
-        ecologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowNatures.size());
+        ecologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
+        ecologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
 
         for (int i = 0; i < processes.size(); i++) {
             HashMap<Resource, Value> emissions = singleElementRepo.getEmissionsForProcess(processes.get(i));
-            for (int j = 0; j < elementaryFlowNatures.size(); j++) {
-                if (emissions.containsKey(elementaryFlowNatures.get(j))) {
-                    ecologicalMatrix.set(i, j, emissions.get(elementaryFlowNatures.get(j)).value);
-                    ecologicalUncertaintyMatrix.set(i, j, emissions.get(elementaryFlowNatures.get(j)).uncertainty);
+            for (int j = 0; j < elementaryFlowTypes.size(); j++) {
+                if (emissions.containsKey(elementaryFlowTypes.get(j))) {
+                    ecologicalMatrix.set(i, j, emissions.get(elementaryFlowTypes.get(j)).value);
+                    ecologicalUncertaintyMatrix.set(i, j, emissions.get(elementaryFlowTypes.get(j)).uncertainty);
                 }
                 else {
                     ecologicalMatrix.set(i, j, 0.0);
@@ -326,10 +335,30 @@ public class Reasoner {
         }
     }
 
+    protected void createFlowToImpactsMatrix() {
+        // W -> cols = EFT, rows = IT
+        flowToImpactsMatrix = new CCSMatrix(impactTypes.size(), elementaryFlowTypes.size());
+        flowToImpactsUncertaintyMatrix = new CCSMatrix(impactTypes.size(), elementaryFlowTypes.size());
+
+        for (int i = 0; i < impactTypes.size(); i++) {
+            HashMap<Resource, Value> components = singleElementRepo.getComponentsForImpact(impactTypes.get(i));
+            for (int j = 0; j < elementaryFlowTypes.size(); j++) {
+                if (components.containsKey(elementaryFlowTypes.get(j))) {
+                    flowToImpactsMatrix.set(i, j, components.get(elementaryFlowTypes.get(j)).value);
+                    flowToImpactsUncertaintyMatrix.set(i, j, components.get(elementaryFlowTypes.get(j)).uncertainty);
+                }
+                else {
+                    flowToImpactsMatrix.set(i, j, 0.0);
+                    flowToImpactsUncertaintyMatrix.set(i, j, 0.0);
+                }
+            }
+        }
+    }
+
     protected void createCumulatedEcologicalFlows()
     {
         for (int i = 0; i < processes.size(); i++) {
-            for (int j = 0; j < elementaryFlowNatures.size(); j++) {
+            for (int j = 0; j < elementaryFlowTypes.size(); j++) {
                 double value = cumulativeEcologicalMatrix.get(i, j);
                 if (value != 0.0) {
                     String unitID = singleElementRepo.getUnit(processes.get(i));
@@ -339,7 +368,25 @@ public class Reasoner {
 
                     singleElementRepo.addCumulatedEcologicalFlow(
                             processes.get(i),
-                            elementaryFlowNatures.get(j),
+                            elementaryFlowTypes.get(j),
+                            value,
+                            //cumulativeEcologicalUncertaintyMatrix.get(i,j)
+                            0.0
+                    );
+                }
+            }
+        }
+    }
+
+    protected void createImpacts()
+    {
+        for (int i = 0; i < processes.size(); i++) {
+            for (int j = 0; j < impactTypes.size(); j++) {
+                double value = impactMatrix.get(i, j);
+                if (value != 0.0) {
+                    singleElementRepo.addImpact(
+                            processes.get(i),
+                            impactTypes.get(j),
                             value,
                             //cumulativeEcologicalUncertaintyMatrix.get(i,j)
                             0.0

@@ -91,7 +91,7 @@ public class SingleElementRepo extends AbstractRepo {
         return candidates.get(0);
     }
 
-    public ArrayList<Resource> getElementaryFlowNatures() {
+    public ArrayList<Resource> getElementaryFlowTypes() {
         Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ElementaryFlowType);
         StmtIterator iter = model.listStatements( selector );
 
@@ -103,6 +103,20 @@ public class SingleElementRepo extends AbstractRepo {
             }
         }
         return elementaryFlowNatures;
+    }
+
+    public ArrayList<Resource> getImpactTypes() {
+        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ImpactType);
+        StmtIterator iter = model.listStatements( selector );
+
+        ArrayList<Resource> impactTypes = new ArrayList<>();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                impactTypes.add(s.getSubject());
+            }
+        }
+        return impactTypes;
     }
 
     public ArrayList<Resource> getSingleProcesses() {
@@ -143,6 +157,46 @@ public class SingleElementRepo extends AbstractRepo {
             }
         }
         return emissions;
+    }
+
+    public HashMap<String, Value> getImpactsForProcess(Resource process)
+    {
+        HashMap<String, Value> impacts = new HashMap<>();
+        StmtIterator iter = process.listProperties(Datatype.hasImpact);
+
+        while (iter.hasNext()) {
+            Resource emission = iter.nextStatement().getResource();
+            if (emission.hasProperty(Datatype.hasImpactType) && null != emission.getProperty(Datatype.hasImpactType)
+                    && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
+                Resource impactType = emission.getProperty(Datatype.hasImpactType).getResource();
+                Double value = emission.getProperty(Datatype.value).getDouble();
+                Double uncertainty = getUncertainty(emission);
+
+                impacts.put(impactType.getURI(), new Value(value, uncertainty));
+            }
+        }
+        return impacts;
+    }
+
+    public HashMap<Resource, Value> getComponentsForImpact(Resource impactType)
+    {
+        HashMap<Resource, Value> components = new HashMap<>();
+        StmtIterator iter = impactType.listProperties(Datatype.hasComponentOfImpactType);
+
+        while (iter.hasNext()) {
+            Resource component = iter.nextStatement().getResource();
+            if (component.hasProperty(Datatype.isBasedOnElementaryFlowType)
+                && null != component.getProperty(Datatype.isBasedOnElementaryFlowType)
+                && component.hasProperty(Datatype.value) && null != component.getProperty(Datatype.value)
+            ) {
+                Resource elementaryFlowType = component.getProperty(Datatype.isBasedOnElementaryFlowType).getResource();
+                Double value = component.getProperty(Datatype.value).getDouble();
+                Double uncertainty = getUncertainty(component);
+
+                components.put(elementaryFlowType, new Value(value, uncertainty));
+            }
+        }
+        return components;
     }
 
     public Double getUncertainty(Resource resource)
@@ -191,4 +245,15 @@ public class SingleElementRepo extends AbstractRepo {
                         .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
                         .addProperty(RDF.type, Datatype.CalculateElementaryFlow));
     }
+
+    public void addImpact(Resource process, Resource impactType, double value, double uncertainty)
+    {
+        process.addProperty(Datatype.hasImpact,
+                model.createResource(Datatype.getURI() + AnonId.create().toString())
+                        .addProperty(Datatype.hasImpactType, impactType)
+                        .addProperty(Datatype.value, model.createTypedLiteral(value))
+                        .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
+                        .addProperty(RDF.type, Datatype.Impact));
+    }
+
 }
