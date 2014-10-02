@@ -13,7 +13,7 @@ public abstract class AbstractRepo {
         this.model = model;
     }
 
-    protected String getLabelOrURI(Resource resource)
+    public String getLabelOrURI(Resource resource)
     {
         StmtIterator iter = resource.listProperties(RDFS.label);
         String label = resource.getURI();
