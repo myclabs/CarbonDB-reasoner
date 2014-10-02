@@ -101,16 +101,10 @@ public class Reasoner {
         System.out.println("calculating impacts");
         impactMatrix = cumulativeEcologicalMatrix.multiply(flowToImpactsMatrix.transpose());
 
-        // @todo calculate impacts (I = W.D^t)
-        // W -> cols = EFT, rows = TofI
-        // D = cumulativeEcologicalMatrix
-
         System.out.println("creating calculated flows");
         createCumulatedEcologicalFlows();
         System.out.println("creating impacts");
         createImpacts();
-
-        // @todo create impacts
 
         System.out.println("reasoning finished");
     }
@@ -384,6 +378,11 @@ public class Reasoner {
             for (int j = 0; j < impactTypes.size(); j++) {
                 double value = impactMatrix.get(i, j);
                 if (value != 0.0) {
+                    String unitID = singleElementRepo.getUnit(processes.get(i));
+                    if (!unitID.equals("")) {
+                        value *= unitsRepo.getConversionFactor(unitID);
+                    }
+
                     singleElementRepo.addImpact(
                             processes.get(i),
                             impactTypes.get(j),
