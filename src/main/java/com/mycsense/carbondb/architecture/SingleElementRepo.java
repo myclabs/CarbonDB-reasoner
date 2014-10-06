@@ -3,6 +3,7 @@ package com.mycsense.carbondb.architecture;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.mycsense.carbondb.*;
+import com.mycsense.carbondb.domain.Category;
 import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.Keyword;
 import com.mycsense.carbondb.domain.Value;
@@ -117,6 +118,56 @@ public class SingleElementRepo extends AbstractRepo {
             }
         }
         return impactTypes;
+    }
+
+    public Category getImpactTypesTree() {
+        Category root = new Category();
+
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfImpactType);
+        while (i.hasNext()) {
+            Resource categoryResource = i.next();
+            Category category = new Category(
+                    categoryResource.getURI(),
+                    getLabelOrURI(categoryResource),
+                    root);
+
+            root.addChild(category);
+            ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfImpactType, categoryResource);
+            while (iCat.hasNext()) {
+                Resource impactTypeResource = iCat.next();
+                HashMap<String, String> impactType = new HashMap<>();
+                impactType.put("uri", impactTypeResource.getURI());
+                impactType.put("label", getLabelOrURI(impactTypeResource));
+                category.addChild(impactType);
+            }
+        }
+
+        return root;
+    }
+
+    public Category getElementaryFlowTypesTree() {
+        Category root = new Category();
+
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfElementaryFlowType);
+        while (i.hasNext()) {
+            Resource categoryResource = i.next();
+            Category category = new Category(
+                    categoryResource.getURI(),
+                    getLabelOrURI(categoryResource),
+                    root);
+
+            root.addChild(category);
+            ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfElementaryFlowType, categoryResource);
+            while (iCat.hasNext()) {
+                Resource impactTypeResource = iCat.next();
+                HashMap<String, String> elementaryFlowType = new HashMap<>();
+                elementaryFlowType.put("uri", impactTypeResource.getURI());
+                elementaryFlowType.put("label", getLabelOrURI(impactTypeResource));
+                category.addChild(elementaryFlowType);
+            }
+        }
+
+        return root;
     }
 
     public ArrayList<Resource> getSingleProcesses() {

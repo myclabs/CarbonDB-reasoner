@@ -45,6 +45,8 @@ public class Datatype {
 
     public static final Property belongsToCategoryOfGroup = property("belongsToCategoryOfGroup");
     public static final Property hasParentCategoryOfGroup = property("hasParentCategoryOfGroup");
+    public static final Property belongsToCategoryOfElementaryFlowType = property("belongsToCategoryOfElementaryFlowType");
+    public static final Property belongsToCategoryOfImpactType = property("belongsToCategoryOfImpactType");
     public static final Property hasWeightCoefficient = property("hasWeightCoefficient");
     public static final Property exponent = property("exponent");
     public static final Property hasOriginProcess = property("hasOriginProcess");
