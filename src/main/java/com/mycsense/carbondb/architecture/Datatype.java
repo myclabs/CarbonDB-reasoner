@@ -29,6 +29,8 @@ public class Datatype {
     }
 
     public static final Resource Category = resource("Category");
+    public static final Resource CategoryOfImpactType = resource("CategoryOfImpactType");
+    public static final Resource CategoryOfElementaryFlowType = resource("CategoryOfElementaryFlowType");
     public static final Resource SourceRelation = resource("SourceRelation");
     public static final Resource DerivedRelation = resource("DerivedRelation");
     public static final Resource SingleProcess = resource("SingleProcess");
