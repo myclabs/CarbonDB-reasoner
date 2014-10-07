@@ -14,6 +14,7 @@ import org.json.JSONArray;
 public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
     protected HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache = new HashMap<>();
+    protected HashMap<String, String> symbolsCache = new HashMap<>();
 
     public Double getConversionFactor(String unitID)
     {
@@ -75,6 +76,34 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
         return unit;
     }
 
+    public String getUnitSymbol(String unitID)
+    {
+        if (!symbolsCache.containsKey(unitID)) {
+            System.out.println("fetching symbol for " + unitID);
+            Response response = buildBaseWebTarget()
+                    .path("unit")
+                    .path(unitID)
+                    .request(MediaType.TEXT_PLAIN_TYPE)
+                    .get();
+            if (response.getStatus() == 200) {
+                String responseString = response.readEntity(String.class);
+                JSONObject obj = new JSONObject(responseString);
+                if (obj.getJSONObject("symbol").isNull("en")
+                    || obj.getJSONObject("symbol").get("en").toString().equals("null")
+                ) {
+                    symbolsCache.put(unitID, unitID);
+                }
+                else {
+                    symbolsCache.put(unitID, obj.getJSONObject("symbol").getString("en"));
+                }
+            }
+            else {
+                symbolsCache.put(unitID, unitID);
+            }
+        }
+        return symbolsCache.get(unitID);
+    }
+
     public HashMap<String, Double> getConversionFactorsCache() {
         return conversionFactorsCache;
     }
@@ -89,6 +118,14 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
 
     public void setCompatibleUnitsCache(HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache) {
         this.compatibleUnitsCache = compatibleUnitsCache;
+    }
+
+    public HashMap<String, String> getSymbolsCache() {
+        return symbolsCache;
+    }
+
+    public void setSymbolsCache(HashMap<String, String> symbolsCache) {
+        this.symbolsCache = symbolsCache;
     }
 
     protected String findUnitOfReference(String unitID)

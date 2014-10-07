@@ -138,6 +138,7 @@ public class SingleElementRepo extends AbstractRepo {
                 HashMap<String, String> impactType = new HashMap<>();
                 impactType.put("uri", impactTypeResource.getURI());
                 impactType.put("label", getLabelOrURI(impactTypeResource));
+                impactType.put("unit", unitsRepo.getUnitSymbol(getUnit(categoryResource)));
                 category.addChild(impactType);
             }
         }
@@ -163,6 +164,7 @@ public class SingleElementRepo extends AbstractRepo {
                 HashMap<String, String> elementaryFlowType = new HashMap<>();
                 elementaryFlowType.put("uri", impactTypeResource.getURI());
                 elementaryFlowType.put("label", getLabelOrURI(impactTypeResource));
+                elementaryFlowType.put("unit", unitsRepo.getUnitSymbol(getUnit(categoryResource)));
                 category.addChild(elementaryFlowType);
             }
         }
