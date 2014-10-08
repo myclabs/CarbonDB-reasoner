@@ -277,7 +277,7 @@ public class SingleElementRepo extends AbstractRepo {
 
     public Resource createProcess(Dimension dimension, String unitURI)
     {
-        Resource process = model.createResource(Datatype.getURI() + AnonId.create().toString())
+        Resource process = model.createResource(Datatype.getURI() + "sp/" + AnonId.create().toString())
                 .addProperty(RDF.type, Datatype.SingleProcess);
         if (null != unitURI) {
             process.addProperty(Datatype.hasUnit, model.createResource(unitURI));
@@ -307,6 +307,23 @@ public class SingleElementRepo extends AbstractRepo {
                         .addProperty(Datatype.value, model.createTypedLiteral(value))
                         .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
                         .addProperty(RDF.type, Datatype.Impact));
+    }
+
+    public Dimension getSingleElementKeywords(Resource singleElement)
+    {
+        Selector selector = new SimpleSelector(singleElement, Datatype.hasTag, (RDFNode) null);
+        StmtIterator iter = model.listStatements( selector );
+
+        Dimension dim = new Dimension();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                Keyword keyword = new Keyword(s.getObject().toString());
+                keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
+                dim.add(keyword);
+            }
+        }
+        return dim;
     }
 
 }
