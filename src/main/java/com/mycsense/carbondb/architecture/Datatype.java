@@ -28,7 +28,7 @@ public class Datatype {
         return ResourceFactory.createProperty( uri, local );
     }
 
-    public static final Resource Category = resource("Category");
+    public static final Resource CategoryOfGroup = resource("CategoryOfGroup");
     public static final Resource CategoryOfImpactType = resource("CategoryOfImpactType");
     public static final Resource CategoryOfElementaryFlowType = resource("CategoryOfElementaryFlowType");
     public static final Resource SourceRelation = resource("SourceRelation");
@@ -44,7 +44,7 @@ public class Datatype {
     public static final Resource Impact = resource("Impact");
 
     public static final Property belongsToCategoryOfGroup = property("belongsToCategoryOfGroup");
-    public static final Property hasParentCategoryOfGroup = property("hasParentCategoryOfGroup");
+    public static final Property belongsToParentCategoryOfGroup = property("belongsToParentCategoryOfGroup");
     public static final Property belongsToCategoryOfElementaryFlowType = property("belongsToCategoryOfElementaryFlowType");
     public static final Property belongsToCategoryOfImpactType = property("belongsToCategoryOfImpactType");
     public static final Property hasWeightCoefficient = property("hasWeightCoefficient");

@@ -15,11 +15,11 @@ public class CategoryRepo extends AbstractRepo {
     public Category getCategoriesTree() {
         Category root = new Category();
 
-        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Category);
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfGroup);
         while (i.hasNext()) {
             Resource categoryResource = i.next();
-            if (!categoryResource.hasProperty(Datatype.hasParentCategoryOfGroup)
-                    || categoryResource.getProperty(Datatype.hasParentCategoryOfGroup) == null
+            if (!categoryResource.hasProperty(Datatype.belongsToParentCategoryOfGroup)
+                    || categoryResource.getProperty(Datatype.belongsToParentCategoryOfGroup) == null
                     ) {
                 root.addChild(getCategory(categoryResource, root));
             }
@@ -33,7 +33,7 @@ public class CategoryRepo extends AbstractRepo {
                 categoryResource.getURI(),
                 getLabelOrURI(categoryResource),
                 parentCategory);
-        ResIterator i = model.listResourcesWithProperty(Datatype.hasParentCategoryOfGroup, categoryResource);
+        ResIterator i = model.listResourcesWithProperty(Datatype.belongsToParentCategoryOfGroup, categoryResource);
         while (i.hasNext()) {
             Resource subCategoryResource = i.next();
             category.addChild(getCategory(subCategoryResource, category));
