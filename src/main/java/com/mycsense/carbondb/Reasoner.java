@@ -60,6 +60,7 @@ public class Reasoner {
 
         RepoFactory.setModel(infModel);
         RepoFactory.setUnitsRepo(unitsRepo);
+        RepoFactory.setReasonnerReport(report);
         relationRepo = RepoFactory.getRelationRepo();
         singleElementRepo = RepoFactory.getSingleElementRepo();
         System.out.println("loading and translating sourceRelations");

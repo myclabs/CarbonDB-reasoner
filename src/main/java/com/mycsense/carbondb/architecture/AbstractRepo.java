@@ -29,6 +29,7 @@ public abstract class AbstractRepo {
             if (!enFound) {
                 Statement s = resource.getProperty(RDFS.label);
                 label = s.getString();
+                RepoFactory.getReasonnerReport().addWarning("No english label found for resource: " + resource.getURI());
             }
         }
         return label;
