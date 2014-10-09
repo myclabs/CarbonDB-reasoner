@@ -57,7 +57,7 @@ public class Datatype {
     public static final Property hasHorizontalDimension = property("hasHorizontalDimension");
     public static final Property hasVerticalDimension = property("hasVerticalDimension");
     public static final Property hasCommonTag = property("hasCommonTag");
-    public static final Property hasDetailedRelation = property("hasDetailedRelation");
+    public static final Property hasDerivedRelation = property("hasDerivedRelation");
     public static final Property hasFlow = property("hasFlow");
     public static final Property hasImpact = property("hasImpact");
     public static final Property hasImpactType = property("hasImpactType");

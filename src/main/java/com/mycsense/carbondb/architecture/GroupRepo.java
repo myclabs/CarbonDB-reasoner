@@ -2,6 +2,7 @@ package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.DimensionSet;
@@ -58,6 +59,9 @@ public class GroupRepo extends AbstractRepo {
         group.setUnit(getUnit(groupResource));
         group.setUnitURI(getUnitURI(groupResource));
         group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
+        if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
+            group.setComment(groupResource.getProperty(RDFS.comment).getString());
+        }
         return group;
     }
 
@@ -70,6 +74,9 @@ public class GroupRepo extends AbstractRepo {
         group.setUnit(getUnit(groupResource));
         group.setUnitURI(getUnitURI(groupResource));
         group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
+        if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
+            group.setComment(groupResource.getProperty(RDFS.comment).getString());
+        }
         return group;
     }
 
