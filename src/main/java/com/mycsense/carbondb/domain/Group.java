@@ -15,6 +15,7 @@ public class Group
     protected String id;
     protected String unit;
     protected String unitURI;
+    protected String comment;
 
     public Group() {
         dimSet = new DimensionSet();
@@ -130,5 +131,13 @@ public class Group
 
     public Type getType() {
         return type;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }
