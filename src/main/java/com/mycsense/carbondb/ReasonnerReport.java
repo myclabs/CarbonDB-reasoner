@@ -11,6 +11,7 @@ public class ReasonnerReport {
     }
 
     public void addWarning(String warning) {
-    	warnings.add(warning);
+    	if (!warnings.contains(warning))
+            warnings.add(warning);
     }
 }

@@ -23,6 +23,9 @@ public abstract class AbstractRepo {
                 Statement s = iter.nextStatement();
                 if (s.getLanguage().equals("en")) {
                     label = s.getString();
+                    if (enFound) {
+                        RepoFactory.getReasonnerReport().addWarning("More than one english label found for resource: " + resource.getURI());
+                    }
                     enFound = true;
                 }
             }
