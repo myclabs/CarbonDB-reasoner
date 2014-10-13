@@ -62,6 +62,7 @@ public class GroupRepo extends AbstractRepo {
         if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
             group.setComment(groupResource.getProperty(RDFS.comment).getString());
         }
+        group.setReferences(RepoFactory.getReferenceRepo().getReferences(groupResource));
         return group;
     }
 

@@ -8,6 +8,7 @@ public class RepoFactory {
     protected static GroupRepo groupRepo;
     protected static SingleElementRepo singleElementRepo;
     protected static RelationRepo relationRepo;
+    protected static ReferenceRepo referenceRepo;
     protected static Model model;
     protected static UnitsRepo unitsRepo;
     protected static ReasonnerReport reasonnerReport;
@@ -52,6 +53,13 @@ public class RepoFactory {
         if (null == relationRepo)
             relationRepo = new RelationRepo(model, unitsRepo);
         return relationRepo;
+    }
+
+    public static ReferenceRepo getReferenceRepo() {
+        checkProperlyInitialized();
+        if (null == referenceRepo)
+            referenceRepo = new ReferenceRepo(model);
+        return referenceRepo;
     }
 
     public static ReasonnerReport getReasonnerReport() {

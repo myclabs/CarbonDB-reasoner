@@ -2,6 +2,8 @@ package com.mycsense.carbondb.domain;
 
 import com.mycsense.carbondb.domain.group.Type;
 
+import java.util.ArrayList;
+
 public class Group
 {
     public DimensionSet dimSet;
@@ -16,6 +18,8 @@ public class Group
     protected String unit;
     protected String unitURI;
     protected String comment;
+
+    protected ArrayList<Reference> references;
 
     public Group() {
         dimSet = new DimensionSet();
@@ -139,5 +143,13 @@ public class Group
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public ArrayList<Reference> getReferences() {
+        return references;
+    }
+
+    public void setReferences(ArrayList<Reference> references) {
+        this.references = references;
     }
 }

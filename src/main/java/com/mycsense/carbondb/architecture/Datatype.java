@@ -71,4 +71,12 @@ public class Datatype {
     public static final Property hasComponentOfImpactType = property("hasComponentOfImpactType");
     public static final Property isBasedOnElementaryFlowType = property("isBasedOnElementaryFlowType");
 
+    // References properties
+    public static final Property hasReference = property("hasReference");
+    public static final Property creator = property("creator");
+    public static final Property date = property("date");
+    public static final Property publisher = property("publisher");
+    public static final Property source = property("source");
+    public static final Property title = property("title");
+    public static final Property URL = property("URL");
 }
