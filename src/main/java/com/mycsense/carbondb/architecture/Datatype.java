@@ -42,6 +42,7 @@ public class Datatype {
     public static final Resource ProcessGroup = resource("ProcessGroup");
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
     public static final Resource Impact = resource("Impact");
+    public static final Resource PositionOfKeywordInDimension = resource("PositionOfKeywordInDimension");
 
     public static final Property belongsToCategoryOfGroup = property("belongsToCategoryOfGroup");
     public static final Property belongsToParentCategoryOfGroup = property("belongsToParentCategoryOfGroup");
@@ -70,6 +71,9 @@ public class Datatype {
     public static final Property foreignUnitID = property("foreignUnitID");
     public static final Property hasComponentOfImpactType = property("hasComponentOfImpactType");
     public static final Property isBasedOnElementaryFlowType = property("isBasedOnElementaryFlowType");
+    public static final Property hasPositionForSomeKeyword = property("hasPositionForSomeKeyword");
+    public static final Property providesPositionToKeyword = property("providesPositionToKeyword");
+    public static final Property position = property("position");
 
     // References properties
     public static final Property hasReference = property("hasReference");

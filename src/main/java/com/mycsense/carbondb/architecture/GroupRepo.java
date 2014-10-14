@@ -10,6 +10,7 @@ import com.mycsense.carbondb.domain.Group;
 import com.mycsense.carbondb.domain.Keyword;
 import com.mycsense.carbondb.domain.group.Type;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 public class GroupRepo extends AbstractRepo {
@@ -121,6 +122,7 @@ public class GroupRepo extends AbstractRepo {
 
     protected Dimension getDimensionKeywords(Resource dimensionResource)
     {
+        ArrayList<Keyword> keywords = new ArrayList<>();
         Selector selector = new SimpleSelector(dimensionResource, Datatype.containsKeyword, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
@@ -133,6 +135,24 @@ public class GroupRepo extends AbstractRepo {
                 dim.add(keyword);
             }
         }
+        setKeywordsPositionForDimension(dimensionResource, dim);
         return dim;
+    }
+
+    protected void setKeywordsPositionForDimension(Resource dimensionResource, Dimension dimension) {
+        NodeIterator i = model.listObjectsOfProperty(dimensionResource, Datatype.hasPositionForSomeKeyword);
+        while (i.hasNext()) {
+            Resource positionResource = i.next().asResource();
+            if (positionResource.hasProperty(Datatype.position)
+                && positionResource.getProperty(Datatype.position) != null
+                && positionResource.hasProperty(Datatype.providesPositionToKeyword)
+                && positionResource.getProperty(Datatype.providesPositionToKeyword) != null
+            ) {
+                dimension.addKeywordPosition(
+                        positionResource.getProperty(Datatype.position).getInt(),
+                        positionResource.getPropertyResourceValue(Datatype.providesPositionToKeyword).getURI()
+                );
+            }
+        }
     }
 }
