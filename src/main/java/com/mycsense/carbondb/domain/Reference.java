@@ -8,8 +8,16 @@ public class Reference {
     protected String publisher;
     protected String date;
     protected String URI;
+    protected String shortName;
 
-    public Reference(String title, String source, String URL, String creator, String publisher, String date, String URI) {
+    public Reference(String title,
+                     String source,
+                     String URL,
+                     String creator,
+                     String publisher,
+                     String date,
+                     String URI,
+                     String shortName) {
         this.title = title;
         this.source = source;
         this.URL = URL;
@@ -17,6 +25,7 @@ public class Reference {
         this.publisher = publisher;
         this.date = date;
         this.URI = URI;
+        this.shortName = shortName;
     }
 
     public String getTitle() {
@@ -73,5 +82,13 @@ public class Reference {
 
     public void setURI(String URI) {
         this.URI = URI;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 }

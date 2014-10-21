@@ -83,4 +83,5 @@ public class Datatype {
     public static final Property source = property("source");
     public static final Property title = property("title");
     public static final Property URL = property("URL");
+    public static final Property shortName = property("shortName");
 }

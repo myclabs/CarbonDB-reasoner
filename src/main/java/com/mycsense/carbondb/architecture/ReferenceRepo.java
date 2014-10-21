@@ -29,9 +29,10 @@ public class ReferenceRepo extends AbstractRepo {
                URL = getStringForProperty(referenceResource, Datatype.URL),
                creator = getStringForProperty(referenceResource, Datatype.creator),
                publisher = getStringForProperty(referenceResource, Datatype.publisher),
-               date = getStringForProperty(referenceResource, Datatype.date);
+               date = getStringForProperty(referenceResource, Datatype.date),
+               shortName = getStringForProperty(referenceResource, Datatype.shortName);
 
-        return new Reference(title, source, URL, creator, publisher, date, referenceResource.getURI());
+        return new Reference(title, source, URL, creator, publisher, date, referenceResource.getURI(), shortName);
     }
 
     protected String getStringForProperty(Resource resource, Property property) {
