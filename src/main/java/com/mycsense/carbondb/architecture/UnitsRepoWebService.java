@@ -15,6 +15,11 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
     protected HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache = new HashMap<>();
     protected HashMap<String, String> symbolsCache = new HashMap<>();
+    protected String unitsAPIURI = "http://units.myc-sense.com/api";
+
+    public void setUnitsAPIURI(String unitsAPIURI) {
+        this.unitsAPIURI = unitsAPIURI;
+    }
 
     public Double getConversionFactor(String unitID)
     {
@@ -179,6 +184,6 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     protected WebTarget buildBaseWebTarget()
     {
         return ClientBuilder.newClient()
-               .target("http://units.myc-sense.com/api");
+               .target(unitsAPIURI);
     }
 }
