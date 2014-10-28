@@ -4,8 +4,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import com.mycsense.carbondb.architecture.Datatype;
 import com.mycsense.carbondb.architecture.UnitsRepo;
 import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.relation.Type;
 import org.junit.Test;
 import org.junit.Before;
 import org.mockito.Mockito;
@@ -22,6 +24,7 @@ public class SourceRelationTest
     Dimension dim12, dim34;
     String unit;
     UnitsRepo unitsRepo;
+    RelationType type;
 
     @Before
     public void setUp() {
@@ -34,6 +37,8 @@ public class SourceRelationTest
         dim34 = new Dimension(kw3, kw4);
 
         unit = "";
+
+        type = new RelationType(Datatype.getURI() + "type", "type", Type.SYNCHRONOUS);
 
         unitsRepo = Mockito.mock(UnitsRepo.class);
         Mockito.when(unitsRepo.getConversionFactor(Mockito.anyString())).thenReturn(1.0);

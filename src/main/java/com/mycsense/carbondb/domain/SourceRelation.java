@@ -17,6 +17,7 @@ public class SourceRelation {
     protected String uri;
     protected int exponent = 1;
     protected UnitsRepo unitsRepo;
+    protected RelationType type;
 
     public SourceRelation(Group source, Group coeff, Group destination, UnitsRepo unitsRepo) {
         this.source = source;
@@ -145,5 +146,13 @@ public class SourceRelation {
 
     public int getExponent() {
         return exponent;
+    }
+
+    public RelationType getType() {
+        return type;
+    }
+
+    public void setType(RelationType type) {
+        this.type = type;
     }
 }

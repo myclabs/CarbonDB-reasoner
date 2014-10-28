@@ -43,6 +43,8 @@ public class Datatype {
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
     public static final Resource Impact = resource("Impact");
     public static final Resource PositionOfKeywordInDimension = resource("PositionOfKeywordInDimension");
+    public static final Resource RelationType = resource("RelationType");
+    public static final Resource Asynchronous = resource("Asynchronous");
 
     public static final Property belongsToCategoryOfGroup = property("belongsToCategoryOfGroup");
     public static final Property belongsToParentCategoryOfGroup = property("belongsToParentCategoryOfGroup");
@@ -74,6 +76,7 @@ public class Datatype {
     public static final Property hasPositionForSomeKeyword = property("hasPositionForSomeKeyword");
     public static final Property providesPositionToKeyword = property("providesPositionToKeyword");
     public static final Property position = property("position");
+    public static final Property hasRelationType = property("hasRelationType");
 
     // References properties
     public static final Property hasReference = property("hasReference");

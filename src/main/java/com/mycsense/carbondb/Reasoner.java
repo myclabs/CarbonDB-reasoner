@@ -409,6 +409,7 @@ public class Reasoner {
                 // having a null coefficient is a common use case
             }
             catch (MultipleElementsFoundException e) {
+                //@todo fix this (coeff is null at this point)
                 report.addWarning(e.getMessage());
             }
             if (coeff != null) {
