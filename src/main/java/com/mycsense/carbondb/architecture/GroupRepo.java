@@ -9,13 +9,16 @@ import com.mycsense.carbondb.domain.group.Type;
 
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GroupRepo extends AbstractRepo {
     private final UnitsRepo unitsRepo;
+    protected HashMap<String, Group> groupCache;
 
     public GroupRepo(Model model, UnitsRepo unitsRepo) {
         super(model);
         this.unitsRepo = unitsRepo;
+        groupCache = new HashMap<>();
     }
 
     public ArrayList<Group> getProcessGroups()
@@ -52,22 +55,25 @@ public class GroupRepo extends AbstractRepo {
 
     public Group getGroup(Resource groupResource)
     {
-        Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
-        group.setLabel(getLabelOrURI(groupResource));
-        group.setURI(groupResource.getURI());
-        group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
-        String unitRef = getUnit(groupResource);
-        group.setUnit(new Unit(
-                getUnitURI(groupResource),
-                unitsRepo.getUnitSymbol(unitRef),
-                unitRef
-        ));
-        group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
-        if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
-            group.setComment(groupResource.getProperty(RDFS.comment).getString());
+        if (!groupCache.containsKey(groupResource.getURI())) {
+            Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
+            group.setLabel(getLabelOrURI(groupResource));
+            group.setURI(groupResource.getURI());
+            group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
+            String unitRef = getUnit(groupResource);
+            group.setUnit(new Unit(
+                    getUnitURI(groupResource),
+                    unitsRepo.getUnitSymbol(unitRef),
+                    unitRef
+            ));
+            group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
+            if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
+                group.setComment(groupResource.getProperty(RDFS.comment).getString());
+            }
+            group.setReferences(RepoFactory.getReferenceRepo().getReferences(groupResource));
+            groupCache.put(groupResource.getURI(), group);
         }
-        group.setReferences(RepoFactory.getReferenceRepo().getReferences(groupResource));
-        return group;
+        return groupCache.get(groupResource.getURI());
     }
 
     public Group getSimpleGroup(Resource groupResource)

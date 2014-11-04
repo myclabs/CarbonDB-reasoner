@@ -16,7 +16,8 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
     protected HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache = new HashMap<>();
     protected HashMap<String, String> symbolsCache = new HashMap<>();
-    protected String unitsAPIURI = "http://units.myc-sense.com/api";
+    //protected String unitsAPIURI = "http://units.myc-sense.com/api";
+    protected String unitsAPIURI = "http://localhost/units/api";
 
     public void setUnitsAPIURI(String unitsAPIURI) {
         this.unitsAPIURI = unitsAPIURI;
