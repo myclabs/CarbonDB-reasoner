@@ -3,10 +3,7 @@ package com.mycsense.carbondb.architecture;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.mycsense.carbondb.*;
-import com.mycsense.carbondb.domain.Category;
-import com.mycsense.carbondb.domain.Dimension;
-import com.mycsense.carbondb.domain.Keyword;
-import com.mycsense.carbondb.domain.Value;
+import com.mycsense.carbondb.domain.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,25 +13,43 @@ import java.util.List;
 public class SingleElementRepo extends AbstractRepo {
 
     protected UnitsRepo unitsRepo;
+    protected HashMap<String, Resource> processesResourceCache;
+    protected HashMap<String, Resource> coefficientsResourceCache;
+    protected HashMap<String, CarbonProcess> processesCache;
+    protected HashMap<String, CarbonProcess> coefficientsCache;
 
     public SingleElementRepo(Model model, UnitsRepo unitsRepo) {
         super(model);
         this.unitsRepo = unitsRepo;
+        processesResourceCache = new HashMap<>();
+        coefficientsResourceCache = new HashMap<>();
+        processesCache = new HashMap<>();
+        coefficientsCache = new HashMap<>();
     }
 
     public Resource getProcessForDimension(Dimension dimension, String unit)
             throws MultipleElementsFoundException, NoElementFoundException
     {
-        return getElementForDimension(dimension, unit, Datatype.SingleProcess);
+        String elementKey = dimension.toString() + unit;
+        if (!processesResourceCache.containsKey(elementKey)) {
+            Resource processResource = getElementResourceForDimension(dimension, unit, Datatype.SingleProcess);
+            processesResourceCache.put(elementKey, processResource);
+        }
+        return processesResourceCache.get(elementKey);
     }
 
     public Resource getCoefficientForDimension(Dimension dimension, String unit)
             throws MultipleElementsFoundException, NoElementFoundException
     {
-        return getElementForDimension(dimension, unit, Datatype.SingleCoefficient);
+        String elementKey = dimension.toString() + unit;
+        if (!coefficientsResourceCache.containsKey(elementKey)) {
+            Resource coefficientResource = getElementResourceForDimension(dimension, unit, Datatype.SingleCoefficient);
+            coefficientsResourceCache.put(elementKey, coefficientResource);
+        }
+        return coefficientsResourceCache.get(elementKey);
     }
 
-    protected Resource getElementForDimension(Dimension dimension, String unit, Resource singleType)
+    protected Resource getElementResourceForDimension(Dimension dimension, String unit, Resource singleType)
             throws MultipleElementsFoundException, NoElementFoundException
     {
         // @todo: throw an exception instead of returning null when the element could not be found?
@@ -53,11 +68,9 @@ public class SingleElementRepo extends AbstractRepo {
             Resource candidate = i.next();
             if (!model.contains(candidate, RDF.type, (RDFNode) singleType)) {
                 i.remove();
-            }
-            else if (!getUnitURI(candidate).equals(unit)) {
+            } else if (!getUnitURI(candidate).equals(unit)) {
                 i.remove();
-            }
-            else {
+            } else {
                 NodeIterator nodeIter = model.listObjectsOfProperty(candidate, Datatype.hasTag);
                 int listSize = nodeIter.toList().size();
                 if (listSize != dimension.size()) {
@@ -172,6 +185,36 @@ public class SingleElementRepo extends AbstractRepo {
         return root;
     }
 
+    public CarbonProcess getProcess(Resource processResource)
+    {
+        if (!processesCache.containsKey(processResource.getURI())) {
+            CarbonProcess process = new CarbonProcess(getElementKeywords(processResource));
+            process.setEmissions(getEmissionsForProcess(processResource));
+            process.setImpacts(getImpactsForProcess(processResource));
+            process.setUnit(getUnit(processResource));
+            process.setUnitURI(getUnitURI(processResource));
+            processesCache.put(processResource.getURI(), process);
+        }
+        return processesCache.get(processResource.getURI());
+    }
+
+    protected Dimension getElementKeywords(Resource elementResource)
+    {
+        Selector selector = new SimpleSelector(elementResource, Datatype.hasTag, (RDFNode) null);
+        StmtIterator iter = model.listStatements( selector );
+
+        Dimension dim = new Dimension();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                Statement s = iter.nextStatement();
+                Keyword keyword = new Keyword(s.getObject().toString());
+                keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
+                dim.add(keyword);
+            }
+        }
+        return dim;
+    }
+
     public ArrayList<Resource> getSingleProcesses() {
         Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.SingleProcess);
         StmtIterator iter = model.listStatements( selector );
@@ -277,16 +320,18 @@ public class SingleElementRepo extends AbstractRepo {
 
     public Resource createProcess(Dimension dimension, String unitURI)
     {
-        Resource process = model.createResource(Datatype.getURI() + "sp/" + AnonId.create().toString())
+        CarbonProcess process = new CarbonProcess(dimension);
+        process.setUnitURI(unitURI);
+        Resource processResource = model.createResource(Datatype.getURI() + "sp/" + AnonId.create().toString())
                 .addProperty(RDF.type, Datatype.SingleProcess);
         if (null != unitURI) {
-            process.addProperty(Datatype.hasUnit, model.createResource(unitURI));
+            processResource.addProperty(Datatype.hasUnit, model.createResource(unitURI));
         }
         for (Keyword keyword: dimension.keywords) {
             Resource keywordResource = model.createResource(keyword.name);
-            process.addProperty(Datatype.hasTag, keywordResource);
+            processResource.addProperty(Datatype.hasTag, keywordResource);
         }
-        return process;
+        return processResource;
     }
 
     public void addCumulatedEcologicalFlow(Resource process, Resource elementaryFlowNature, double value, double uncertainty)
