@@ -77,6 +77,7 @@ public class Datatype {
     public static final Property providesPositionToKeyword = property("providesPositionToKeyword");
     public static final Property position = property("position");
     public static final Property hasRelationType = property("hasRelationType");
+    public static final Property isDerivedFrom = property("isDerivedFrom");
 
     // References properties
     public static final Property hasReference = property("hasReference");

@@ -115,11 +115,12 @@ public class RelationRepo  extends AbstractRepo {
         return relations;
     }
 
-    public void addDerivedRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess, int exponent)
+    public void addDerivedRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess, int exponent, Resource sourceRelation)
     {
         sourceProcess.addProperty(Datatype.hasDerivedRelation,
                 model.createResource(Datatype.getURI() + AnonId.create().toString())
                         .addProperty(RDF.type, Datatype.DerivedRelation)
+                        .addProperty(Datatype.isDerivedFrom, sourceRelation)
                         .addProperty(Datatype.hasOriginProcess, sourceProcess)
                         .addProperty(Datatype.hasWeightCoefficient, coeff)
                         .addProperty(Datatype.hasDestinationProcess, destinationProcess)

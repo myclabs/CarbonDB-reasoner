@@ -67,7 +67,7 @@ public class Reasoner {
         for (Resource sourceRelationResource: relationRepo.getSourceRelationsResources()) {
             try {
                 SourceRelation sourceRelation = relationRepo.getSourceRelation(sourceRelationResource);
-                sourceRelation.setDerivedRelations(createDerivedRelations(sourceRelation.translate()));
+                sourceRelation.setDerivedRelations(createDerivedRelations(sourceRelation.translate(), sourceRelationResource));
             }
             catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
                 report.addError(e.getMessage());
@@ -396,7 +396,7 @@ public class Reasoner {
         }
     }
 
-    protected ArrayList<DerivedRelation> createDerivedRelations(ArrayList<DerivedRelation> derivedRelations)
+    protected ArrayList<DerivedRelation> createDerivedRelations(ArrayList<DerivedRelation> derivedRelations, Resource sourceRelation)
         throws IllegalArgumentException
     {
         Resource coeff = null, sourceProcess = null, destinationProcess = null;
@@ -434,7 +434,7 @@ public class Reasoner {
                     report.addWarning(e.getMessage());
                 }
                 if (null != sourceProcess && null != coeff && null != destinationProcess) {
-                    relationRepo.addDerivedRelation(sourceProcess, coeff, destinationProcess, derivedRelation.exponent);
+                    relationRepo.addDerivedRelation(sourceProcess, coeff, destinationProcess, derivedRelation.exponent, sourceRelation);
                     derivedRelation.sourceURI = sourceProcess.getURI();
                     derivedRelation.coeffURI = coeff.getURI();
                     derivedRelation.destinationURI = destinationProcess.getURI();
