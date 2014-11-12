@@ -8,14 +8,17 @@ import com.mycsense.carbondb.domain.SourceRelation;
 import com.mycsense.carbondb.domain.relation.Type;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class RelationRepo  extends AbstractRepo {
 
     private final UnitsRepo unitsRepo;
+    protected HashMap<String, SourceRelation> sourceRelationsCache;
 
     public RelationRepo(Model model, UnitsRepo unitsRepo) {
         super(model);
         this.unitsRepo = unitsRepo;
+        sourceRelationsCache = new HashMap<>();
     }
 
     public ArrayList<Resource> getSourceRelationsResources() {
@@ -53,30 +56,32 @@ public class RelationRepo  extends AbstractRepo {
     }
 
     public SourceRelation getSourceRelation(Resource sourceRelationResource) {
-        GroupRepo groupRepo = RepoFactory.getGroupRepo();
-        //RepoFactory.getReasonnerReport().addWarning
-        SourceRelation sourceRelation = new SourceRelation(
-                groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource()),
-                groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource()),
-                groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource()),
-                unitsRepo
-        );
-        sourceRelation.setURI(sourceRelationResource.getURI());
-        if (sourceRelationResource.hasProperty(Datatype.hasRelationType)
-                && sourceRelationResource.getProperty(Datatype.hasRelationType) != null
-        ) {
-            sourceRelation.setType(getRelationType(sourceRelationResource.getProperty(Datatype.hasRelationType).getResource()));
+        if (!sourceRelationsCache.containsKey(sourceRelationResource.getURI())) {
+            GroupRepo groupRepo = RepoFactory.getGroupRepo();
+            //RepoFactory.getReasonnerReport().addWarning
+            SourceRelation sourceRelation = new SourceRelation(
+                    groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource()),
+                    groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource()),
+                    groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource()),
+                    unitsRepo
+            );
+            sourceRelation.setURI(sourceRelationResource.getURI());
+            if (sourceRelationResource.hasProperty(Datatype.hasRelationType)
+                    && sourceRelationResource.getProperty(Datatype.hasRelationType) != null
+                    ) {
+                sourceRelation.setType(getRelationType(sourceRelationResource.getProperty(Datatype.hasRelationType).getResource()));
+            } else {
+                RepoFactory.getReasonnerReport().addWarning("The source relation "
+                        + sourceRelationResource.getURI() + " has no type");
+            }
+            if (sourceRelationResource.hasProperty(Datatype.exponent)
+                    && null != sourceRelationResource.getProperty(Datatype.exponent)
+                    ) {
+                sourceRelation.setExponent(sourceRelationResource.getProperty(Datatype.exponent).getInt());
+            }
+            sourceRelationsCache.put(sourceRelationResource.getURI(), sourceRelation);
         }
-        else {
-            RepoFactory.getReasonnerReport().addWarning("The source relation "
-                    + sourceRelationResource.getURI() + " has no type");
-        }
-        if (sourceRelationResource.hasProperty(Datatype.exponent)
-                && null != sourceRelationResource.getProperty(Datatype.exponent)
-                ) {
-            sourceRelation.setExponent(sourceRelationResource.getProperty(Datatype.exponent).getInt());
-        }
-        return sourceRelation;
+        return sourceRelationsCache.get(sourceRelationResource.getURI());
     }
 
     public Double getCoefficientValueForRelation(Resource relation) {
