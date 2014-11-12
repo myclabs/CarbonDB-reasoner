@@ -15,8 +15,7 @@ public class Group
     protected String label;
     protected String uri;
     protected String id;
-    protected String unit;
-    protected String unitURI;
+    protected Unit unit;
     protected String comment;
 
     protected ArrayList<Reference> references;
@@ -26,16 +25,12 @@ public class Group
         dimSetWithCommonKeywords = new DimensionSet();
         commonKeywords = new Dimension();
         elements = new DimensionSet();
-        unit = new String();
-        unitURI = new String();
     }
 
     public Group(Dimension... dimensions) {
         dimSet = new DimensionSet();
         dimSetWithCommonKeywords = new DimensionSet();
         commonKeywords = new Dimension();
-        unit = new String();
-        unitURI = new String();
         for (Dimension dimension: dimensions) {
             addDimension(dimension);
         }
@@ -46,16 +41,12 @@ public class Group
         this.dimSet = dimSet;
         dimSetWithCommonKeywords = new DimensionSet(dimSet);
         commonKeywords = new Dimension();
-        unit = new String();
-        unitURI = new String();
         createElements();
     }
 
     public Group(DimensionSet dimSet, Dimension commonKeywords) {
         this.dimSet = dimSet;
         dimSetWithCommonKeywords = new DimensionSet(dimSet);
-        unit = new String();
-        unitURI = new String();
         setCommonKeywords(commonKeywords);
         createElements();
     }
@@ -113,20 +104,12 @@ public class Group
         return id;
     }
 
-    public void setUnit(String unit) {
+    public void setUnit(Unit unit) {
         this.unit = unit;
     }
 
-    public String getUnit() {
+    public Unit getUnit() {
         return unit;
-    }
-
-    public void setUnitURI(String unitURI) {
-        this.unitURI = unitURI;
-    }
-
-    public String getUnitURI() {
-        return unitURI;
     }
 
     public void setType(Type type) {

@@ -1,6 +1,5 @@
 package com.mycsense.carbondb;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
@@ -22,7 +21,7 @@ public class SourceRelationTest
 {
     Keyword kw1, kw2, kw3, kw4;
     Dimension dim12, dim34;
-    String unit;
+    Unit unit;
     UnitsRepo unitsRepo;
     RelationType type;
 
@@ -36,13 +35,15 @@ public class SourceRelationTest
         dim12 = new Dimension(kw1, kw2);
         dim34 = new Dimension(kw3, kw4);
 
-        unit = "";
+        unit = new Unit(null, "");
 
         type = new RelationType(Datatype.getURI() + "type", "type", Type.SYNCHRONOUS);
 
         unitsRepo = Mockito.mock(UnitsRepo.class);
         Mockito.when(unitsRepo.getConversionFactor(Mockito.anyString())).thenReturn(1.0);
         Mockito.when(unitsRepo.areCompatible(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+        Mockito.when(unitsRepo.areCompatible(Mockito.any(Unit.class), Mockito.anyString())).thenReturn(true);
+        Mockito.when(unitsRepo.areCompatible(Mockito.any(Unit.class), Mockito.any(Unit.class))).thenReturn(true);
     }
 
     /**
@@ -162,6 +163,9 @@ public class SourceRelationTest
         Group upstreamGroup = new Group(dimSet);
         Group coeffGroup = new Group(dimSet);
         Group downstreamGroup = new Group(dimSet);
+        upstreamGroup.setUnit(unit);
+        coeffGroup.setUnit(unit);
+        downstreamGroup.setUnit(unit);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
@@ -171,7 +175,7 @@ public class SourceRelationTest
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
@@ -194,6 +198,9 @@ public class SourceRelationTest
         Group upstreamGroup = new Group(dimSet1234);
         Group coeffGroup = new Group(dimSet1234);
         Group downstreamGroup = new Group(dimSet12);
+        upstreamGroup.setUnit(unit);
+        coeffGroup.setUnit(unit);
+        downstreamGroup.setUnit(unit);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
@@ -203,7 +210,7 @@ public class SourceRelationTest
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim13 = new Dimension(kw1, kw3);
@@ -228,6 +235,9 @@ public class SourceRelationTest
         Group upstreamGroup = new Group(dimSet12);
         Group coeffGroup = new Group(dimSet12);
         Group downstreamGroup = new Group(dimSet1234);
+        upstreamGroup.setUnit(unit);
+        coeffGroup.setUnit(unit);
+        downstreamGroup.setUnit(unit);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
@@ -237,7 +247,7 @@ public class SourceRelationTest
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim13 = new Dimension(kw1, kw3);
@@ -262,6 +272,9 @@ public class SourceRelationTest
         Group upstreamGroup = new Group(dimSet1234);
         Group coeffGroup = new Group(dimSet1234);
         Group downstreamGroup = new Group(dimSet123);
+        upstreamGroup.setUnit(unit);
+        coeffGroup.setUnit(unit);
+        downstreamGroup.setUnit(unit);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
@@ -271,7 +284,7 @@ public class SourceRelationTest
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim23 = new Dimension(kw2, kw3);
         expectedDerivedRelations.add(new DerivedRelation(dim13, unit, dim13, unit, dim13, unit));
@@ -290,6 +303,9 @@ public class SourceRelationTest
         Group upstreamGroup = new Group(dimSet12);
         Group coeffGroup = new Group(dimSet12);
         Group downstreamGroup = new Group(dimSet34);
+        upstreamGroup.setUnit(unit);
+        coeffGroup.setUnit(unit);
+        downstreamGroup.setUnit(unit);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
@@ -299,7 +315,7 @@ public class SourceRelationTest
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim3 = new Dimension(kw3);
@@ -324,6 +340,9 @@ public class SourceRelationTest
         Group upstreamGroup = new Group(dimSet, commonKeywords);
         Group coeffGroup = new Group(dimSet, commonKeywords);
         Group downstreamGroup = new Group(dimSet, commonKeywords);
+        upstreamGroup.setUnit(unit);
+        coeffGroup.setUnit(unit);
+        downstreamGroup.setUnit(unit);
         SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
 
         ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
@@ -333,7 +352,7 @@ public class SourceRelationTest
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<DerivedRelation>();
+        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
         Dimension dim13c = new Dimension(kw1, kw3, commonKeyword);
         Dimension dim14c = new Dimension(kw1, kw4, commonKeyword);
         Dimension dim23c = new Dimension(kw2, kw3, commonKeyword);

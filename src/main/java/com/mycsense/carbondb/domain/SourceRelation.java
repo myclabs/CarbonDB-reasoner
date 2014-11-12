@@ -18,6 +18,7 @@ public class SourceRelation {
     protected int exponent = 1;
     protected UnitsRepo unitsRepo;
     protected RelationType type;
+    protected ArrayList<DerivedRelation> derivedRelations;
 
     public SourceRelation(Group source, Group coeff, Group destination, UnitsRepo unitsRepo) {
         this.source = source;
@@ -49,7 +50,7 @@ public class SourceRelation {
             throw new IncompatibleUnitsException("The units are incompatible "
                                                  + "in the source relation: " + uri);
         }
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        derivedRelations = new ArrayList<>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
         if (!unionResult.dimSet.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The union of the source with the coeff groups and the destination "
@@ -72,11 +73,11 @@ public class SourceRelation {
                     if (!hashKey2.equals("#nullHashKey#")) {
                         for (Dimension destinationProcess: destinationProcesses.get(hashKey2)) {
                             derivedRelations.add(new DerivedRelation(sourceProcess,
-                                                                 source.getUnitURI(),
+                                                                 source.getUnit(),
                                                                  singleCoeff,
-                                                                 coeff.getUnitURI(),
+                                                                 coeff.getUnit(),
                                                                  destinationProcess,
-                                                                 destination.getUnitURI(),
+                                                                 destination.getUnit(),
                                                                  exponent));
                         }
                     }
@@ -154,5 +155,13 @@ public class SourceRelation {
 
     public void setType(RelationType type) {
         this.type = type;
+    }
+
+    public ArrayList<DerivedRelation> getDerivedRelations() {
+        return derivedRelations;
+    }
+
+    public void setDerivedRelations(ArrayList<DerivedRelation> derivedRelations) {
+        this.derivedRelations = derivedRelations;
     }
 }

@@ -5,29 +5,32 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class DerivedRelation {
     public Dimension source;
-    public String sourceUnit;
+    public String sourceURI;
+    public Unit sourceUnit;
     public Dimension coeff;
-    public String coeffUnit;
+    public String coeffURI;
+    public Unit coeffUnit;
     public Dimension destination;
-    public String destinationUnit;
+    public String destinationURI;
+    public Unit destinationUnit;
     public int exponent;
 
     public DerivedRelation(Dimension source,
-                           String sourceUnit,
+                           Unit sourceUnit,
                            Dimension coeff,
-                           String coeffUnit,
+                           Unit coeffUnit,
                            Dimension destination,
-                           String destinationUnit
+                           Unit destinationUnit
     ) {
         this(source, sourceUnit, coeff, coeffUnit, destination, destinationUnit, 1);
     }
 
     public DerivedRelation(Dimension source,
-                           String sourceUnit,
+                           Unit sourceUnit,
                            Dimension coeff,
-                           String coeffUnit,
+                           Unit coeffUnit,
                            Dimension destination,
-                           String destinationUnit,
+                           Unit destinationUnit,
                            int exponent
     ) {
         this.source = source;

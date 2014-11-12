@@ -8,6 +8,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
 
+import com.mycsense.carbondb.domain.Unit;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -41,6 +42,16 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
         return conversionFactorsCache.get(unitID);
     }
 
+    public boolean areCompatible(Unit unit1, Unit unit2)
+    {
+        return areCompatible(unit1.getSymbol(), unit2.getSymbol());
+    }
+
+    public boolean areCompatible(Unit unit1, String unitID2)
+    {
+        return areCompatible(unit1.getSymbol(), unitID2);
+    }
+
     public boolean areCompatible(String unitID1, String unitID2)
     {
         if (!compatibleUnitsCache.containsKey(unitID1)) {
@@ -62,15 +73,15 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
         return compatibleUnitsCache.get(unitID1).get(unitID2);
     }
 
-    public String getUnitsMultiplication(String unitID1, String unitID2, int exponent)
+    public String getUnitsMultiplication(Unit unit1, Unit unit2, int exponent)
     {
         String unit = null;
         Response response = buildBaseWebTarget()
                 .path("execute")
                 .queryParam("operation", "multiplication")
-                .queryParam("components[0][unit]", unitID1)
+                .queryParam("components[0][unit]", unit1.getSymbol())
                 .queryParam("components[0][exponent]", 1)
-                .queryParam("components[1][unit]", unitID2)
+                .queryParam("components[1][unit]", unit2.getSymbol())
                 .queryParam("components[1][exponent]", exponent)
                 .request(MediaType.TEXT_PLAIN_TYPE)
                 .get();

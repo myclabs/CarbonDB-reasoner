@@ -67,7 +67,7 @@ public class Reasoner {
         for (Resource sourceRelationResource: relationRepo.getSourceRelationsResources()) {
             try {
                 SourceRelation sourceRelation = relationRepo.getSourceRelation(sourceRelationResource);
-                createDerivedRelations(sourceRelation.translate());
+                sourceRelation.setDerivedRelations(createDerivedRelations(sourceRelation.translate()));
             }
             catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
                 report.addError(e.getMessage());
@@ -396,16 +396,18 @@ public class Reasoner {
         }
     }
 
-    protected void createDerivedRelations(ArrayList<DerivedRelation> derivedRelations)
+    protected ArrayList<DerivedRelation> createDerivedRelations(ArrayList<DerivedRelation> derivedRelations)
         throws IllegalArgumentException
     {
         Resource coeff = null, sourceProcess = null, destinationProcess = null;
+        ArrayList<DerivedRelation> derivedRelationsToRemove = new ArrayList<>();
         for (DerivedRelation derivedRelation : derivedRelations) {
             try  {
-                coeff = singleElementRepo.getCoefficientForDimension(derivedRelation.coeff, derivedRelation.coeffUnit);
+                coeff = singleElementRepo.getCoefficientForDimension(derivedRelation.coeff, derivedRelation.coeffUnit.getURI());
             }
             catch (NoElementFoundException e) {
                 coeff = null;
+                derivedRelationsToRemove.add(derivedRelation);
                 // having a null coefficient is a common use case
             }
             catch (MultipleElementsFoundException e) {
@@ -414,28 +416,35 @@ public class Reasoner {
             }
             if (coeff != null) {
                 try  {
-                    sourceProcess = singleElementRepo.getProcessForDimension(derivedRelation.source, derivedRelation.sourceUnit);
+                    sourceProcess = singleElementRepo.getProcessForDimension(derivedRelation.source, derivedRelation.sourceUnit.getURI());
                 }
                 catch (NoElementFoundException e) {
-                    sourceProcess = singleElementRepo.createProcess(derivedRelation.source, derivedRelation.sourceUnit);
+                    sourceProcess = singleElementRepo.createProcess(derivedRelation.source, derivedRelation.sourceUnit.getURI());
                 }
                 catch (MultipleElementsFoundException e) {
                     report.addWarning(e.getMessage());
                 }
                 try  {
-                    destinationProcess = singleElementRepo.getProcessForDimension(derivedRelation.destination, derivedRelation.destinationUnit);
+                    destinationProcess = singleElementRepo.getProcessForDimension(derivedRelation.destination, derivedRelation.destinationUnit.getURI());
                 }
                 catch (NoElementFoundException e) {
-                    destinationProcess = singleElementRepo.createProcess(derivedRelation.destination, derivedRelation.destinationUnit);
+                    destinationProcess = singleElementRepo.createProcess(derivedRelation.destination, derivedRelation.destinationUnit.getURI());
                 }
                 catch (MultipleElementsFoundException e) {
                     report.addWarning(e.getMessage());
                 }
                 if (null != sourceProcess && null != coeff && null != destinationProcess) {
                     relationRepo.addDerivedRelation(sourceProcess, coeff, destinationProcess, derivedRelation.exponent);
+                    derivedRelation.sourceURI = sourceProcess.getURI();
+                    derivedRelation.coeffURI = coeff.getURI();
+                    derivedRelation.destinationURI = destinationProcess.getURI();
                 }
             }
         }
+        for (DerivedRelation derivedRelation: derivedRelationsToRemove) {
+            derivedRelations.remove(derivedRelation);
+        }
+        return derivedRelations;
     }
 
     public InfModel getInfModel() {

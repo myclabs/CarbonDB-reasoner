@@ -37,7 +37,7 @@ public class RepoFactory {
     public static GroupRepo getGroupRepo() {
         checkProperlyInitialized();
         if (null == groupRepo)
-            groupRepo = new GroupRepo(model);
+            groupRepo = new GroupRepo(model, unitsRepo);
         return groupRepo;
     }
 

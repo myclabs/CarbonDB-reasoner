@@ -3,20 +3,19 @@ package com.mycsense.carbondb.architecture;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.dimension.Orientation;
-import com.mycsense.carbondb.domain.Dimension;
-import com.mycsense.carbondb.domain.DimensionSet;
-import com.mycsense.carbondb.domain.Group;
-import com.mycsense.carbondb.domain.Keyword;
 import com.mycsense.carbondb.domain.group.Type;
 
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 public class GroupRepo extends AbstractRepo {
+    private final UnitsRepo unitsRepo;
 
-    public GroupRepo(Model model) {
+    public GroupRepo(Model model, UnitsRepo unitsRepo) {
         super(model);
+        this.unitsRepo = unitsRepo;
     }
 
     public ArrayList<Group> getProcessGroups()
@@ -57,8 +56,10 @@ public class GroupRepo extends AbstractRepo {
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
-        group.setUnit(getUnit(groupResource));
-        group.setUnitURI(getUnitURI(groupResource));
+        group.setUnit(new Unit(
+                getUnitURI(groupResource),
+                unitsRepo.getUnitSymbol(getUnit(groupResource))
+        ));
         group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
         if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
             group.setComment(groupResource.getProperty(RDFS.comment).getString());
@@ -73,8 +74,10 @@ public class GroupRepo extends AbstractRepo {
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
-        group.setUnit(getUnit(groupResource));
-        group.setUnitURI(getUnitURI(groupResource));
+        group.setUnit(new Unit(
+                getUnitURI(groupResource),
+                unitsRepo.getUnitSymbol(getUnit(groupResource))
+        ));
         group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
         if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
             group.setComment(groupResource.getProperty(RDFS.comment).getString());
