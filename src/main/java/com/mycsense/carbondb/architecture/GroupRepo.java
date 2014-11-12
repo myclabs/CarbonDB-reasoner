@@ -56,9 +56,11 @@ public class GroupRepo extends AbstractRepo {
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
+        String unitRef = getUnit(groupResource);
         group.setUnit(new Unit(
                 getUnitURI(groupResource),
-                unitsRepo.getUnitSymbol(getUnit(groupResource))
+                unitsRepo.getUnitSymbol(unitRef),
+                unitRef
         ));
         group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
         if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
@@ -74,9 +76,11 @@ public class GroupRepo extends AbstractRepo {
         group.setLabel(getLabelOrURI(groupResource));
         group.setURI(groupResource.getURI());
         group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
+        String unitRef = getUnit(groupResource);
         group.setUnit(new Unit(
                 getUnitURI(groupResource),
-                unitsRepo.getUnitSymbol(getUnit(groupResource))
+                unitsRepo.getUnitSymbol(unitRef),
+                unitRef
         ));
         group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
         if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {

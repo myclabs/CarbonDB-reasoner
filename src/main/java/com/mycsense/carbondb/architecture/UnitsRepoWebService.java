@@ -44,12 +44,12 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
 
     public boolean areCompatible(Unit unit1, Unit unit2)
     {
-        return areCompatible(unit1.getSymbol(), unit2.getSymbol());
+        return areCompatible(unit1.getRef(), unit2.getRef());
     }
 
     public boolean areCompatible(Unit unit1, String unitID2)
     {
-        return areCompatible(unit1.getSymbol(), unitID2);
+        return areCompatible(unit1.getRef(), unitID2);
     }
 
     public boolean areCompatible(String unitID1, String unitID2)
@@ -79,9 +79,9 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
         Response response = buildBaseWebTarget()
                 .path("execute")
                 .queryParam("operation", "multiplication")
-                .queryParam("components[0][unit]", unit1.getSymbol())
+                .queryParam("components[0][unit]", unit1.getRef())
                 .queryParam("components[0][exponent]", 1)
-                .queryParam("components[1][unit]", unit2.getSymbol())
+                .queryParam("components[1][unit]", unit2.getRef())
                 .queryParam("components[1][exponent]", exponent)
                 .request(MediaType.TEXT_PLAIN_TYPE)
                 .get();

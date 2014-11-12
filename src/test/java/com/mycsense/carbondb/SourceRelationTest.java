@@ -35,7 +35,7 @@ public class SourceRelationTest
         dim12 = new Dimension(kw1, kw2);
         dim34 = new Dimension(kw3, kw4);
 
-        unit = new Unit(null, "");
+        unit = new Unit(null, "", "");
 
         type = new RelationType(Datatype.getURI() + "type", "type", Type.SYNCHRONOUS);
 

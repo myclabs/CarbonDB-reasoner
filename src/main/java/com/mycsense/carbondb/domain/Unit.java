@@ -3,10 +3,12 @@ package com.mycsense.carbondb.domain;
 public class Unit {
     protected String URI;
     protected String symbol;
+    protected String ref;
 
-    public Unit(String URI, String symbol) {
+    public Unit(String URI, String symbol, String ref) {
         this.URI = URI;
         this.symbol = symbol;
+        this.ref = ref;
     }
 
     public String getURI() {
@@ -28,5 +30,13 @@ public class Unit {
     public String toString()
     {
         return symbol;
+    }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public void setRef(String ref) {
+        this.ref = ref;
     }
 }
