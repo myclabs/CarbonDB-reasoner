@@ -27,6 +27,14 @@ public class RepoFactory {
         }
     }
 
+    public static void clear() {
+        categoryRepo = null;
+        groupRepo = null;
+        singleElementRepo = null;
+        relationRepo = null;
+        referenceRepo = null;
+    }
+
     public static CategoryRepo getCategoryRepo() {
         checkProperlyInitialized();
         if (null == categoryRepo)

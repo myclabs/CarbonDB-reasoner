@@ -58,6 +58,7 @@ public class Reasoner {
         ((PelletInfGraph) infModel.getGraph()).classify();
         ((PelletInfGraph) infModel.getGraph()).realize();
 
+        RepoFactory.clear();
         RepoFactory.setModel(infModel);
         RepoFactory.setUnitsRepo(unitsRepo);
         RepoFactory.setReasonnerReport(report);
