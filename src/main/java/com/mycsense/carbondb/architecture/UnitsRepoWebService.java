@@ -11,6 +11,8 @@ import javax.ws.rs.core.MediaType;
 import com.mycsense.carbondb.domain.Unit;
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
@@ -22,10 +24,12 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
         this.unitsAPIURI = unitsAPIURI;
     }
 
+    private final Logger log = LoggerFactory.getLogger(UnitsRepoWebService.class);
+
     public Double getConversionFactor(String unitID)
     {
         if (!conversionFactorsCache.containsKey(unitID)) {
-            System.out.println("fetching conversion factor for " + unitID);
+            log.debug("fetching conversion factor for " + unitID);
             String unitOfReference = findUnitOfReference(unitID);
             if (null == unitOfReference) {
                 // unit not found (or error)
@@ -58,7 +62,7 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
             compatibleUnitsCache.put(unitID1, new HashMap<String, Boolean>());
         }
         if (!compatibleUnitsCache.get(unitID1).containsKey(unitID2)) {
-            System.out.println("fetching compatibility between " + unitID1 + " & " + unitID2);
+            log.debug("fetching compatibility between " + unitID1 + " & " + unitID2);
             Response response = buildBaseWebTarget()
                     .path("compatible")
                     .queryParam("units[0]", unitID1)
@@ -95,7 +99,7 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     public String getUnitSymbol(String unitID)
     {
         if (!symbolsCache.containsKey(unitID)) {
-            System.out.println("fetching symbol for " + unitID);
+            log.debug("fetching symbol for " + unitID);
             Response response = buildBaseWebTarget()
                     .path("unit")
                     .path(unitID)

@@ -21,6 +21,8 @@ import org.la4j.LinearAlgebra;
 
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 import org.mindswap.pellet.jena.PelletInfGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Reasoner {
 
@@ -41,6 +43,8 @@ public class Reasoner {
     public ReasonnerReport report = new ReasonnerReport();
     protected UnitsRepo unitsRepo;
 
+    private final Logger log = LoggerFactory.getLogger(Reasoner.class);
+
     public Reasoner (Model model, UnitsRepo unitsRepo) {
         this.model = model;
         this.unitsRepo = unitsRepo;
@@ -53,7 +57,7 @@ public class Reasoner {
         convert source relations -> sourceRelations convert
         calculate ecological flows -> calculate ecological flows
         */
-        System.out.println("begin reasonning");
+        log.info("Begin reasonning");
         infModel = ModelFactory.createInfModel( jenaReasoner, model );
         ((PelletInfGraph) infModel.getGraph()).classify();
         ((PelletInfGraph) infModel.getGraph()).realize();
@@ -64,7 +68,7 @@ public class Reasoner {
         RepoFactory.setReasonnerReport(report);
         relationRepo = RepoFactory.getRelationRepo();
         singleElementRepo = RepoFactory.getSingleElementRepo();
-        System.out.println("loading and translating sourceRelations");
+        log.info("Loading and translating sourceRelations");
         for (Resource sourceRelationResource: relationRepo.getSourceRelationsResources()) {
             try {
                 SourceRelation sourceRelation = relationRepo.getSourceRelation(sourceRelationResource);
@@ -75,14 +79,14 @@ public class Reasoner {
             }
         }
 
-        System.out.println("getting single processes");
+        log.info("Getting single processes");
         processes = singleElementRepo.getSingleProcesses();
-        System.out.println("getting elementary flow types");
+        log.info("getting elementary flow types");
         elementaryFlowTypes = singleElementRepo.getElementaryFlowTypes();
-        System.out.println("getting impact types");
+        log.info("Getting impact types");
         impactTypes = singleElementRepo.getImpactTypes();
 
-        System.out.println("creating ecological matrices");
+        log.info("Creating ecological matrices");
         createEcologicalMatrix();
         createFlowToImpactsMatrix();
 
@@ -95,20 +99,20 @@ public class Reasoner {
         //createMatrix();
         //calculateCumulatedEcologicalFlows();
 
-        System.out.println("creating matrix");
+        log.info("Creating matrix");
         createMatrices();
-        System.out.println("calculating cumulative flows");
+        log.info("Calculating cumulative flows");
         iterativeCalculationWithoutUncertainties();
         cumulativeEcologicalMatrix = transitiveDependencyMatrix.multiply(ecologicalMatrix);
-        System.out.println("calculating impacts");
+        log.info("Calculating impacts");
         impactMatrix = cumulativeEcologicalMatrix.multiply(flowToImpactsMatrix.transpose());
 
-        System.out.println("creating calculated flows");
+        log.info("Creating calculated flows");
         createCumulatedEcologicalFlows();
-        System.out.println("creating impacts");
+        log.info("Creating impacts");
         createImpacts();
 
-        System.out.println("reasoning finished");
+        log.info("Reasoning finished");
     }
 
     public void createMatrix() {
