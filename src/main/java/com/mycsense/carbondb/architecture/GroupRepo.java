@@ -7,7 +7,6 @@ import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.group.Type;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 public class GroupRepo extends AbstractRepo {
