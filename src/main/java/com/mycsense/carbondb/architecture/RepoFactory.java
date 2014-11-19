@@ -70,6 +70,11 @@ public class RepoFactory {
         return referenceRepo;
     }
 
+    public static UnitsRepo getUnitsRepo() {
+        checkProperlyInitialized();
+        return unitsRepo;
+    }
+
     public static ReasonnerReport getReasonnerReport() {
         return reasonnerReport;
     }

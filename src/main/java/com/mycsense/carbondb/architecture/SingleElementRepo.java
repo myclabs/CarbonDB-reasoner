@@ -4,6 +4,7 @@ import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.mycsense.carbondb.*;
 import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.Process;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,8 +16,9 @@ public class SingleElementRepo extends AbstractRepo {
     protected UnitsRepo unitsRepo;
     protected HashMap<String, Resource> processesResourceCache;
     protected HashMap<String, Resource> coefficientsResourceCache;
-    protected HashMap<String, CarbonProcess> processesCache;
-    protected HashMap<String, CarbonProcess> coefficientsCache;
+    protected HashMap<String, Process> processesCache;
+    protected HashMap<String, Process> coefficientsCache;
+    protected HashMap<String, ElementaryFlowType> flowTypesCache;
 
     public SingleElementRepo(Model model, UnitsRepo unitsRepo) {
         super(model);
@@ -25,6 +27,7 @@ public class SingleElementRepo extends AbstractRepo {
         coefficientsResourceCache = new HashMap<>();
         processesCache = new HashMap<>();
         coefficientsCache = new HashMap<>();
+        flowTypesCache = new HashMap<>();
     }
 
     public Resource getProcessForDimension(Dimension dimension, String unit)
@@ -105,18 +108,25 @@ public class SingleElementRepo extends AbstractRepo {
         return candidates.get(0);
     }
 
-    public ArrayList<Resource> getElementaryFlowTypes() {
+    public HashMap<String, ElementaryFlowType> getElementaryFlowTypes() {
         Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ElementaryFlowType);
         StmtIterator iter = model.listStatements( selector );
 
-        ArrayList<Resource> elementaryFlowNatures = new ArrayList<>();
+        HashMap<String, ElementaryFlowType> elementaryFlowTypes = new HashMap<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                elementaryFlowNatures.add(s.getSubject());
+                Resource flowTypeResource = s.getSubject();
+                ElementaryFlowType flowType = new ElementaryFlowType(
+                    s.getSubject().getURI(),
+                    getLabelOrURI(flowTypeResource),
+                    RepoFactory.getUnitsRepo().getUnit(flowTypeResource)
+                );
+                elementaryFlowTypes.put(flowTypeResource.getURI(), flowType);
+                flowTypesCache.put(flowTypeResource.getURI(), flowType);
             }
         }
-        return elementaryFlowNatures;
+        return elementaryFlowTypes;
     }
 
     public ArrayList<Resource> getImpactTypes() {
@@ -151,7 +161,7 @@ public class SingleElementRepo extends AbstractRepo {
                 HashMap<String, String> impactType = new HashMap<>();
                 impactType.put("uri", impactTypeResource.getURI());
                 impactType.put("label", getLabelOrURI(impactTypeResource));
-                impactType.put("unit", unitsRepo.getUnitSymbol(getUnit(categoryResource)));
+                impactType.put("unit", unitsRepo.getUnit(categoryResource).getSymbol());
                 category.addChild(impactType);
             }
         }
@@ -177,7 +187,7 @@ public class SingleElementRepo extends AbstractRepo {
                 HashMap<String, String> elementaryFlowType = new HashMap<>();
                 elementaryFlowType.put("uri", impactTypeResource.getURI());
                 elementaryFlowType.put("label", getLabelOrURI(impactTypeResource));
-                elementaryFlowType.put("unit", unitsRepo.getUnitSymbol(getUnit(categoryResource)));
+                elementaryFlowType.put("unit", unitsRepo.getUnit(categoryResource).getSymbol());
                 category.addChild(elementaryFlowType);
             }
         }
@@ -185,13 +195,13 @@ public class SingleElementRepo extends AbstractRepo {
         return root;
     }
 
-    public CarbonProcess getProcess(Resource processResource)
+    public Process getProcess(Resource processResource)
     {
         if (!processesCache.containsKey(processResource.getURI())) {
-            CarbonProcess process = new CarbonProcess(getElementKeywords(processResource));
-            process.setEmissions(getEmissionsForProcess(processResource));
+            Process process = new Process(getElementKeywords(processResource));
+            process.setFlows(getElementaryFlowsForProcess(processResource));
             process.setImpacts(getImpactsForProcess(processResource));
-            process.setUnit(getUnit(processResource));
+            process.setUnit(unitsRepo.getUnit(processResource).getSymbol());
             process.setUnitURI(getUnitURI(processResource));
             processesCache.put(processResource.getURI(), process);
         }
@@ -235,7 +245,7 @@ public class SingleElementRepo extends AbstractRepo {
         StmtIterator iter = process.listProperties(Datatype.hasFlow);
         Double conversionFactor = 1.0;
         if (iter.hasNext()) {
-            String unitID = getUnit(process);
+            String unitID = unitsRepo.getUnit(process).getRef();
             if (!unitID.equals("")) {
                 conversionFactor = unitsRepo.getConversionFactor(unitID);
             }
@@ -253,6 +263,46 @@ public class SingleElementRepo extends AbstractRepo {
             }
         }
         return emissions;
+    }
+
+    public HashMap<String, Value> getCalculatedEmissionsForProcess(Resource process)
+    {
+        HashMap<String, Value> emissions = new HashMap<>();
+        StmtIterator iter = process.listProperties(Datatype.hasCalculatedFlow);
+
+        while (iter.hasNext()) {
+            Resource emission = iter.nextStatement().getResource();
+            Resource nature = emission.getProperty(Datatype.hasElementaryFlowType).getResource();
+            Double value = emission.getProperty(Datatype.value).getDouble();
+            Double uncertainty = getUncertainty(emission);
+            emissions.put(nature.getURI(), new Value(value, uncertainty));
+        }
+        return emissions;
+    }
+
+    public ArrayList<ElementaryFlow> getElementaryFlowsForProcess(Resource process)
+    {
+        ArrayList<ElementaryFlow> flows = new ArrayList<>();
+        StmtIterator iter = process.listProperties(Datatype.hasFlow);
+        Double conversionFactor = 1.0;
+        if (iter.hasNext()) {
+            String unitID = unitsRepo.getUnit(process).getRef();
+            if (!unitID.equals("")) {
+                conversionFactor = unitsRepo.getConversionFactor(unitID);
+            }
+        }
+
+        while (iter.hasNext()) {
+            Resource emission = iter.nextStatement().getResource();
+            if (emission.hasProperty(Datatype.hasElementaryFlowType) && null != emission.getProperty(Datatype.hasElementaryFlowType)
+                    && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
+                ElementaryFlowType flowType = flowTypesCache.get(emission.getProperty(Datatype.hasElementaryFlowType).getResource().getURI());
+                Value value = new Value(emission.getProperty(Datatype.value).getDouble() / conversionFactor, getUncertainty(emission));
+
+                flows.add(new ElementaryFlow(flowType, value));
+            }
+        }
+        return flows;
     }
 
     public HashMap<String, Value> getImpactsForProcess(Resource process)
@@ -303,24 +353,9 @@ public class SingleElementRepo extends AbstractRepo {
         return 0.0;
     }
 
-    public HashMap<String, Value> getCalculatedEmissionsForProcess(Resource process)
-    {
-        HashMap<String, Value> emissions = new HashMap<>();
-        StmtIterator iter = process.listProperties(Datatype.hasCalculatedFlow);
-
-        while (iter.hasNext()) {
-            Resource emission = iter.nextStatement().getResource();
-            Resource nature = emission.getProperty(Datatype.hasElementaryFlowType).getResource();
-            Double value = emission.getProperty(Datatype.value).getDouble();
-            Double uncertainty = getUncertainty(emission);
-            emissions.put(nature.getURI(), new Value(value, uncertainty));
-        }
-        return emissions;
-    }
-
     public Resource createProcess(Dimension dimension, String unitURI)
     {
-        CarbonProcess process = new CarbonProcess(dimension);
+        Process process = new Process(dimension);
         process.setUnitURI(unitURI);
         Resource processResource = model.createResource(Datatype.getURI() + "sp/" + AnonId.create().toString())
                 .addProperty(RDF.type, Datatype.SingleProcess);

@@ -1,6 +1,7 @@
 package com.mycsense.carbondb.domain;
 
-import com.mycsense.carbondb.domain.group.Type;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public abstract class SingleElement {
     public Dimension keywords;
@@ -56,5 +57,28 @@ public abstract class SingleElement {
 
     public void setUnitURI(String unitURI) {
         this.unitURI = unitURI;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        // Alternative: use Guava (from Google)
+        if (!(obj instanceof SingleElement))
+            return false;
+        if (obj == this)
+            return true;
+
+        SingleElement rhs = (SingleElement) obj;
+        return new EqualsBuilder()
+                .append(keywords, rhs.keywords)
+                .append(unit, rhs.unit)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(3, 67)
+                .append(keywords)
+                .append(unit)
+                .toHashCode();
     }
 }

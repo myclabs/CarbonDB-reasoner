@@ -1,5 +1,6 @@
 package com.mycsense.carbondb.architecture;
 
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.mycsense.carbondb.domain.Unit;
 
 public interface UnitsRepo {
@@ -9,4 +10,5 @@ public interface UnitsRepo {
     public boolean areCompatible(Unit unitID1, String unitID2);
     public String getUnitsMultiplication(Unit unit1, Unit unit2, int exponent);
     public String getUnitSymbol(String unitID);
+    public Unit getUnit(Resource element);
 }

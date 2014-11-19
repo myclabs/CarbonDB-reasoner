@@ -5,6 +5,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import com.mycsense.carbondb.domain.Unit;
 
 public abstract class AbstractRepo {
     public Model model;
@@ -39,20 +40,6 @@ public abstract class AbstractRepo {
             RepoFactory.getReasonnerReport().addWarning("No label found for resource: " + resource.getURI() + ", took URI");
         }
         return label;
-    }
-
-    public String getUnit(Resource element)
-    {
-        if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
-            Resource unit = element.getProperty(Datatype.hasUnit).getResource();
-            if (unit.hasProperty(Datatype.foreignUnitID) && null != unit.getProperty(Datatype.foreignUnitID)) {
-                return unit.getProperty(Datatype.foreignUnitID).getString();
-            }
-            else {
-                //report.addError(element.getURI() + " has no unit");
-            }
-        }
-        return new String();
     }
 
     protected String getUnitURI(Resource element)

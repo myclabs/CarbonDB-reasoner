@@ -8,13 +8,15 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.mycsense.carbondb.domain.Unit;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
+public class UnitsRepoWebService extends AbstractRepo implements UnitsRepo, UnitsRepoCache {
     protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
     protected HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache = new HashMap<>();
     protected HashMap<String, String> symbolsCache = new HashMap<>();
@@ -26,6 +28,31 @@ public class UnitsRepoWebService implements UnitsRepo, UnitsRepoCache {
     }
 
     private final Logger log = LoggerFactory.getLogger(UnitsRepoWebService.class);
+
+    public UnitsRepoWebService(Model model) {
+        super(model);
+    }
+
+    public Unit getUnit(Resource element)
+    {
+        if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
+            Resource unitResource = element.getProperty(Datatype.hasUnit).getResource();
+            if (unitResource.hasProperty(Datatype.foreignUnitID) && null != unitResource.getProperty(Datatype.foreignUnitID)) {
+                String unitID = unitResource.getProperty(Datatype.foreignUnitID).getString();
+                Unit unit = new Unit(
+                    unitResource.getURI(),
+                    getUnitSymbol(unitID),
+                    unitID
+                );
+                return unit;
+            }
+            else {
+                //report.addError(element.getURI() + " has no unit");
+            }
+        }
+        // @todo this method should throw an exception or return an empty unit if the given element has no unit
+        return null;
+    }
 
     public Double getConversionFactor(String unitID)
     {
