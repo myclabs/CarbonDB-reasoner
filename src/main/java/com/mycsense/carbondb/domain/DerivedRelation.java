@@ -4,46 +4,42 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class DerivedRelation {
-    public Dimension source;
-    public String sourceURI;
-    public Unit sourceUnit;
-    public Dimension coeff;
-    public String coeffURI;
-    public Unit coeffUnit;
-    public Dimension destination;
-    public String destinationURI;
-    public Unit destinationUnit;
-    public int exponent;
+    protected Process source;
+    protected Coefficient coeff;
+    protected Process destination;
+    protected int exponent;
+    protected SourceRelation sourceRelation;
+    protected RelationType type;
 
-    public DerivedRelation(Dimension source,
-                           Unit sourceUnit,
-                           Dimension coeff,
-                           Unit coeffUnit,
-                           Dimension destination,
-                           Unit destinationUnit
+    public DerivedRelation(Process source,
+                           Coefficient coeff,
+                           Process destination,
+                           SourceRelation sourceRelation,
+                           RelationType type
     ) {
-        this(source, sourceUnit, coeff, coeffUnit, destination, destinationUnit, 1);
+        this(source, coeff, destination, sourceRelation, type, 1);
     }
 
-    public DerivedRelation(Dimension source,
-                           Unit sourceUnit,
-                           Dimension coeff,
-                           Unit coeffUnit,
-                           Dimension destination,
-                           Unit destinationUnit,
+    public DerivedRelation(Process source,
+                           Coefficient coeff,
+                           Process destination,
+                           SourceRelation sourceRelation,
+                           RelationType type,
                            int exponent
     ) {
         this.source = source;
-        this.sourceUnit = sourceUnit;
         this.coeff = coeff;
-        this.coeffUnit = coeffUnit;
         this.destination = destination;
-        this.destinationUnit = destinationUnit;
+        this.sourceRelation = sourceRelation;
+        this.type = type;
         this.exponent = exponent;
+
+        source.addDownstreamDerivedRelation(this);
+        destination.addUpstreamDerivedRelation(this);
     }
 
     public String toString() {
-        return source + " ( " + sourceUnit + ")" + " x " + coeff + " ( " + coeffUnit + ")" + " -> " + destination + " ( " + destinationUnit + ") ^" + exponent;
+        return source + " x " + coeff + " -> " + destination + " ^" + exponent;
     }
 
     @Override
@@ -56,11 +52,8 @@ public class DerivedRelation {
         DerivedRelation rhs = (DerivedRelation) obj;
         return new EqualsBuilder()
                   .append(source, rhs.source)
-                  .append(sourceUnit, rhs.sourceUnit)
                   .append(coeff, rhs.coeff)
-                  .append(coeffUnit, rhs.coeffUnit)
                   .append(destination, rhs.destination)
-                  .append(destinationUnit, rhs.destinationUnit)
                   .append(exponent, rhs.exponent)
                   .isEquals();
     }
@@ -69,11 +62,8 @@ public class DerivedRelation {
     public int hashCode() {
         return new HashCodeBuilder(23, 47)
                   .append(source)
-                  .append(sourceUnit)
                   .append(coeff)
-                  .append(coeffUnit)
                   .append(destination)
-                  .append(destinationUnit)
                   .append(exponent)
                   .toHashCode();
     }

@@ -9,21 +9,18 @@ public class RepoFactory {
     protected static SingleElementRepo singleElementRepo;
     protected static RelationRepo relationRepo;
     protected static ReferenceRepo referenceRepo;
-    protected static Model model;
     protected static UnitsRepo unitsRepo;
+    protected static TypeRepo typeRepo;
+    protected static Model model;
     protected static ReasonnerReport reasonnerReport;
 
     public static void setModel(Model pModel) {
         model = pModel;
     }
 
-    public static void setUnitsRepo(UnitsRepo pUnitsRepo) {
-        unitsRepo = pUnitsRepo;
-    }
-
     public static void checkProperlyInitialized() throws RuntimeException {
-        if (null == model || null == unitsRepo) {
-            throw new RuntimeException("The RepoFactory cannot be used without setting the Model and UnitsRepo first");
+        if (null == model) {
+            throw new RuntimeException("The RepoFactory cannot be used without setting the Model first");
         }
     }
 
@@ -33,6 +30,8 @@ public class RepoFactory {
         singleElementRepo = null;
         relationRepo = null;
         referenceRepo = null;
+        unitsRepo = null;
+        typeRepo = null;
     }
 
     public static CategoryRepo getCategoryRepo() {
@@ -72,7 +71,16 @@ public class RepoFactory {
 
     public static UnitsRepo getUnitsRepo() {
         checkProperlyInitialized();
+        if (null == unitsRepo)
+            unitsRepo = new UnitsRepo(model);
         return unitsRepo;
+    }
+
+    public static TypeRepo getTypeRepo() {
+        checkProperlyInitialized();
+        if (null == typeRepo)
+            typeRepo = new TypeRepo(model);
+        return typeRepo;
     }
 
     public static ReasonnerReport getReasonnerReport() {

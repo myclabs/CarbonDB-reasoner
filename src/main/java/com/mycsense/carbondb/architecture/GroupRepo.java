@@ -20,28 +20,28 @@ public class GroupRepo extends AbstractRepo {
         groupCache = new HashMap<>();
     }
 
-    public ArrayList<Group> getProcessGroups()
+    public HashMap<String, Group> getProcessGroups()
     {
         return getGroups(Datatype.ProcessGroup);
     }
 
-    public ArrayList<Group> getCoefficientGroups()
+    public HashMap<String, Group> getCoefficientGroups()
     {
         return getGroups(Datatype.CoefficientGroup);
     }
 
-    public ArrayList<Group> getGroups() {
+    public HashMap<String, Group> getGroups() {
         return getGroups(Datatype.Group);
     }
 
-    protected ArrayList<Group> getGroups(Resource groupType)
+    protected HashMap<String, Group> getGroups(Resource groupType)
     {
-        ArrayList<Group> groups = new ArrayList<>();
+        HashMap<String, Group> groups = new HashMap<>();
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, groupType);
         while (i.hasNext()) {
-            Resource groupResource = i.next();
-            groups.add(getGroup(groupResource));
+            Resource resource = i.next();
+            groups.put(resource.getURI(), getGroup(resource));
         }
 
         return groups;
@@ -59,39 +59,15 @@ public class GroupRepo extends AbstractRepo {
             group.setLabel(getLabelOrURI(groupResource));
             group.setURI(groupResource.getURI());
             group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
-            String unitRef = getUnit(groupResource);
-            group.setUnit(new Unit(
-                    getUnitURI(groupResource),
-                    unitsRepo.getUnitSymbol(unitRef),
-                    unitRef
-            ));
+            group.setUnit(RepoFactory.getUnitsRepo().getUnit(groupResource));
             group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
             if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
                 group.setComment(groupResource.getProperty(RDFS.comment).getString());
             }
-            group.setReferences(RepoFactory.getReferenceRepo().getReferences(groupResource));
+            group.setReferences(RepoFactory.getReferenceRepo().getReferencesForResource(groupResource));
             groupCache.put(groupResource.getURI(), group);
         }
         return groupCache.get(groupResource.getURI());
-    }
-
-    public Group getSimpleGroup(Resource groupResource)
-    {
-        Group group = new Group();
-        group.setLabel(getLabelOrURI(groupResource));
-        group.setURI(groupResource.getURI());
-        group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
-        String unitRef = getUnit(groupResource);
-        group.setUnit(new Unit(
-                getUnitURI(groupResource),
-                unitsRepo.getUnitSymbol(unitRef),
-                unitRef
-        ));
-        group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
-        if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
-            group.setComment(groupResource.getProperty(RDFS.comment).getString());
-        }
-        return group;
     }
 
     protected DimensionSet getGroupDimSet(Resource groupResource)

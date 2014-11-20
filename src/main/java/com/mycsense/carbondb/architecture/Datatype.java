@@ -45,6 +45,7 @@ public class Datatype {
     public static final Resource PositionOfKeywordInDimension = resource("PositionOfKeywordInDimension");
     public static final Resource RelationType = resource("RelationType");
     public static final Resource Asynchronous = resource("Asynchronous");
+    public static final Resource Reference = resource("Reference");
 
     public static final Property belongsToCategoryOfGroup = property("belongsToCategoryOfGroup");
     public static final Property belongsToParentCategoryOfGroup = property("belongsToParentCategoryOfGroup");

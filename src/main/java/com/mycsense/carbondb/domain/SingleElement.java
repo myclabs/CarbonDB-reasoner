@@ -8,21 +8,17 @@ public abstract class SingleElement {
 
     protected String uri;
     protected String id;
-    protected String unit;
-    protected String unitURI;
+    protected Unit unit;
 
     public SingleElement() {
         keywords = new Dimension();
-        unit = new String();
-        unitURI = new String();
         uri = new String();
         id = new String();
     }
 
-    public SingleElement(Dimension keywords) {
+    public SingleElement(Dimension keywords, Unit unit) {
         this.keywords = new Dimension(keywords);
-        unit = new String();
-        unitURI = new String();
+        this.unit = unit;
         uri = new String();
         id = new String();
     }
@@ -43,20 +39,16 @@ public abstract class SingleElement {
         this.id = id;
     }
 
-    public String getUnit() {
+    public Unit getUnit() {
         return unit;
     }
 
-    public void setUnit(String unit) {
+    public void setUnit(Unit unit) {
         this.unit = unit;
     }
 
-    public String getUnitURI() {
-        return unitURI;
-    }
-
-    public void setUnitURI(String unitURI) {
-        this.unitURI = unitURI;
+    public String toString() {
+        return keywords + " ("+ unit.getSymbol() +" )";
     }
 
     @Override

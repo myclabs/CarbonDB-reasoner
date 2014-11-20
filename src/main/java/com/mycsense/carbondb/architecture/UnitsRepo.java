@@ -1,14 +1,32 @@
 package com.mycsense.carbondb.architecture;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.mycsense.carbondb.domain.Unit;
 
-public interface UnitsRepo {
-    public Double getConversionFactor(String unitID);
-    public boolean areCompatible(String unitID1, String unitID2);
-    public boolean areCompatible(Unit unitID1, Unit unitID2);
-    public boolean areCompatible(Unit unitID1, String unitID2);
-    public String getUnitsMultiplication(Unit unit1, Unit unit2, int exponent);
-    public String getUnitSymbol(String unitID);
-    public Unit getUnit(Resource element);
+public class UnitsRepo extends AbstractRepo {
+
+    public UnitsRepo(Model model) {
+        super(model);
+    }
+
+    public Unit getUnit(Resource element)
+    {
+        if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
+            Resource unitResource = element.getProperty(Datatype.hasUnit).getResource();
+            if (unitResource.hasProperty(Datatype.foreignUnitID) && null != unitResource.getProperty(Datatype.foreignUnitID)) {
+                String unitRef = unitResource.getProperty(Datatype.foreignUnitID).getString();
+                Unit unit = new Unit(
+                    unitResource.getURI(),
+                    unitRef
+                );
+                return unit;
+            }
+            else {
+                //report.addError(element.getURI() + " has no unit");
+            }
+        }
+        // @todo this method should throw an exception or return an empty unit if the given element has no unit
+        return null;
+    }
 }

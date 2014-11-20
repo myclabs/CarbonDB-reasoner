@@ -3,6 +3,7 @@ package com.mycsense.carbondb.architecture;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.RelationType;
 import com.mycsense.carbondb.domain.SourceRelation;
 import com.mycsense.carbondb.domain.relation.Type;
@@ -32,12 +33,12 @@ public class RelationRepo  extends AbstractRepo {
         return sourceRelations;
     }
 
-    public ArrayList<SourceRelation> getSourceRelations() {
-        ArrayList<SourceRelation> sourceRelations = new ArrayList<>();
+    public HashMap<String, SourceRelation> getSourceRelations() {
+        HashMap<String, SourceRelation> sourceRelations = new HashMap<>();
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SourceRelation);
         while (i.hasNext()) {
-            sourceRelations.add(getSourceRelation(i.next()));
+            sourceRelations.put(i.next().getURI(), getSourceRelation(i.next()));
         }
 
         return sourceRelations;
@@ -57,13 +58,13 @@ public class RelationRepo  extends AbstractRepo {
 
     public SourceRelation getSourceRelation(Resource sourceRelationResource) {
         if (!sourceRelationsCache.containsKey(sourceRelationResource.getURI())) {
-            GroupRepo groupRepo = RepoFactory.getGroupRepo();
-            //RepoFactory.getReasonnerReport().addWarning
+            String originURI = sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource().getURI();
+            String coeffURI = sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource().getURI();
+            String destinationURI = sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource().getURI();
             SourceRelation sourceRelation = new SourceRelation(
-                    groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource()),
-                    groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource()),
-                    groupRepo.getGroup(sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource()),
-                    unitsRepo
+                    CarbonOntology.getInstance().getProcessGroup(originURI),
+                    CarbonOntology.getInstance().getCoefficientGroup(coeffURI),
+                    CarbonOntology.getInstance().getProcessGroup(destinationURI)
             );
             sourceRelation.setURI(sourceRelationResource.getURI());
             if (sourceRelationResource.hasProperty(Datatype.hasRelationType)
@@ -71,8 +72,7 @@ public class RelationRepo  extends AbstractRepo {
                     ) {
                 sourceRelation.setType(getRelationType(sourceRelationResource.getProperty(Datatype.hasRelationType).getResource()));
             } else {
-                RepoFactory.getReasonnerReport().addWarning("The source relation "
-                        + sourceRelationResource.getURI() + " has no type");
+                log.warn("The source relation " + sourceRelationResource.getURI() + " has no type");
             }
             if (sourceRelationResource.hasProperty(Datatype.exponent)
                     && null != sourceRelationResource.getProperty(Datatype.exponent)

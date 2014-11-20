@@ -1,6 +1,7 @@
 package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.mycsense.carbondb.domain.Reference;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class ReferenceRepo extends AbstractRepo {
         refCache = new HashMap<>();
     }
 
-    public ArrayList<Reference> getReferences(Resource resource) {
+    public ArrayList<Reference> getReferencesForResource(Resource resource) {
         ArrayList<Reference> references = new ArrayList<>();
 
         StmtIterator i = resource.listProperties(Datatype.hasReference);
@@ -27,15 +28,28 @@ public class ReferenceRepo extends AbstractRepo {
         return references;
     }
 
+    public HashMap<String, Reference> getReferences() {
+        Selector selector = new SimpleSelector(null, RDF.type, Datatype.Reference);
+        StmtIterator iter = model.listStatements(selector);
+
+        HashMap<String, Reference> references = new HashMap<>();
+        if (iter.hasNext()) {
+            while (iter.hasNext()) {
+                getReference(iter.nextStatement().getResource());
+            }
+        }
+        return refCache;
+    }
+
     protected Reference getReference(Resource referenceResource) {
         if (refCache.containsKey(referenceResource.getURI())) {
             String title = getStringForProperty(referenceResource, Datatype.title),
-                    source = getStringForProperty(referenceResource, Datatype.source),
-                    URL = getStringForProperty(referenceResource, Datatype.URL),
-                    creator = getStringForProperty(referenceResource, Datatype.creator),
-                    publisher = getStringForProperty(referenceResource, Datatype.publisher),
-                    date = getStringForProperty(referenceResource, Datatype.date),
-                    shortName = getStringForProperty(referenceResource, Datatype.shortName);
+                   source = getStringForProperty(referenceResource, Datatype.source),
+                   URL = getStringForProperty(referenceResource, Datatype.URL),
+                   creator = getStringForProperty(referenceResource, Datatype.creator),
+                   publisher = getStringForProperty(referenceResource, Datatype.publisher),
+                   date = getStringForProperty(referenceResource, Datatype.date),
+                   shortName = getStringForProperty(referenceResource, Datatype.shortName);
 
             refCache.put(referenceResource.getURI(), new Reference(title, source, URL, creator, publisher, date, referenceResource.getURI(), shortName));
         }

@@ -6,9 +6,13 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import com.mycsense.carbondb.domain.Unit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRepo {
     public Model model;
+
+    protected final Logger log = LoggerFactory.getLogger(UnitToolsWebService.class);
 
     public AbstractRepo (Model model) {
         this.model = model;
@@ -48,5 +52,13 @@ public abstract class AbstractRepo {
             return element.getProperty(Datatype.hasUnit).getResource().getURI();
         }
         return null;
+    }
+
+    public Double getUncertainty(Resource resource)
+    {
+        if (resource.hasProperty(Datatype.uncertainty) && null != resource.getProperty(Datatype.uncertainty)) {
+            return resource.getProperty(Datatype.uncertainty).getDouble();
+        }
+        return 0.0;
     }
 }

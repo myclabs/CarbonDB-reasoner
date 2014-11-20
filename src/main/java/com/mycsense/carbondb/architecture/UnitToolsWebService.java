@@ -8,15 +8,15 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.mycsense.carbondb.NotFoundException;
 import com.mycsense.carbondb.domain.Unit;
+import com.mycsense.carbondb.domain.UnitTools;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UnitsRepoWebService extends AbstractRepo implements UnitsRepo, UnitsRepoCache {
+public class UnitToolsWebService implements UnitTools {
     protected HashMap<String, Double> conversionFactorsCache = new HashMap<>();
     protected HashMap<String, HashMap<String, Boolean>> compatibleUnitsCache = new HashMap<>();
     protected HashMap<String, String> symbolsCache = new HashMap<>();
@@ -27,48 +27,25 @@ public class UnitsRepoWebService extends AbstractRepo implements UnitsRepo, Unit
         this.unitsAPIURI = unitsAPIURI;
     }
 
-    private final Logger log = LoggerFactory.getLogger(UnitsRepoWebService.class);
+    private final Logger log = LoggerFactory.getLogger(UnitToolsWebService.class);
 
-    public UnitsRepoWebService(Model model) {
-        super(model);
-    }
-
-    public Unit getUnit(Resource element)
+    public Double getConversionFactor(Unit unit)
     {
-        if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
-            Resource unitResource = element.getProperty(Datatype.hasUnit).getResource();
-            if (unitResource.hasProperty(Datatype.foreignUnitID) && null != unitResource.getProperty(Datatype.foreignUnitID)) {
-                String unitID = unitResource.getProperty(Datatype.foreignUnitID).getString();
-                Unit unit = new Unit(
-                    unitResource.getURI(),
-                    getUnitSymbol(unitID),
-                    unitID
-                );
-                return unit;
-            }
-            else {
-                //report.addError(element.getURI() + " has no unit");
-            }
-        }
-        // @todo this method should throw an exception or return an empty unit if the given element has no unit
-        return null;
-    }
-
-    public Double getConversionFactor(String unitID)
-    {
+        String unitID = unit.getRef();
         if (!conversionFactorsCache.containsKey(unitID)) {
             log.debug("fetching conversion factor for " + unitID);
-            String unitOfReference = findUnitOfReference(unitID);
-            if (null == unitOfReference) {
-                // unit not found (or error)
-                //report.addError("unit not found: " + unitID + " (response status from units API: " + response.getStatus() + ")");
-                conversionFactorsCache.put(unitID, 1.0);
+            try {
+                String unitOfReference = findUnitOfReference(unitID);
+                if (unitID.equals(unitOfReference)) {
+                    conversionFactorsCache.put(unitID, 1.0);
+                }
+                else  {
+                    conversionFactorsCache.put(unitID, findConversionFactor(unitID, unitOfReference));
+                }
             }
-            else if (unitID.equals(unitOfReference)) {
+            catch (NotFoundException e) {
+                log.warn(e.getMessage());
                 conversionFactorsCache.put(unitID, 1.0);
-            }
-            else  {
-                conversionFactorsCache.put(unitID, findConversionFactor(unitID, unitOfReference));
             }
         }
         return conversionFactorsCache.get(unitID);
@@ -76,16 +53,7 @@ public class UnitsRepoWebService extends AbstractRepo implements UnitsRepo, Unit
 
     public boolean areCompatible(Unit unit1, Unit unit2)
     {
-        return areCompatible(unit1.getRef(), unit2.getRef());
-    }
-
-    public boolean areCompatible(Unit unit1, String unitID2)
-    {
-        return areCompatible(unit1.getRef(), unitID2);
-    }
-
-    public boolean areCompatible(String unitID1, String unitID2)
-    {
+        String unitID1 = unit1.getRef(), unitID2 = unit2.getRef();
         if (!compatibleUnitsCache.containsKey(unitID1)) {
             compatibleUnitsCache.put(unitID1, new HashMap<String, Boolean>());
         }
@@ -124,32 +92,32 @@ public class UnitsRepoWebService extends AbstractRepo implements UnitsRepo, Unit
         return unit;
     }
 
-    public String getUnitSymbol(String unitID)
+    public String getUnitSymbol(String ref)
     {
-        if (!symbolsCache.containsKey(unitID)) {
-            log.debug("fetching symbol for " + unitID);
+        if (!symbolsCache.containsKey(ref)) {
+            log.debug("fetching symbol for " + ref);
             Response response = buildBaseWebTarget()
                     .path("unit")
-                    .path(unitID)
+                    .path(ref)
                     .request(MediaType.TEXT_PLAIN_TYPE)
                     .get();
             if (response.getStatus() == 200) {
                 String responseString = response.readEntity(String.class);
                 JSONObject obj = new JSONObject(responseString);
                 if (obj.getJSONObject("symbol").isNull("en")
-                    || obj.getJSONObject("symbol").get("en").toString().equals("null")
-                ) {
-                    symbolsCache.put(unitID, unitID);
+                        || obj.getJSONObject("symbol").get("en").toString().equals("null")
+                        ) {
+                    symbolsCache.put(ref, ref);
                 }
                 else {
-                    symbolsCache.put(unitID, obj.getJSONObject("symbol").getString("en"));
+                    symbolsCache.put(ref, obj.getJSONObject("symbol").getString("en"));
                 }
             }
             else {
-                symbolsCache.put(unitID, unitID);
+                symbolsCache.put(ref, ref);
             }
         }
-        return symbolsCache.get(unitID);
+        return symbolsCache.get(ref);
     }
 
     public HashMap<String, Double> getConversionFactorsCache() {
@@ -176,19 +144,18 @@ public class UnitsRepoWebService extends AbstractRepo implements UnitsRepo, Unit
         this.symbolsCache = symbolsCache;
     }
 
-    protected String findUnitOfReference(String unitID)
-    {
-        String unitOfReference = null;
+    protected String findUnitOfReference(String unitID) throws NotFoundException {
         Response response = buildBaseWebTarget()
                 .path("unit-of-reference")
                 .path(unitID)
                 .request(MediaType.TEXT_PLAIN_TYPE)
                 .get();
-        if (response.getStatus() == 200) {
-            JSONObject obj = new JSONObject(response.readEntity(String.class));
-            unitOfReference = obj.getString("id");
+        if (response.getStatus() != 200) {
+            throw new NotFoundException("Unit not found: " + unitID
+                    + " (response status from units API: " + response.getStatus() + ")");
         }
-        return unitOfReference;
+        JSONObject obj = new JSONObject(response.readEntity(String.class));
+        return obj.getString("id");
     }
 
     protected Double findConversionFactor(String sourceUnitID, String destinationUnitID)
@@ -227,6 +194,6 @@ public class UnitsRepoWebService extends AbstractRepo implements UnitsRepo, Unit
     protected WebTarget buildBaseWebTarget()
     {
         return ClientBuilder.newClient()
-               .target(unitsAPIURI);
+                .target(unitsAPIURI);
     }
 }

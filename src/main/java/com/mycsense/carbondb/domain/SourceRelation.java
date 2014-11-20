@@ -2,6 +2,7 @@ package com.mycsense.carbondb.domain;
 
 import com.mycsense.carbondb.IncompatibleDimSetException;
 import com.mycsense.carbondb.IncompatibleUnitsException;
+import com.mycsense.carbondb.NoElementFoundException;
 import com.mycsense.carbondb.architecture.UnitsRepo;
 
 import java.util.ArrayList;
@@ -10,28 +11,61 @@ import java.lang.StringBuilder;
 import java.util.Collections;
 
 public class SourceRelation {
-    public Group source;
-    public Group coeff;
-    public Group destination;
+    protected Group source;
+    protected Group coeff;
+    protected Group destination;
 
     protected String uri;
     protected int exponent = 1;
-    protected UnitsRepo unitsRepo;
     protected RelationType type;
     protected ArrayList<DerivedRelation> derivedRelations;
 
-    public SourceRelation(Group source, Group coeff, Group destination, UnitsRepo unitsRepo) {
+    public SourceRelation(Group source, Group coeff, Group destination) {
         this.source = source;
         this.coeff = coeff;
         this.destination = destination;
-        this.unitsRepo = unitsRepo;
+    }
+
+    public class TranslationDerivative {
+        Dimension sourceKeywords, coeffKeywords, destinationKeywords;
+
+        public TranslationDerivative(Dimension sourceKeywords,
+                                     Dimension coeffKeywords,
+                                     Dimension destinationKeywords
+        ) {
+            this.sourceKeywords = sourceKeywords;
+            this.coeffKeywords = coeffKeywords;
+            this.destinationKeywords = destinationKeywords;
+        }
+
+        public DerivedRelation transformToDerivedRelation()
+                throws NoElementFoundException
+        {
+            Process source, destination;
+            Coefficient coeff = CarbonOntology.getInstance().findCoefficient(coeffKeywords, getCoeff().getUnit());
+            try  {
+                source = CarbonOntology.getInstance().findProcess(sourceKeywords, getSource().getUnit());
+            }
+            catch (NoElementFoundException e) {
+                source = new Process(sourceKeywords, getSource().getUnit());
+            }
+            try  {
+                destination = CarbonOntology.getInstance().findProcess(destinationKeywords, getDestination().getUnit());
+            }
+            catch (NoElementFoundException e) {
+                destination = new Process(destinationKeywords, getDestination().getUnit());
+            }
+            DerivedRelation derivedRelation = new DerivedRelation(source, coeff, destination, SourceRelation.this, getType(), getExponent());
+            addDerivedRelation(derivedRelation);
+            return derivedRelation;
+        }
     }
 
     public String toString() {
         return source + " x " + coeff + " -> " + destination;
     }
 
-    public ArrayList<DerivedRelation> translate()
+    public ArrayList<TranslationDerivative> translate()
         throws IncompatibleDimSetException, IncompatibleUnitsException
     {
         if (!source.dimSetWithCommonKeywords.isCompatible(coeff.dimSetWithCommonKeywords)) {
@@ -46,11 +80,11 @@ public class SourceRelation {
             throw new IncompatibleDimSetException("The coeff group and the destination group are incompatible "
                                                   + "in the source relation: " + uri);
         }
-        if (!unitsRepo.areCompatible(source.getUnit(), unitsRepo.getUnitsMultiplication(destination.getUnit(), coeff.getUnit(), exponent))) {
+        if (!source.getUnit().isCompatible(destination.getUnit().multiply(coeff.getUnit(), exponent))) {
             throw new IncompatibleUnitsException("The units are incompatible "
                                                  + "in the source relation: " + uri);
         }
-        derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> translationDerivative = new ArrayList<>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
         if (!unionResult.dimSet.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The union of the source with the coeff groups and the destination "
@@ -72,20 +106,16 @@ public class SourceRelation {
                     hashKey2 = getHashKey(sourceAndCoeffKeywords, commonKeywordsGp1GcGp2, alpha2);
                     if (!hashKey2.equals("#nullHashKey#")) {
                         for (Dimension destinationProcess: destinationProcesses.get(hashKey2)) {
-                            derivedRelations.add(new DerivedRelation(sourceProcess,
-                                                                 source.getUnit(),
+                            translationDerivative.add(new TranslationDerivative(sourceProcess,
                                                                  singleCoeff,
-                                                                 coeff.getUnit(),
-                                                                 destinationProcess,
-                                                                 destination.getUnit(),
-                                                                 exponent));
+                                                                 destinationProcess));
                         }
                     }
                 }
             }
         }
 
-        return derivedRelations;
+        return translationDerivative;
     }
 
     public static String getHashKey(Dimension dimension, Dimension commonKeywords, Integer alpha)
@@ -163,5 +193,33 @@ public class SourceRelation {
 
     public void setDerivedRelations(ArrayList<DerivedRelation> derivedRelations) {
         this.derivedRelations = derivedRelations;
+    }
+
+    public void addDerivedRelation(DerivedRelation derivedRelation) {
+        derivedRelations.add(derivedRelation);
+    }
+
+    public Group getSource() {
+        return source;
+    }
+
+    public void setSource(Group source) {
+        this.source = source;
+    }
+
+    public Group getCoeff() {
+        return coeff;
+    }
+
+    public void setCoeff(Group coeff) {
+        this.coeff = coeff;
+    }
+
+    public Group getDestination() {
+        return destination;
+    }
+
+    public void setDestination(Group destination) {
+        this.destination = destination;
     }
 }

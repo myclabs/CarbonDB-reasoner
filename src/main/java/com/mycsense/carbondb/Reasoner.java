@@ -1,7 +1,9 @@
 package com.mycsense.carbondb; 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -10,9 +12,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import com.mycsense.carbondb.architecture.*;
-import com.mycsense.carbondb.domain.SourceRelation;
-import com.mycsense.carbondb.domain.DerivedRelation;
-import com.mycsense.carbondb.domain.Value;
+import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.Process;
 import org.la4j.matrix.sparse.CCSMatrix;
 import org.la4j.matrix.Matrix;
 import org.la4j.vector.Vector;
@@ -30,6 +31,7 @@ public class Reasoner {
     protected InfModel infModel;
     protected RelationRepo relationRepo;
     protected SingleElementRepo singleElementRepo;
+    protected ReferenceRepo referenceRepo;
 
     protected com.hp.hpl.jena.reasoner.Reasoner jenaReasoner;
     protected Matrix dependencyMatrix, transitiveDependencyMatrix;
@@ -42,6 +44,7 @@ public class Reasoner {
     protected Double threshold = new Double(0.1);
     public ReasonnerReport report = new ReasonnerReport();
     protected UnitsRepo unitsRepo;
+    protected GroupRepo groupRepo;
 
     private final Logger log = LoggerFactory.getLogger(Reasoner.class);
 
@@ -64,27 +67,55 @@ public class Reasoner {
 
         RepoFactory.clear();
         RepoFactory.setModel(infModel);
-        RepoFactory.setUnitsRepo(unitsRepo);
+        //RepoFactory.setUnitsRepo(unitsRepo);
         RepoFactory.setReasonnerReport(report);
         relationRepo = RepoFactory.getRelationRepo();
         singleElementRepo = RepoFactory.getSingleElementRepo();
+        referenceRepo = RepoFactory.getReferenceRepo();
+        groupRepo = RepoFactory.getGroupRepo();
         log.info("Loading and translating sourceRelations");
-        for (Resource sourceRelationResource: relationRepo.getSourceRelationsResources()) {
+
+        // We load the ontology
+        CarbonOntology ontology = CarbonOntology.getInstance();
+        ontology.setElementaryFlowTypesTree(RepoFactory.getTypeRepo().getElementaryFlowTypesTree());
+        ontology.setImpactTypesTree(RepoFactory.getTypeRepo().getImpactTypesTree());
+        ontology.setReferences(referenceRepo.getReferences());
+        ontology.setProcessGroups(groupRepo.getProcessGroups());
+        ontology.setCoefficientGroups(groupRepo.getCoefficientGroups());
+        for (Process process: singleElementRepo.getProcesses()) {
             try {
-                SourceRelation sourceRelation = relationRepo.getSourceRelation(sourceRelationResource);
-                sourceRelation.setDerivedRelations(createDerivedRelations(sourceRelation.translate(), sourceRelationResource));
+                ontology.addProcess(process);
             }
-            catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
-                report.addError(e.getMessage());
+            catch (AlreadyExistsException e) {
+                log.warn(e.getMessage());
             }
         }
+        for (Coefficient coefficient: singleElementRepo.getCoefficients()) {
+            try {
+                ontology.addCoefficient(coefficient);
+            }
+            catch (AlreadyExistsException e) {
+                log.warn(e.getMessage());
+            }
+        }
+        ontology.setSourceRelations(RepoFactory.getRelationRepo().getSourceRelations());
 
-        log.info("Getting single processes");
-        processes = singleElementRepo.getSingleProcesses();
-        log.info("getting elementary flow types");
-        elementaryFlowTypes = singleElementRepo.getElementaryFlowTypes();
-        log.info("Getting impact types");
-        impactTypes = singleElementRepo.getImpactTypes();
+        // and we process the ontology only using the object model
+        for (SourceRelation sourceRelation: ontology.getSourceRelations().values()) {
+            ArrayList<SourceRelation.TranslationDerivative> derivatives = new ArrayList<>();
+            try {
+                derivatives = sourceRelation.translate();
+            } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
+                log.warn(e.getMessage());
+            }
+            for (SourceRelation.TranslationDerivative derivative: derivatives) {
+                try {
+                    derivative.transformToDerivedRelation();
+                } catch (NoElementFoundException e) {
+                    log.warn(e.getMessage());
+                }
+            }
+        }
 
         log.info("Creating ecological matrices");
         createEcologicalMatrix();
@@ -293,9 +324,13 @@ public class Reasoner {
     }
 
     protected void createMatrices() {
+        HashSet<Process> processes = CarbonOntology.getInstance().getProcesses();
+
+        // @todo transform the processes hashset into an arraylist to keep the following logic intact
         dependencyMatrix = new CCSMatrix(processes.size(), processes.size());
         uncertaintyMatrix = new CCSMatrix(processes.size(), processes.size());
         for (int i = 0; i < processes.size(); i++) {
+            // @todo get the relations from the Process directly
             ArrayList<Resource> relations = relationRepo.getRelationsForProcess(processes.get(i));
             for (Resource relation : relations) {
                 RDFNode downStreamProcess = relation.getProperty(Datatype.hasDestinationProcess).getResource();
@@ -317,15 +352,21 @@ public class Reasoner {
     }
 
     protected void createEcologicalMatrix() {
+        HashSet<Process> processes = CarbonOntology.getInstance().getProcesses();
+        Collection<ElementaryFlowType> elementaryFlowTypes = CarbonOntology.getInstance().getElementaryFlowTypes().values();
         ecologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
         ecologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
 
-        for (int i = 0; i < processes.size(); i++) {
-            HashMap<Resource, Value> emissions = singleElementRepo.getEmissionsForProcess(processes.get(i));
-            for (int j = 0; j < elementaryFlowTypes.size(); j++) {
-                if (emissions.containsKey(elementaryFlowTypes.get(j))) {
-                    ecologicalMatrix.set(i, j, emissions.get(elementaryFlowTypes.get(j)).value);
-                    ecologicalUncertaintyMatrix.set(i, j, emissions.get(elementaryFlowTypes.get(j)).uncertainty);
+        int i = 0;
+        for (Process process: processes) {
+            i++;
+            HashMap<String, ElementaryFlow> flows = process.getFlows();
+            int j = 0;
+            for (ElementaryFlowType type: elementaryFlowTypes) {
+                j++;
+                if (flows.containsKey(type.getId())) {
+                    ecologicalMatrix.set(i, j, flows.get(type.getId()).getValue().value);
+                    ecologicalUncertaintyMatrix.set(i, j, flows.get(type.getId()).getValue().uncertainty);
                 }
                 else {
                     ecologicalMatrix.set(i, j, 0.0);
@@ -337,15 +378,22 @@ public class Reasoner {
 
     protected void createFlowToImpactsMatrix() {
         // W -> cols = EFT, rows = IT
+        Collection<ElementaryFlowType> elementaryFlowTypes = CarbonOntology.getInstance().getElementaryFlowTypes().values();
+        Collection<ImpactType> impactTypes = CarbonOntology.getInstance().getImpactTypes().values();
+
         flowToImpactsMatrix = new CCSMatrix(impactTypes.size(), elementaryFlowTypes.size());
         flowToImpactsUncertaintyMatrix = new CCSMatrix(impactTypes.size(), elementaryFlowTypes.size());
 
-        for (int i = 0; i < impactTypes.size(); i++) {
-            HashMap<Resource, Value> components = singleElementRepo.getComponentsForImpact(impactTypes.get(i));
-            for (int j = 0; j < elementaryFlowTypes.size(); j++) {
-                if (components.containsKey(elementaryFlowTypes.get(j))) {
-                    flowToImpactsMatrix.set(i, j, components.get(elementaryFlowTypes.get(j)).value);
-                    flowToImpactsUncertaintyMatrix.set(i, j, components.get(elementaryFlowTypes.get(j)).uncertainty);
+        int i = 0;
+        for (ImpactType impactType: impactTypes) {
+            i++;
+            HashMap<ElementaryFlowType, Value> components = impactType.getComponents();
+            int j = 0;
+            for (ElementaryFlowType flowType: elementaryFlowTypes) {
+                j++;
+                if (components.containsKey(flowType)) {
+                    flowToImpactsMatrix.set(i, j, components.get(flowType).value);
+                    flowToImpactsUncertaintyMatrix.set(i, j, components.get(flowType).uncertainty);
                 }
                 else {
                     flowToImpactsMatrix.set(i, j, 0.0);

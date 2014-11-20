@@ -6,10 +6,8 @@ import com.mycsense.carbondb.*;
 import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.Process;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import javax.xml.crypto.Data;
+import java.util.*;
 
 public class SingleElementRepo extends AbstractRepo {
 
@@ -17,7 +15,7 @@ public class SingleElementRepo extends AbstractRepo {
     protected HashMap<String, Resource> processesResourceCache;
     protected HashMap<String, Resource> coefficientsResourceCache;
     protected HashMap<String, Process> processesCache;
-    protected HashMap<String, Process> coefficientsCache;
+    protected HashMap<String, Coefficient> coefficientsCache;
     protected HashMap<String, ElementaryFlowType> flowTypesCache;
 
     public SingleElementRepo(Model model, UnitsRepo unitsRepo) {
@@ -30,182 +28,53 @@ public class SingleElementRepo extends AbstractRepo {
         flowTypesCache = new HashMap<>();
     }
 
-    public Resource getProcessForDimension(Dimension dimension, String unit)
-            throws MultipleElementsFoundException, NoElementFoundException
-    {
-        String elementKey = dimension.toString() + unit;
-        if (!processesResourceCache.containsKey(elementKey)) {
-            Resource processResource = getElementResourceForDimension(dimension, unit, Datatype.SingleProcess);
-            processesResourceCache.put(elementKey, processResource);
-        }
-        return processesResourceCache.get(elementKey);
-    }
-
-    public Resource getCoefficientForDimension(Dimension dimension, String unit)
-            throws MultipleElementsFoundException, NoElementFoundException
-    {
-        String elementKey = dimension.toString() + unit;
-        if (!coefficientsResourceCache.containsKey(elementKey)) {
-            Resource coefficientResource = getElementResourceForDimension(dimension, unit, Datatype.SingleCoefficient);
-            coefficientsResourceCache.put(elementKey, coefficientResource);
-        }
-        return coefficientsResourceCache.get(elementKey);
-    }
-
-    protected Resource getElementResourceForDimension(Dimension dimension, String unit, Resource singleType)
-            throws MultipleElementsFoundException, NoElementFoundException
-    {
-        // @todo: throw an exception instead of returning null when the element could not be found?
-        if (dimension.size() == 0) {
-            return (Resource) null;
-        }
-        // We consider the candidates linked to one of the dimension's keywords...
-        Iterator<Keyword> iter = dimension.keywords.iterator();
-        Keyword keyword = iter.next();
-        Resource keywordResource = ResourceFactory.createResource(keyword.getName());
-        ResIterator statementIter = model.listSubjectsWithProperty(Datatype.hasTag, keywordResource);
-        List<Resource> candidates = statementIter.toList();
-        Iterator<Resource> i = candidates.iterator();
-        // ...and remove the candidates with a wrong type or not enough keywords or not the good unit
-        while (i.hasNext()) {
-            Resource candidate = i.next();
-            if (!model.contains(candidate, RDF.type, (RDFNode) singleType)) {
-                i.remove();
-            } else if (!getUnitURI(candidate).equals(unit)) {
-                i.remove();
-            } else {
-                NodeIterator nodeIter = model.listObjectsOfProperty(candidate, Datatype.hasTag);
-                int listSize = nodeIter.toList().size();
-                if (listSize != dimension.size()) {
-                    i.remove();
-                }
-            }
-        }
-
-        // Then we iterate over all the remaining keywords in the dimension...
-        while (iter.hasNext()) {
-            keyword = iter.next();
-            keywordResource = ResourceFactory.createResource(keyword.getName());
-            i = candidates.iterator();
-            // ...and remove the candidates that doesn't have a link to a keyword in the dimension
-            while (i.hasNext()) {
-                Resource candidate = i.next();
-                if (!model.contains(candidate, Datatype.hasTag, (RDFNode) keywordResource)) {
-                    i.remove();
-                }
-            }
-        }
-
-        if (candidates.isEmpty()) {
-            throw new NoElementFoundException("No " + (singleType == Datatype.SingleProcess ? "process" : "coefficient")
-                    + " found with keywords: " + dimension.keywords + " and unit: " + unit);
-        }
-        if (candidates.size() > 1) {
-            throw new MultipleElementsFoundException("Found multiple " + (singleType == Datatype.SingleProcess ? "processes" : "coefficients")
-                    + " with keywords: " + dimension.keywords + " and unit " + unit
-                    + " (using: " + candidates.get(0).getURI() + ")");
-        }
-        return candidates.get(0);
-    }
-
-    public HashMap<String, ElementaryFlowType> getElementaryFlowTypes() {
-        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ElementaryFlowType);
-        StmtIterator iter = model.listStatements( selector );
-
-        HashMap<String, ElementaryFlowType> elementaryFlowTypes = new HashMap<>();
-        if (iter.hasNext()) {
-            while (iter.hasNext()) {
-                Statement s = iter.nextStatement();
-                Resource flowTypeResource = s.getSubject();
-                ElementaryFlowType flowType = new ElementaryFlowType(
-                    s.getSubject().getURI(),
-                    getLabelOrURI(flowTypeResource),
-                    RepoFactory.getUnitsRepo().getUnit(flowTypeResource)
-                );
-                elementaryFlowTypes.put(flowTypeResource.getURI(), flowType);
-                flowTypesCache.put(flowTypeResource.getURI(), flowType);
-            }
-        }
-        return elementaryFlowTypes;
-    }
-
-    public ArrayList<Resource> getImpactTypes() {
-        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.ImpactType);
-        StmtIterator iter = model.listStatements( selector );
-
-        ArrayList<Resource> impactTypes = new ArrayList<>();
-        if (iter.hasNext()) {
-            while (iter.hasNext()) {
-                Statement s = iter.nextStatement();
-                impactTypes.add(s.getSubject());
-            }
-        }
-        return impactTypes;
-    }
-
-    public Category getImpactTypesTree() {
-        Category root = new Category();
-
-        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfImpactType);
-        while (i.hasNext()) {
-            Resource categoryResource = i.next();
-            Category category = new Category(
-                    categoryResource.getURI(),
-                    getLabelOrURI(categoryResource),
-                    root);
-
-            root.addChild(category);
-            ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfImpactType, categoryResource);
-            while (iCat.hasNext()) {
-                Resource impactTypeResource = iCat.next();
-                HashMap<String, String> impactType = new HashMap<>();
-                impactType.put("uri", impactTypeResource.getURI());
-                impactType.put("label", getLabelOrURI(impactTypeResource));
-                impactType.put("unit", unitsRepo.getUnit(categoryResource).getSymbol());
-                category.addChild(impactType);
-            }
-        }
-
-        return root;
-    }
-
-    public Category getElementaryFlowTypesTree() {
-        Category root = new Category();
-
-        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfElementaryFlowType);
-        while (i.hasNext()) {
-            Resource categoryResource = i.next();
-            Category category = new Category(
-                    categoryResource.getURI(),
-                    getLabelOrURI(categoryResource),
-                    root);
-
-            root.addChild(category);
-            ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfElementaryFlowType, categoryResource);
-            while (iCat.hasNext()) {
-                Resource impactTypeResource = iCat.next();
-                HashMap<String, String> elementaryFlowType = new HashMap<>();
-                elementaryFlowType.put("uri", impactTypeResource.getURI());
-                elementaryFlowType.put("label", getLabelOrURI(impactTypeResource));
-                elementaryFlowType.put("unit", unitsRepo.getUnit(categoryResource).getSymbol());
-                category.addChild(elementaryFlowType);
-            }
-        }
-
-        return root;
-    }
-
     public Process getProcess(Resource processResource)
     {
         if (!processesCache.containsKey(processResource.getURI())) {
-            Process process = new Process(getElementKeywords(processResource));
-            process.setFlows(getElementaryFlowsForProcess(processResource));
-            process.setImpacts(getImpactsForProcess(processResource));
-            process.setUnit(unitsRepo.getUnit(processResource).getSymbol());
-            process.setUnitURI(getUnitURI(processResource));
+            Unit unit = RepoFactory.unitsRepo.getUnit(processResource);
+            Process process = new Process(getElementKeywords(processResource), unit);
+            getElementaryFlowsForProcess(process, processResource);
+            getImpactsForProcess(process, processResource);
             processesCache.put(processResource.getURI(), process);
         }
         return processesCache.get(processResource.getURI());
+    }
+
+    public Coefficient getCoefficient(Resource coefficientResource)
+    {
+        if (!coefficientsCache.containsKey(coefficientResource.getURI())) {
+            Unit unit = RepoFactory.unitsRepo.getUnit(coefficientResource);
+            Double conversionFactor = unit.getConversionFactor();
+            Value value = new Value(coefficientResource.getProperty(Datatype.value).getDouble() / conversionFactor,
+                    getUncertainty(coefficientResource));
+            Coefficient coefficient = new Coefficient(getElementKeywords(coefficientResource), unit, value);
+            coefficientsCache.put(coefficientResource.getURI(), coefficient);
+        }
+        return coefficientsCache.get(coefficientResource.getURI());
+    }
+
+    public ArrayList<Process> getProcesses() {
+        ArrayList<Process> processes = new ArrayList<>();
+
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SingleProcess);
+        while (i.hasNext()) {
+            Resource resource = i.next();
+            processes.add(getProcess(resource));
+        }
+
+        return processes;
+    }
+
+    public ArrayList<Coefficient> getCoefficients() {
+        ArrayList<Coefficient> coefficients = new ArrayList<>();
+
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SingleCoefficient);
+        while (i.hasNext()) {
+            Resource resource = i.next();
+            coefficients.add(getCoefficient(resource));
+        }
+
+        return coefficients;
     }
 
     protected Dimension getElementKeywords(Resource elementResource)
@@ -225,46 +94,6 @@ public class SingleElementRepo extends AbstractRepo {
         return dim;
     }
 
-    public ArrayList<Resource> getSingleProcesses() {
-        Selector selector = new SimpleSelector(null, RDF.type, (RDFNode) Datatype.SingleProcess);
-        StmtIterator iter = model.listStatements( selector );
-
-        ArrayList<Resource> processes = new ArrayList<>();
-        if (iter.hasNext()) {
-            while (iter.hasNext()) {
-                Statement s = iter.nextStatement();
-                processes.add(s.getSubject());
-            }
-        }
-        return processes;
-    }
-
-    public HashMap<Resource, Value> getEmissionsForProcess(Resource process)
-    {
-        HashMap<Resource, Value> emissions = new HashMap<>();
-        StmtIterator iter = process.listProperties(Datatype.hasFlow);
-        Double conversionFactor = 1.0;
-        if (iter.hasNext()) {
-            String unitID = unitsRepo.getUnit(process).getRef();
-            if (!unitID.equals("")) {
-                conversionFactor = unitsRepo.getConversionFactor(unitID);
-            }
-        }
-
-        while (iter.hasNext()) {
-            Resource emission = iter.nextStatement().getResource();
-            if (emission.hasProperty(Datatype.hasElementaryFlowType) && null != emission.getProperty(Datatype.hasElementaryFlowType)
-                    && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
-                Resource nature = emission.getProperty(Datatype.hasElementaryFlowType).getResource();
-                Double value = emission.getProperty(Datatype.value).getDouble() / conversionFactor;
-                Double uncertainty = getUncertainty(emission);
-
-                emissions.put(nature, new Value(value, uncertainty));
-            }
-        }
-        return emissions;
-    }
-
     public HashMap<String, Value> getCalculatedEmissionsForProcess(Resource process)
     {
         HashMap<String, Value> emissions = new HashMap<>();
@@ -280,45 +109,47 @@ public class SingleElementRepo extends AbstractRepo {
         return emissions;
     }
 
-    public ArrayList<ElementaryFlow> getElementaryFlowsForProcess(Resource process)
+    protected HashMap<String, ElementaryFlow> getElementaryFlowsForProcess(Process process, Resource resource)
     {
-        ArrayList<ElementaryFlow> flows = new ArrayList<>();
-        StmtIterator iter = process.listProperties(Datatype.hasFlow);
-        Double conversionFactor = 1.0;
-        if (iter.hasNext()) {
-            String unitID = unitsRepo.getUnit(process).getRef();
-            if (!unitID.equals("")) {
-                conversionFactor = unitsRepo.getConversionFactor(unitID);
-            }
-        }
-
+        Double conversionFactor = process.getUnit().getConversionFactor();
+        HashMap<String, ElementaryFlow> flows = new HashMap<>();
+        StmtIterator iter = resource.listProperties(Datatype.hasFlow);
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
             if (emission.hasProperty(Datatype.hasElementaryFlowType) && null != emission.getProperty(Datatype.hasElementaryFlowType)
                     && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
-                ElementaryFlowType flowType = flowTypesCache.get(emission.getProperty(Datatype.hasElementaryFlowType).getResource().getURI());
+                String typeURI = emission.getProperty(Datatype.hasElementaryFlowType).getResource().getURI();
+                ElementaryFlowType flowType = CarbonOntology.getInstance().getElementaryFlowType(typeURI);
                 Value value = new Value(emission.getProperty(Datatype.value).getDouble() / conversionFactor, getUncertainty(emission));
 
-                flows.add(new ElementaryFlow(flowType, value));
+                try {
+                    process.addFlow(new ElementaryFlow(flowType, value));
+                } catch (AlreadyExistsException e) {
+                    log.warn(e.getMessage());
+                }
             }
         }
         return flows;
     }
 
-    public HashMap<String, Value> getImpactsForProcess(Resource process)
+    protected HashMap<String, Impact> getImpactsForProcess(Process process, Resource resource)
     {
-        HashMap<String, Value> impacts = new HashMap<>();
-        StmtIterator iter = process.listProperties(Datatype.hasImpact);
+        HashMap<String, Impact> impacts = new HashMap<>();
+        StmtIterator iter = resource.listProperties(Datatype.hasImpact);
 
         while (iter.hasNext()) {
             Resource emission = iter.nextStatement().getResource();
             if (emission.hasProperty(Datatype.hasImpactType) && null != emission.getProperty(Datatype.hasImpactType)
                     && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
-                Resource impactType = emission.getProperty(Datatype.hasImpactType).getResource();
-                Double value = emission.getProperty(Datatype.value).getDouble();
-                Double uncertainty = getUncertainty(emission);
+                String typeURI = emission.getProperty(Datatype.hasImpactType).getResource().getURI();
+                ImpactType impactType = CarbonOntology.getInstance().getImpactType(typeURI);
+                Value value = new Value(emission.getProperty(Datatype.value).getDouble(), getUncertainty(emission));
 
-                impacts.put(impactType.getURI(), new Value(value, uncertainty));
+                try {
+                    process.addImpact(new Impact(impactType, value));
+                } catch (AlreadyExistsException e) {
+                    log.warn(e.getMessage());
+                }
             }
         }
         return impacts;
@@ -326,6 +157,7 @@ public class SingleElementRepo extends AbstractRepo {
 
     public HashMap<Resource, Value> getComponentsForImpact(Resource impactType)
     {
+        // @todo moved this logic to the ImpactType class and the extraction to the TypeRepo
         HashMap<Resource, Value> components = new HashMap<>();
         StmtIterator iter = impactType.listProperties(Datatype.hasComponentOfImpactType);
 
@@ -343,14 +175,6 @@ public class SingleElementRepo extends AbstractRepo {
             }
         }
         return components;
-    }
-
-    public Double getUncertainty(Resource resource)
-    {
-        if (resource.hasProperty(Datatype.uncertainty) && null != resource.getProperty(Datatype.uncertainty)) {
-            return resource.getProperty(Datatype.uncertainty).getDouble();
-        }
-        return 0.0;
     }
 
     public Resource createProcess(Dimension dimension, String unitURI)

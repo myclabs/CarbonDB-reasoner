@@ -1,10 +1,13 @@
 package com.mycsense.carbondb.domain;
 
+import java.util.HashSet;
+
 public class Coefficient extends SingleElement {
     protected Value value;
+    protected HashSet<DerivedRelation> derivedRelations;
 
-    public Coefficient(Dimension keywords, Value value) {
-        super(keywords);
+    public Coefficient(Dimension keywords, Unit unit, Value value) {
+        super(keywords, unit);
         this.value = value;
     }
 
@@ -14,5 +17,13 @@ public class Coefficient extends SingleElement {
 
     public void setValue(Value value) {
         this.value = value;
+    }
+
+    public void addDerivedRelation(DerivedRelation derivedRelation) {
+        derivedRelations.add(derivedRelation);
+    }
+
+    public HashSet<DerivedRelation> getDerivedRelations() {
+        return derivedRelations;
     }
 }
