@@ -4,6 +4,7 @@ import com.mycsense.carbondb.AlreadyExistsException;
 import com.mycsense.carbondb.NoElementFoundException;
 import com.mycsense.carbondb.NotFoundException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -17,7 +18,7 @@ public final class CarbonOntology {
     protected HashSet<Coefficient> coefficients;
 
     protected HashMap<String, SourceRelation> sourceRelations;
-    protected HashMap<String, DerivedRelation> derivedRelations;
+    protected ArrayList<DerivedRelation> derivedRelations;
 
     protected Category elementaryFlowTypesTree;
     protected HashMap<String, ElementaryFlowType> elementaryFlowTypes;
@@ -33,7 +34,7 @@ public final class CarbonOntology {
         coefficients = new HashSet<>();
         references = new HashMap<>();
         sourceRelations = new HashMap<>();
-        derivedRelations = new HashMap<>();
+        derivedRelations = new ArrayList<>();
         elementaryFlowTypes = new HashMap<>();
         impactTypes = new HashMap<>();
     }
@@ -200,5 +201,13 @@ public final class CarbonOntology {
 
     public void setSourceRelations(HashMap<String, SourceRelation> sourceRelations) {
         this.sourceRelations = sourceRelations;
+    }
+
+    public ArrayList<DerivedRelation> getDerivedRelations() {
+        return derivedRelations;
+    }
+
+    public void addDerivedRelation(DerivedRelation derivedRelation) {
+        derivedRelations.add(derivedRelation);
     }
 }

@@ -104,8 +104,8 @@ public class Reasoner {
             }
             for (TranslationDerivative derivative: derivatives) {
                 try {
-                    derivative.transformToDerivedRelation();
-                } catch (NoElementFoundException e) {
+                    ontology.addDerivedRelation(derivative.transformToDerivedRelation());
+                } catch (NoElementFoundException | AlreadyExistsException e) {
                     log.warn(e.getMessage());
                 }
             }

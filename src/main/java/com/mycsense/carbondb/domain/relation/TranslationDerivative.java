@@ -1,5 +1,6 @@
 package com.mycsense.carbondb.domain.relation;
 
+import com.mycsense.carbondb.AlreadyExistsException;
 import com.mycsense.carbondb.NoElementFoundException;
 import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.Process;
@@ -22,8 +23,7 @@ public class TranslationDerivative {
     }
 
     public DerivedRelation transformToDerivedRelation()
-            throws NoElementFoundException
-    {
+            throws NoElementFoundException, AlreadyExistsException {
         com.mycsense.carbondb.domain.Process source, destination;
         Coefficient coeff = CarbonOntology.getInstance().findCoefficient(coeffKeywords, sourceRelation.getCoeff().getUnit());
         try  {
@@ -31,12 +31,14 @@ public class TranslationDerivative {
         }
         catch (NoElementFoundException e) {
             source = new Process(sourceKeywords, sourceRelation.getSource().getUnit());
+            CarbonOntology.getInstance().addProcess(source);
         }
         try  {
             destination = CarbonOntology.getInstance().findProcess(destinationKeywords, sourceRelation.getDestination().getUnit());
         }
         catch (NoElementFoundException e) {
             destination = new Process(destinationKeywords, sourceRelation.getDestination().getUnit());
+            CarbonOntology.getInstance().addProcess(destination);
         }
         DerivedRelation derivedRelation = new DerivedRelation(
                 source,
