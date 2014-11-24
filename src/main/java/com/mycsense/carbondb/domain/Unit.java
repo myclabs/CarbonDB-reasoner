@@ -4,7 +4,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Unit {
-    protected String URI;
+    protected String id;
     protected String symbol;
     protected String ref;
 
@@ -14,13 +14,13 @@ public class Unit {
         unitTools = pUnitTools;
     }
 
-    public Unit(String URI, String ref) {
-        this.URI = URI;
+    public Unit(String id, String ref) {
+        this.id = id;
         this.ref = ref;
     }
 
-    public Unit(String URI, String symbol, String ref) {
-        this.URI = URI;
+    public Unit(String id, String symbol, String ref) {
+        this.id = id;
         this.symbol = symbol;
         this.ref = ref;
     }
@@ -37,12 +37,12 @@ public class Unit {
         return unitTools.getConversionFactor(this);
     }
 
-    public String getURI() {
-        return URI;
+    public String getId() {
+        return id;
     }
 
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getSymbol() {
@@ -79,14 +79,14 @@ public class Unit {
 
         Unit rhs = (Unit) obj;
         return new EqualsBuilder()
-                .append(URI, rhs.URI)
+                .append(id, rhs.id)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 313)
-                .append(URI)
+                .append(id)
                 .toHashCode();
     }
 }

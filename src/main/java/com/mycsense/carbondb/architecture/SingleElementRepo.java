@@ -91,7 +91,7 @@ public class SingleElementRepo extends AbstractRepo {
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                Keyword keyword = new Keyword(s.getObject().toString());
+                Keyword keyword = new Keyword(getId(s.getObject().asResource()));
                 keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
                 dim.add(keyword);
             }
@@ -149,9 +149,9 @@ public class SingleElementRepo extends AbstractRepo {
     {
         Resource processResource = model.createResource(Datatype.getURI() + "sp/" + AnonId.create().toString())
                 .addProperty(RDF.type, Datatype.SingleProcess);
-        processResource.addProperty(Datatype.hasUnit, model.createResource(process.getUnit().getURI()));
+        processResource.addProperty(Datatype.hasUnit, model.createResource(process.getUnit().getId()));
         for (Keyword keyword: process.getKeywords().keywords) {
-            Resource keywordResource = model.createResource(keyword.name);
+            Resource keywordResource = model.createResource(keyword.getId());
             processResource.addProperty(Datatype.hasTag, keywordResource);
         }
         for (ElementaryFlow flow : process.getCalculatedFlows().values()) {

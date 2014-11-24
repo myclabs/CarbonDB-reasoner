@@ -4,40 +4,40 @@ import java.util.ArrayList;
 
 public class Category
 {
-    protected String uri;
+    protected String id;
     protected String label;
     protected ArrayList<Object> children = new ArrayList<>();
     protected Category parent;
 
     public Category() {
-        uri = "";
+        id = "";
     }
 
-    public Category(String uri) {
-        this.uri = uri;
+    public Category(String id) {
+        this.id = id;
     }
 
-    public Category(String uri, String label) {
-        this.uri = uri;
+    public Category(String id, String label) {
+        this.id = id;
         this.label = label;
     }
 
-    public Category(String uri, String label, Category parent) {
-        this.uri = uri;
+    public Category(String id, String label, Category parent) {
+        this.id = id;
         this.label = label;
         this.parent = parent;
     }
 
-    public String getURI() {
-        return uri;
+    public String getId() {
+        return id;
     }
 
-    public void setURI(String uri) {
-        this.uri = uri;
+    public void setURI(String id) {
+        this.id = id;
     }
 
     public String toString() {
-        return uri;
+        return id;
     }
 
     public void setLabel(String label) {

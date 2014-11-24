@@ -45,19 +45,21 @@ public abstract class AbstractRepo {
         return label;
     }
 
-    protected String getUnitURI(Resource element)
-    {
-        if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
-            return element.getProperty(Datatype.hasUnit).getResource().getURI();
-        }
-        return null;
-    }
-
     public Double getUncertainty(Resource resource)
     {
         if (resource.hasProperty(Datatype.uncertainty) && null != resource.getProperty(Datatype.uncertainty)) {
             return resource.getProperty(Datatype.uncertainty).getDouble();
         }
         return 0.0;
+    }
+
+    protected String getId(Resource resource)
+    {
+        return getId(resource.getURI());
+    }
+
+    protected String getId(String uri)
+    {
+        return uri.replace(Datatype.getURI(), "");
     }
 }

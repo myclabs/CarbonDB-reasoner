@@ -2,7 +2,9 @@ package com.mycsense.carbondb.domain;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -10,23 +12,23 @@ import com.mycsense.carbondb.domain.dimension.Orientation;
 
 public class Dimension
 {
-    public HashSet<Keyword> keywords;
+    public TreeSet<Keyword> keywords;
     public HashMap<Integer, String> keywordsPosition;
     public Orientation orientation = Orientation.NONE;
 
     public Dimension() {
-        keywords = new HashSet<>();
+        keywords = new TreeSet<>();
         keywordsPosition = new HashMap<>();
     }
 
     public Dimension(Keyword... pKeywords) {
-        keywords = new HashSet<>();
+        keywords = new TreeSet<>();
         keywordsPosition = new HashMap<>();
         Collections.addAll(keywords, pKeywords);
     }
 
     public Dimension(Dimension dimension) {
-        keywords = new HashSet<>(dimension.keywords);
+        keywords = new TreeSet<>(dimension.keywords);
     }
 
     public int size() {
@@ -42,7 +44,7 @@ public class Dimension
     }
 
     public String toString() {
-        return keywords.toString();
+        return StringUtils.join(keywords, "+");
     }
 
     public boolean contains(Keyword keyword) {

@@ -8,7 +8,6 @@ import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.group.Type;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GroupRepo extends AbstractRepo {
@@ -50,16 +49,11 @@ public class GroupRepo extends AbstractRepo {
         return groups;
     }
 
-    public Group getGroup(String groupId) throws NoUnitException {
-        return getGroup(model.getResource(Datatype.getURI() + groupId));
-    }
-
     public Group getGroup(Resource groupResource) throws NoUnitException {
         if (!groupCache.containsKey(groupResource.getURI())) {
             Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
             group.setLabel(getLabelOrURI(groupResource));
-            group.setURI(groupResource.getURI());
-            group.setId(groupResource.getURI().replace(Datatype.getURI(), ""));
+            group.setId(getId(groupResource));
             group.setUnit(RepoFactory.getUnitsRepo().getUnit(groupResource));
             group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
             if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
@@ -101,7 +95,7 @@ public class GroupRepo extends AbstractRepo {
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                Keyword keyword = new Keyword(s.getObject().toString());
+                Keyword keyword = new Keyword(getId(s.getObject().asResource()));
                 keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
                 dim.add(keyword);
             }
@@ -118,7 +112,7 @@ public class GroupRepo extends AbstractRepo {
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                Keyword keyword = new Keyword(s.getObject().toString());
+                Keyword keyword = new Keyword(getId(s.getObject().asResource()));
                 keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
                 dim.add(keyword);
             }

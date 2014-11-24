@@ -3,30 +3,37 @@ package com.mycsense.carbondb.domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Keyword
+public class Keyword implements Comparable<Keyword>
 {
-    public String name;
-
+    protected String id;
     protected String label;
 
     public Keyword() {
-        name = "";
+        id = "";
     }
 
-    public Keyword(String name) {
-        this.name = name;
+    public Keyword(String id) {
+        this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     public String toString() {
-        return name;
+        return id;
     }
 
     @Override
@@ -38,22 +45,19 @@ public class Keyword
 
         Keyword rhs = (Keyword) obj;
         return new EqualsBuilder()
-                  .append(name, rhs.getName())
+                  .append(id, rhs.getId())
                   .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(11, 79)
-                  .append(name)
+                  .append(id)
                   .toHashCode();
     }
 
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public String getLabel() {
-        return label;
+    @Override
+    public int compareTo(Keyword k) {
+        return id.compareTo(k.id);
     }
 }

@@ -13,7 +13,6 @@ public class Group
     public Type type = Type.PROCESS;
 
     protected String label;
-    protected String uri;
     protected String id;
     protected Unit unit;
     protected String comment;
@@ -86,14 +85,6 @@ public class Group
 
     public String getLabel() {
         return label;
-    }
-
-    public void setURI(String uri) {
-        this.uri = uri;
-    }
-
-    public String getURI() {
-        return uri;
     }
 
     public void setId(String id) {

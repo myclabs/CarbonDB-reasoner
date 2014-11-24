@@ -14,7 +14,7 @@ public class SourceRelation {
     protected Group coeff;
     protected Group destination;
 
-    protected String uri;
+    protected String id;
     protected int exponent = 1;
     protected RelationType type;
     protected ArrayList<DerivedRelation> derivedRelations;
@@ -34,25 +34,25 @@ public class SourceRelation {
     {
         if (!source.dimSetWithCommonKeywords.isCompatible(coeff.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The source group and the coeff group are incompatible "
-                                                  + "in the source relation: " + uri);
+                                                  + "in the source relation: " + id);
         }
         if (!source.dimSetWithCommonKeywords.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The source group and the destination group are incompatible "
-                                                  + "in the source relation: " + uri);
+                                                  + "in the source relation: " + id);
         }
         if (!coeff.dimSetWithCommonKeywords.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The coeff group and the destination group are incompatible "
-                                                  + "in the source relation: " + uri);
+                                                  + "in the source relation: " + id);
         }
         if (!source.getUnit().isCompatible(destination.getUnit().multiply(coeff.getUnit(), exponent))) {
             throw new IncompatibleUnitsException("The units are incompatible "
-                                                 + "in the source relation: " + uri);
+                                                 + "in the source relation: " + id);
         }
         ArrayList<TranslationDerivative> translationDerivative = new ArrayList<>();
         DimensionSet.UnionResult unionResult = source.dimSetWithCommonKeywords.union(coeff.dimSetWithCommonKeywords);
         if (!unionResult.dimSet.isCompatible(destination.dimSetWithCommonKeywords)) {
             throw new IncompatibleDimSetException("The union of the source with the coeff groups and the destination "
-                                                  + "group are incompatible in the source relation " + uri);
+                                                  + "group are incompatible in the source relation " + id);
         }
         Integer alpha1 = unionResult.alpha;
         Integer alpha2 = unionResult.dimSet.alpha(destination.dimSetWithCommonKeywords);
@@ -129,12 +129,12 @@ public class SourceRelation {
         return sb.toString();
     }
 
-    public void setURI(String uri) {
-        this.uri = uri;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getURI() {
-        return uri;
+    public String getId() {
+        return id;
     }
 
     public void setExponent(int exponent) {

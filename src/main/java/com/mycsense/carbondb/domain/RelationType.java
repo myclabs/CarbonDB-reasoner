@@ -3,13 +3,13 @@ package com.mycsense.carbondb.domain;
 import com.mycsense.carbondb.domain.relation.Type;
 
 public class RelationType {
+    protected String id;
     protected String label;
     protected String comment;
     protected Type type;
-    protected String URI;
 
-    public RelationType(String URI, String label, Type type) {
-        this.URI = URI;
+    public RelationType(String id, String label, Type type) {
+        this.id = id;
         this.label = label;
         this.comment = "";
         this.type = type;
@@ -39,11 +39,11 @@ public class RelationType {
         this.type = type;
     }
 
-    public String getURI() {
-        return URI;
+    public String getId() {
+        return id;
     }
 
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setId(String id) {
+        this.id = id;
     }
 }

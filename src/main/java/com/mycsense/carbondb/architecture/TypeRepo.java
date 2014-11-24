@@ -23,7 +23,7 @@ public class TypeRepo extends AbstractRepo {
         while (i.hasNext()) {
             Resource categoryResource = i.next();
             Category category = new Category(
-                    categoryResource.getURI(),
+                    getId(categoryResource),
                     getLabelOrURI(categoryResource),
                     root);
 
@@ -34,7 +34,7 @@ public class TypeRepo extends AbstractRepo {
                 ImpactType type;
                 try {
                     type = new ImpactType(
-                            resource.getURI(),
+                            getId(resource),
                             getLabelOrURI(resource),
                             RepoFactory.getUnitsRepo().getUnit(resource)
                     );
@@ -78,7 +78,7 @@ public class TypeRepo extends AbstractRepo {
         while (i.hasNext()) {
             Resource categoryResource = i.next();
             Category category = new Category(
-                    categoryResource.getURI(),
+                    getId(categoryResource),
                     getLabelOrURI(categoryResource),
                     root);
 
@@ -89,7 +89,7 @@ public class TypeRepo extends AbstractRepo {
                 ElementaryFlowType type;
                 try {
                     type = new ElementaryFlowType(
-                            resource.getURI(),
+                            getId(resource),
                             getLabelOrURI(resource),
                             RepoFactory.getUnitsRepo().getUnit(resource)
                     );

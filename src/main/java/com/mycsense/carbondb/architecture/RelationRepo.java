@@ -41,7 +41,7 @@ public class RelationRepo  extends AbstractRepo {
                     CarbonOntology.getInstance().getCoefficientGroup(coeffURI),
                     CarbonOntology.getInstance().getProcessGroup(destinationURI)
             );
-            sourceRelation.setURI(sourceRelationResource.getURI());
+            sourceRelation.setId(getId(sourceRelationResource));
             if (sourceRelationResource.hasProperty(Datatype.hasRelationType)
                     && sourceRelationResource.getProperty(Datatype.hasRelationType) != null
                     ) {
@@ -93,7 +93,7 @@ public class RelationRepo  extends AbstractRepo {
         if (relationTypeResource.hasProperty(RDF.type, Datatype.Asynchronous)) {
             type = Type.ASYNCHRONOUS;
         }
-        RelationType relationType = new RelationType(relationTypeResource.getURI(), label, type);
+        RelationType relationType = new RelationType(getId(relationTypeResource), label, type);
         if (relationTypeResource.hasProperty(RDFS.comment)
             && relationTypeResource.getProperty(RDFS.comment) != null
         ) {
