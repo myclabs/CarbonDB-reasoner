@@ -10,7 +10,7 @@ public class Unit {
 
     protected static UnitTools unitTools;
 
-    protected static void setUnitTools(UnitTools pUnitTools) {
+    public static void setUnitTools(UnitTools pUnitTools) {
         unitTools = pUnitTools;
     }
 

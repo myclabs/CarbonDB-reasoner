@@ -6,7 +6,6 @@ import com.mycsense.carbondb.*;
 import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.Process;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 
 public class SingleElementRepo extends AbstractRepo {
@@ -94,21 +93,6 @@ public class SingleElementRepo extends AbstractRepo {
         return dim;
     }
 
-    public HashMap<String, Value> getCalculatedEmissionsForProcess(Resource process)
-    {
-        HashMap<String, Value> emissions = new HashMap<>();
-        StmtIterator iter = process.listProperties(Datatype.hasCalculatedFlow);
-
-        while (iter.hasNext()) {
-            Resource emission = iter.nextStatement().getResource();
-            Resource nature = emission.getProperty(Datatype.hasElementaryFlowType).getResource();
-            Double value = emission.getProperty(Datatype.value).getDouble();
-            Double uncertainty = getUncertainty(emission);
-            emissions.put(nature.getURI(), new Value(value, uncertainty));
-        }
-        return emissions;
-    }
-
     protected HashMap<String, ElementaryFlow> getElementaryFlowsForProcess(Process process, Resource resource)
     {
         Double conversionFactor = process.getUnit().getConversionFactor();
@@ -123,7 +107,7 @@ public class SingleElementRepo extends AbstractRepo {
                 Value value = new Value(emission.getProperty(Datatype.value).getDouble() / conversionFactor, getUncertainty(emission));
 
                 try {
-                    process.addFlow(new ElementaryFlow(flowType, value));
+                    process.addInputFlow(new ElementaryFlow(flowType, value));
                 } catch (AlreadyExistsException e) {
                     log.warn(e.getMessage());
                 }
@@ -155,79 +139,42 @@ public class SingleElementRepo extends AbstractRepo {
         return impacts;
     }
 
-    public HashMap<Resource, Value> getComponentsForImpact(Resource impactType)
+    public Resource writeProcess(Process process)
     {
-        // @todo moved this logic to the ImpactType class and the extraction to the TypeRepo
-        HashMap<Resource, Value> components = new HashMap<>();
-        StmtIterator iter = impactType.listProperties(Datatype.hasComponentOfImpactType);
-
-        while (iter.hasNext()) {
-            Resource component = iter.nextStatement().getResource();
-            if (component.hasProperty(Datatype.isBasedOnElementaryFlowType)
-                && null != component.getProperty(Datatype.isBasedOnElementaryFlowType)
-                && component.hasProperty(Datatype.value) && null != component.getProperty(Datatype.value)
-            ) {
-                Resource elementaryFlowType = component.getProperty(Datatype.isBasedOnElementaryFlowType).getResource();
-                Double value = component.getProperty(Datatype.value).getDouble();
-                Double uncertainty = getUncertainty(component);
-
-                components.put(elementaryFlowType, new Value(value, uncertainty));
-            }
-        }
-        return components;
-    }
-
-    public Resource createProcess(Dimension dimension, String unitURI)
-    {
-        Process process = new Process(dimension);
-        process.setUnitURI(unitURI);
         Resource processResource = model.createResource(Datatype.getURI() + "sp/" + AnonId.create().toString())
                 .addProperty(RDF.type, Datatype.SingleProcess);
-        if (null != unitURI) {
-            processResource.addProperty(Datatype.hasUnit, model.createResource(unitURI));
-        }
-        for (Keyword keyword: dimension.keywords) {
+        processResource.addProperty(Datatype.hasUnit, model.createResource(process.getUnit().getURI()));
+        for (Keyword keyword: process.getKeywords().keywords) {
             Resource keywordResource = model.createResource(keyword.name);
             processResource.addProperty(Datatype.hasTag, keywordResource);
+        }
+        for (ElementaryFlow flow : process.getCalculatedFlows().values()) {
+            writeCalculatedElementaryFlow(processResource, flow);
+        }
+        for (Impact impact : process.getImpacts().values()) {
+            writeImpact(processResource, impact);
         }
         return processResource;
     }
 
-    public void addCumulatedEcologicalFlow(Resource process, Resource elementaryFlowNature, double value, double uncertainty)
+    protected void writeCalculatedElementaryFlow(Resource process, ElementaryFlow flow)
     {
         process.addProperty(Datatype.hasCalculatedFlow,
                 model.createResource(Datatype.getURI() + AnonId.create().toString())
-                        .addProperty(Datatype.hasElementaryFlowType, elementaryFlowNature)
-                        .addProperty(Datatype.value, model.createTypedLiteral(value))
-                        .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
+                        .addProperty(Datatype.hasElementaryFlowType, model.createResource(Datatype.getURI() + flow.getType().getId()))
+                        .addProperty(Datatype.value, model.createTypedLiteral(flow.getValue().value))
+                        .addProperty(Datatype.uncertainty, model.createTypedLiteral(flow.getValue().uncertainty))
                         .addProperty(RDF.type, Datatype.CalculateElementaryFlow));
     }
 
-    public void addImpact(Resource process, Resource impactType, double value, double uncertainty)
+    protected void writeImpact(Resource process, Impact impact)
     {
         process.addProperty(Datatype.hasImpact,
                 model.createResource(Datatype.getURI() + AnonId.create().toString())
-                        .addProperty(Datatype.hasImpactType, impactType)
-                        .addProperty(Datatype.value, model.createTypedLiteral(value))
-                        .addProperty(Datatype.uncertainty, model.createTypedLiteral(uncertainty))
+                        .addProperty(Datatype.hasImpactType, model.createResource(Datatype.getURI() + impact.getType().getId()))
+                        .addProperty(Datatype.value, model.createTypedLiteral(impact.getValue().value))
+                        .addProperty(Datatype.uncertainty, model.createTypedLiteral(impact.getValue().uncertainty))
                         .addProperty(RDF.type, Datatype.Impact));
-    }
-
-    public Dimension getSingleElementKeywords(Resource singleElement)
-    {
-        Selector selector = new SimpleSelector(singleElement, Datatype.hasTag, (RDFNode) null);
-        StmtIterator iter = model.listStatements( selector );
-
-        Dimension dim = new Dimension();
-        if (iter.hasNext()) {
-            while (iter.hasNext()) {
-                Statement s = iter.nextStatement();
-                Keyword keyword = new Keyword(s.getObject().toString());
-                keyword.setLabel(getLabelOrURI(s.getObject().asResource()));
-                dim.add(keyword);
-            }
-        }
-        return dim;
     }
 
 }

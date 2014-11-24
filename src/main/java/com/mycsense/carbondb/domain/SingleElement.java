@@ -51,6 +51,10 @@ public abstract class SingleElement {
         return keywords + " ("+ unit.getSymbol() +" )";
     }
 
+    public Dimension getKeywords() {
+        return keywords;
+    }
+
     @Override
     public boolean equals(Object obj) {
         // Alternative: use Guava (from Google)

@@ -67,4 +67,28 @@ public class DerivedRelation {
                   .append(exponent)
                   .toHashCode();
     }
+
+    public Process getSource() {
+        return source;
+    }
+
+    public Coefficient getCoeff() {
+        return coeff;
+    }
+
+    public Process getDestination() {
+        return destination;
+    }
+
+    public int getExponent() {
+        return exponent;
+    }
+
+    public SourceRelation getSourceRelation() {
+        return sourceRelation;
+    }
+
+    public RelationType getType() {
+        return type;
+    }
 }

@@ -58,7 +58,7 @@ public class RepoFactory {
     public static RelationRepo getRelationRepo() {
         checkProperlyInitialized();
         if (null == relationRepo)
-            relationRepo = new RelationRepo(model, unitsRepo);
+            relationRepo = new RelationRepo(model);
         return relationRepo;
     }
 

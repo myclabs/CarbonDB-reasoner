@@ -4,6 +4,7 @@ import com.mycsense.carbondb.IncompatibleDimSetException;
 import com.mycsense.carbondb.IncompatibleUnitsException;
 import com.mycsense.carbondb.NoElementFoundException;
 import com.mycsense.carbondb.architecture.UnitsRepo;
+import com.mycsense.carbondb.domain.relation.TranslationDerivative;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,41 +25,6 @@ public class SourceRelation {
         this.source = source;
         this.coeff = coeff;
         this.destination = destination;
-    }
-
-    public class TranslationDerivative {
-        Dimension sourceKeywords, coeffKeywords, destinationKeywords;
-
-        public TranslationDerivative(Dimension sourceKeywords,
-                                     Dimension coeffKeywords,
-                                     Dimension destinationKeywords
-        ) {
-            this.sourceKeywords = sourceKeywords;
-            this.coeffKeywords = coeffKeywords;
-            this.destinationKeywords = destinationKeywords;
-        }
-
-        public DerivedRelation transformToDerivedRelation()
-                throws NoElementFoundException
-        {
-            Process source, destination;
-            Coefficient coeff = CarbonOntology.getInstance().findCoefficient(coeffKeywords, getCoeff().getUnit());
-            try  {
-                source = CarbonOntology.getInstance().findProcess(sourceKeywords, getSource().getUnit());
-            }
-            catch (NoElementFoundException e) {
-                source = new Process(sourceKeywords, getSource().getUnit());
-            }
-            try  {
-                destination = CarbonOntology.getInstance().findProcess(destinationKeywords, getDestination().getUnit());
-            }
-            catch (NoElementFoundException e) {
-                destination = new Process(destinationKeywords, getDestination().getUnit());
-            }
-            DerivedRelation derivedRelation = new DerivedRelation(source, coeff, destination, SourceRelation.this, getType(), getExponent());
-            addDerivedRelation(derivedRelation);
-            return derivedRelation;
-        }
     }
 
     public String toString() {
@@ -106,9 +72,11 @@ public class SourceRelation {
                     hashKey2 = getHashKey(sourceAndCoeffKeywords, commonKeywordsGp1GcGp2, alpha2);
                     if (!hashKey2.equals("#nullHashKey#")) {
                         for (Dimension destinationProcess: destinationProcesses.get(hashKey2)) {
-                            translationDerivative.add(new TranslationDerivative(sourceProcess,
-                                                                 singleCoeff,
-                                                                 destinationProcess));
+                            translationDerivative.add(new TranslationDerivative(
+                                    sourceProcess,
+                                    singleCoeff,
+                                    destinationProcess,
+                                    this));
                         }
                     }
                 }

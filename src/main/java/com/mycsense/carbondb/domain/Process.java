@@ -7,14 +7,15 @@ import java.util.HashSet;
 
 public class Process extends SingleElement {
     protected HashMap<String, Impact> impacts;
-    protected HashMap<String, ElementaryFlow> flows;
+    protected HashMap<String, ElementaryFlow> inputFlows;
+    protected HashMap<String, ElementaryFlow> calculatedFlows;
     protected HashSet<DerivedRelation> downstreamDerivedRelations;
     protected HashSet<DerivedRelation> upstreamDerivedRelations;
 
     public Process(Dimension keywords, Unit unit) {
         super(keywords, unit);
         impacts = new HashMap<>();
-        flows = new HashMap<>();
+        inputFlows = new HashMap<>();
     }
 
     public HashMap<String, Impact> getImpacts() {
@@ -32,20 +33,36 @@ public class Process extends SingleElement {
         impacts.put(impact.getType().getId(), impact);
     }
 
-    public HashMap<String, ElementaryFlow> getFlows() {
-        return flows;
+    public HashMap<String, ElementaryFlow> getInputFlows() {
+        return inputFlows;
     }
 
-    public void addFlow(ElementaryFlow flow) throws AlreadyExistsException {
-        if (flows.containsKey(flow.getType().getId())) {
+    public void addInputFlow(ElementaryFlow flow) throws AlreadyExistsException {
+        if (inputFlows.containsKey(flow.getType().getId())) {
             throw new AlreadyExistsException("The process " + id + " already has an elementary"
                     + " flow for the elementary flow type " + flow.getType().getId());
         }
-        flows.put(flow.getType().getId(), flow);
+        inputFlows.put(flow.getType().getId(), flow);
     }
 
-    public void setFlows(HashMap<String, ElementaryFlow> flows) {
-        this.flows = flows;
+    public HashMap<String, ElementaryFlow> getCalculatedFlows() {
+        return calculatedFlows;
+    }
+
+    public void addCalculatedFlow(ElementaryFlow flow) throws AlreadyExistsException {
+        if (calculatedFlows.containsKey(flow.getType().getId())) {
+            throw new AlreadyExistsException("The process " + id + " already has an elementary"
+                    + " flow for the elementary flow type " + flow.getType().getId());
+        }
+        calculatedFlows.put(flow.getType().getId(), flow);
+    }
+
+    public boolean hasCalculatedElementaryFlow(ElementaryFlowType type) {
+        return calculatedFlows.containsKey(type.getId());
+    }
+
+    public ElementaryFlow getElementaryFlow(ElementaryFlowType type) {
+        return calculatedFlows.get(type.getId());
     }
 
     public void addDownstreamDerivedRelation(DerivedRelation derivedRelation) {

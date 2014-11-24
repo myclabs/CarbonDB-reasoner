@@ -5,10 +5,10 @@ import java.io.*;
 import java.io.FileOutputStream;
 import com.hp.hpl.jena.util.FileManager;
 import com.mycsense.carbondb.architecture.RepoFactory;
-import com.mycsense.carbondb.architecture.UnitsRepo;
-import com.mycsense.carbondb.architecture.UnitsRepoWebService;
+import com.mycsense.carbondb.architecture.UnitToolsWebService;
 import com.mycsense.carbondb.domain.Category;
 import com.mycsense.carbondb.domain.Group;
+import com.mycsense.carbondb.domain.Unit;
 
 public class App
 {
@@ -26,7 +26,8 @@ public class App
 
     public static void runAll(String inputFileName, String outputFileName)
     {
-        UnitsRepo unitRepo = new UnitsRepoWebService();
+        UnitToolsWebService unitTools = new UnitToolsWebService();
+        Unit.setUnitTools(unitTools);
         Model model = ModelFactory.createDefaultModel( );
 
         InputStream in = FileManager.get().open( inputFileName );
@@ -37,7 +38,7 @@ public class App
 
         model.read( in, null );
 
-        Reasoner reasoner = new Reasoner(model, unitRepo);
+        Reasoner reasoner = new Reasoner(model);
         reasoner.run();
 
         try {
@@ -51,7 +52,8 @@ public class App
     }
 
     public static void run(String inputFileName) {
-        UnitsRepo unitsRepo = new UnitsRepoWebService();
+        UnitToolsWebService unitTools = new UnitToolsWebService();
+        Unit.setUnitTools(unitTools);
         Model model = ModelFactory.createDefaultModel( );
 
         InputStream in = FileManager.get().open( inputFileName );
@@ -61,7 +63,7 @@ public class App
         }
 
         model.read( in, null );
-        Reasoner reasoner = new Reasoner(model, unitsRepo);
+        Reasoner reasoner = new Reasoner(model);
         reasoner.run();
         System.out.println(reasoner.report.errors);
         System.out.println(reasoner.report.warnings);

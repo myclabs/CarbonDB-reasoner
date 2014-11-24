@@ -4,8 +4,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import com.mycsense.carbondb.architecture.Datatype;
-import com.mycsense.carbondb.architecture.UnitsRepo;
 import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.relation.TranslationDerivative;
 import com.mycsense.carbondb.domain.relation.Type;
 import org.junit.Test;
 import org.junit.Before;
@@ -22,7 +22,7 @@ public class SourceRelationTest
     Keyword kw1, kw2, kw3, kw4;
     Dimension dim12, dim34;
     Unit unit;
-    UnitsRepo unitsRepo;
+    UnitTools unitTools;
     RelationType type;
 
     @Before
@@ -39,11 +39,10 @@ public class SourceRelationTest
 
         type = new RelationType(Datatype.getURI() + "type", "type", Type.SYNCHRONOUS);
 
-        unitsRepo = Mockito.mock(UnitsRepo.class);
-        Mockito.when(unitsRepo.getConversionFactor(Mockito.anyString())).thenReturn(1.0);
-        Mockito.when(unitsRepo.areCompatible(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
-        Mockito.when(unitsRepo.areCompatible(Mockito.any(Unit.class), Mockito.anyString())).thenReturn(true);
-        Mockito.when(unitsRepo.areCompatible(Mockito.any(Unit.class), Mockito.any(Unit.class))).thenReturn(true);
+        unitTools = Mockito.mock(UnitTools.class);
+        Mockito.when(unitTools.getConversionFactor(Mockito.any(Unit.class))).thenReturn(1.0);
+        Mockito.when(unitTools.areCompatible(Mockito.any(Unit.class), Mockito.any(Unit.class))).thenReturn(true);
+        Unit.setUnitTools(unitTools);
     }
 
     /**
@@ -142,16 +141,19 @@ public class SourceRelationTest
         Group upstreamGroup = new Group(dimSet);
         Group coeffGroup = new Group(dimSet);
         Group downstreamGroup = new Group(dimSet);
-        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        upstreamGroup.setUnit(unit);
+        coeffGroup.setUnit(unit);
+        downstreamGroup.setUnit(unit);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup);
 
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> translationDerivatives = new ArrayList<>();
         try {
-            derivedRelations = sourceRelation.translate();
+            translationDerivatives = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        assertEquals(0, derivedRelations.size());
+        assertEquals(0, translationDerivatives.size());
     }
 
     /**
@@ -166,26 +168,26 @@ public class SourceRelationTest
         upstreamGroup.setUnit(unit);
         coeffGroup.setUnit(unit);
         downstreamGroup.setUnit(unit);
-        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup);
 
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
         try {
-            derivedRelations = sourceRelation.translate();
+            derivatives = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> expected = new ArrayList<>();
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedDerivedRelations.add(new DerivedRelation(dim13, unit, dim13, unit, dim13, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim14, unit, dim14, unit, dim14, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim23, unit, dim23, unit, dim23, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim24, unit, dim24, unit, dim24, unit));
-        assertEquals(4, derivedRelations.size());
-        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
+        expected.add(new TranslationDerivative(dim13, dim13, dim13, sourceRelation));
+        expected.add(new TranslationDerivative(dim14, dim14, dim14, sourceRelation));
+        expected.add(new TranslationDerivative(dim23, dim23, dim23, sourceRelation));
+        expected.add(new TranslationDerivative(dim24, dim24, dim24, sourceRelation));
+        assertEquals(4, derivatives.size());
+        assertTrue(derivatives.containsAll(expected));
     }
 
     /**
@@ -201,28 +203,28 @@ public class SourceRelationTest
         upstreamGroup.setUnit(unit);
         coeffGroup.setUnit(unit);
         downstreamGroup.setUnit(unit);
-        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup);
 
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
         try {
-            derivedRelations = sourceRelation.translate();
+            derivatives = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> expected = new ArrayList<>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedDerivedRelations.add(new DerivedRelation(dim13, unit, dim13, unit, dim1, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim14, unit, dim14, unit, dim1, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim23, unit, dim23, unit, dim2, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim24, unit, dim24, unit, dim2, unit));
-        assertEquals(4, derivedRelations.size());
-        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
+        expected.add(new TranslationDerivative(dim13, dim13, dim1, sourceRelation));
+        expected.add(new TranslationDerivative(dim14, dim14, dim1, sourceRelation));
+        expected.add(new TranslationDerivative(dim23, dim23, dim2, sourceRelation));
+        expected.add(new TranslationDerivative(dim24, dim24, dim2, sourceRelation));
+        assertEquals(4, derivatives.size());
+        assertTrue(derivatives.containsAll(expected));
     }
 
     /**
@@ -238,28 +240,28 @@ public class SourceRelationTest
         upstreamGroup.setUnit(unit);
         coeffGroup.setUnit(unit);
         downstreamGroup.setUnit(unit);
-        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup);
 
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
         try {
-            derivedRelations = sourceRelation.translate();
+            derivatives = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> expected = new ArrayList<>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim14 = new Dimension(kw1, kw4);
         Dimension dim23 = new Dimension(kw2, kw3);
         Dimension dim24 = new Dimension(kw2, kw4);
-        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim13, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim14, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim23, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim24, unit));
-        assertEquals(4, derivedRelations.size());
-        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
+        expected.add(new TranslationDerivative(dim1, dim1, dim13, sourceRelation));
+        expected.add(new TranslationDerivative(dim1, dim1, dim14, sourceRelation));
+        expected.add(new TranslationDerivative(dim2, dim2, dim23, sourceRelation));
+        expected.add(new TranslationDerivative(dim2, dim2, dim24, sourceRelation));
+        assertEquals(4, derivatives.size());
+        assertTrue(derivatives.containsAll(expected));
     }
 
     /**
@@ -275,22 +277,22 @@ public class SourceRelationTest
         upstreamGroup.setUnit(unit);
         coeffGroup.setUnit(unit);
         downstreamGroup.setUnit(unit);
-        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup);
 
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
         try {
-            derivedRelations = sourceRelation.translate();
+            derivatives = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> expected = new ArrayList<>();
         Dimension dim13 = new Dimension(kw1, kw3);
         Dimension dim23 = new Dimension(kw2, kw3);
-        expectedDerivedRelations.add(new DerivedRelation(dim13, unit, dim13, unit, dim13, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim23, unit, dim23, unit, dim23, unit));
-        assertEquals(2, derivedRelations.size());
-        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
+        expected.add(new TranslationDerivative(dim13, dim13, dim13, sourceRelation));
+        expected.add(new TranslationDerivative(dim23, dim23, dim23, sourceRelation));
+        assertEquals(2, derivatives.size());
+        assertTrue(derivatives.containsAll(expected));
     }
 
     /**
@@ -306,26 +308,26 @@ public class SourceRelationTest
         upstreamGroup.setUnit(unit);
         coeffGroup.setUnit(unit);
         downstreamGroup.setUnit(unit);
-        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup);
 
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
         try {
-            derivedRelations = sourceRelation.translate();
+            derivatives = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> expected = new ArrayList<>();
         Dimension dim1 = new Dimension(kw1);
         Dimension dim2 = new Dimension(kw2);
         Dimension dim3 = new Dimension(kw3);
         Dimension dim4 = new Dimension(kw4);
-        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim3, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim1, unit, dim1, unit, dim4, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim3, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim2, unit, dim2, unit, dim4, unit));
-        assertEquals(4, derivedRelations.size());
-        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
+        expected.add(new TranslationDerivative(dim1, dim1, dim3, sourceRelation));
+        expected.add(new TranslationDerivative(dim1, dim1, dim4, sourceRelation));
+        expected.add(new TranslationDerivative(dim2, dim2, dim3, sourceRelation));
+        expected.add(new TranslationDerivative(dim2, dim2, dim4, sourceRelation));
+        assertEquals(4, derivatives.size());
+        assertTrue(derivatives.containsAll(expected));
     }
 
     /**
@@ -343,25 +345,25 @@ public class SourceRelationTest
         upstreamGroup.setUnit(unit);
         coeffGroup.setUnit(unit);
         downstreamGroup.setUnit(unit);
-        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup, unitsRepo);
+        SourceRelation sourceRelation = new SourceRelation(upstreamGroup, coeffGroup, downstreamGroup);
 
-        ArrayList<DerivedRelation> derivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
         try {
-            derivedRelations = sourceRelation.translate();
+            derivatives = sourceRelation.translate();
         } catch (IncompatibleDimSetException | IncompatibleUnitsException e) {
             e.printStackTrace();
         }
 
-        ArrayList<DerivedRelation> expectedDerivedRelations = new ArrayList<>();
+        ArrayList<TranslationDerivative> expected = new ArrayList<>();
         Dimension dim13c = new Dimension(kw1, kw3, commonKeyword);
         Dimension dim14c = new Dimension(kw1, kw4, commonKeyword);
         Dimension dim23c = new Dimension(kw2, kw3, commonKeyword);
         Dimension dim24c = new Dimension(kw2, kw4, commonKeyword);
-        expectedDerivedRelations.add(new DerivedRelation(dim13c, unit, dim13c, unit, dim13c, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim14c, unit, dim14c, unit, dim14c, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim23c, unit, dim23c, unit, dim23c, unit));
-        expectedDerivedRelations.add(new DerivedRelation(dim24c, unit, dim24c, unit, dim24c, unit));
-        assertEquals(4, derivedRelations.size());
-        assertTrue(derivedRelations.containsAll(expectedDerivedRelations));
+        expected.add(new TranslationDerivative(dim13c, dim13c, dim13c, sourceRelation));
+        expected.add(new TranslationDerivative(dim14c, dim14c, dim14c, sourceRelation));
+        expected.add(new TranslationDerivative(dim23c, dim23c, dim23c, sourceRelation));
+        expected.add(new TranslationDerivative(dim24c, dim24c, dim24c, sourceRelation));
+        assertEquals(4, derivatives.size());
+        assertTrue(derivatives.containsAll(expected));
     }
 }
