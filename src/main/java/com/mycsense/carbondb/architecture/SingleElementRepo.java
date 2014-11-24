@@ -27,8 +27,7 @@ public class SingleElementRepo extends AbstractRepo {
         flowTypesCache = new HashMap<>();
     }
 
-    public Process getProcess(Resource processResource)
-    {
+    public Process getProcess(Resource processResource) throws NoUnitException {
         if (!processesCache.containsKey(processResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(processResource);
             Process process = new Process(getElementKeywords(processResource), unit);
@@ -39,8 +38,7 @@ public class SingleElementRepo extends AbstractRepo {
         return processesCache.get(processResource.getURI());
     }
 
-    public Coefficient getCoefficient(Resource coefficientResource)
-    {
+    public Coefficient getCoefficient(Resource coefficientResource) throws NoUnitException {
         if (!coefficientsCache.containsKey(coefficientResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(coefficientResource);
             Double conversionFactor = unit.getConversionFactor();
@@ -58,7 +56,11 @@ public class SingleElementRepo extends AbstractRepo {
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SingleProcess);
         while (i.hasNext()) {
             Resource resource = i.next();
-            processes.add(getProcess(resource));
+            try {
+                processes.add(getProcess(resource));
+            } catch (NoUnitException e) {
+                log.warn(e.getMessage());
+            }
         }
 
         return processes;
@@ -70,7 +72,11 @@ public class SingleElementRepo extends AbstractRepo {
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SingleCoefficient);
         while (i.hasNext()) {
             Resource resource = i.next();
-            coefficients.add(getCoefficient(resource));
+            try {
+                coefficients.add(getCoefficient(resource));
+            } catch (NoUnitException e) {
+                log.warn(e.getMessage());
+            }
         }
 
         return coefficients;
@@ -79,7 +85,7 @@ public class SingleElementRepo extends AbstractRepo {
     protected Dimension getElementKeywords(Resource elementResource)
     {
         Selector selector = new SimpleSelector(elementResource, Datatype.hasTag, (RDFNode) null);
-        StmtIterator iter = model.listStatements( selector );
+        StmtIterator iter = model.listStatements(selector);
 
         Dimension dim = new Dimension();
         if (iter.hasNext()) {

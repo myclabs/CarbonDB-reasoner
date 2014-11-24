@@ -5,6 +5,7 @@ import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.domain.*;
 
 import java.util.HashMap;
@@ -30,13 +31,18 @@ public class TypeRepo extends AbstractRepo {
             ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfImpactType, categoryResource);
             while (iCat.hasNext()) {
                 Resource resource = iCat.next();
-                ImpactType type = new ImpactType(
-                        resource.getURI(),
-                        getLabelOrURI(resource),
-                        RepoFactory.getUnitsRepo().getUnit(resource)
-                );
-                type.setComponents(getComponentsForImpact(resource));
-                category.addChild(type);
+                ImpactType type;
+                try {
+                    type = new ImpactType(
+                            resource.getURI(),
+                            getLabelOrURI(resource),
+                            RepoFactory.getUnitsRepo().getUnit(resource)
+                    );
+                    type.setComponents(getComponentsForImpact(resource));
+                    category.addChild(type);
+                } catch (NoUnitException e) {
+                    log.warn(e.getMessage());
+                }
             }
         }
 
@@ -80,12 +86,17 @@ public class TypeRepo extends AbstractRepo {
             ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfElementaryFlowType, categoryResource);
             while (iCat.hasNext()) {
                 Resource resource = iCat.next();
-                ElementaryFlowType type = new ElementaryFlowType(
-                        resource.getURI(),
-                        getLabelOrURI(resource),
-                        RepoFactory.getUnitsRepo().getUnit(resource)
-                );
-                category.addChild(type);
+                ElementaryFlowType type;
+                try {
+                    type = new ElementaryFlowType(
+                            resource.getURI(),
+                            getLabelOrURI(resource),
+                            RepoFactory.getUnitsRepo().getUnit(resource)
+                    );
+                    category.addChild(type);
+                } catch (NoUnitException e) {
+                    log.warn(e.getMessage());
+                }
             }
         }
 

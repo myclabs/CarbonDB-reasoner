@@ -1,5 +1,6 @@
 package com.mycsense.carbondb.domain;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -20,9 +21,7 @@ public class DimensionSet
 
     public DimensionSet(Dimension... dimensions) {
         this.dimensions = new HashSet<>();
-        for (Dimension dim: dimensions) {
-            this.dimensions.add(dim);
-        }
+        Collections.addAll(this.dimensions, dimensions);
     }
 
     public DimensionSet(DimensionSet dimSet) {
@@ -153,7 +152,7 @@ public class DimensionSet
         r.alpha = 0;
         r.commonKeywords = new Dimension();
 
-        HashMap<Keyword, Dimension> hashTableRhs = new HashMap<Keyword, Dimension>();
+        HashMap<Keyword, Dimension> hashTableRhs = new HashMap<>();
         DimensionSet unusedDimsInRhs = new DimensionSet();
 
         for (Dimension dimension: dimSet.dimensions) {

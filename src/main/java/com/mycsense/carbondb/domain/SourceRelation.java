@@ -2,8 +2,6 @@ package com.mycsense.carbondb.domain;
 
 import com.mycsense.carbondb.IncompatibleDimSetException;
 import com.mycsense.carbondb.IncompatibleUnitsException;
-import com.mycsense.carbondb.NoElementFoundException;
-import com.mycsense.carbondb.architecture.UnitsRepo;
 import com.mycsense.carbondb.domain.relation.TranslationDerivative;
 
 import java.util.ArrayList;

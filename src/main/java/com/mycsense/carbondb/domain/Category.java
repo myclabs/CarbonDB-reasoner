@@ -7,9 +7,10 @@ public class Category
     protected String uri;
     protected String label;
     protected ArrayList<Object> children = new ArrayList<>();
+    protected Category parent;
 
     public Category() {
-        uri = new String();
+        uri = "";
     }
 
     public Category(String uri) {
@@ -24,13 +25,14 @@ public class Category
     public Category(String uri, String label, Category parent) {
         this.uri = uri;
         this.label = label;
+        this.parent = parent;
     }
 
     public String getURI() {
         return uri;
     }
 
-    public void setURI(String name) {
+    public void setURI(String uri) {
         this.uri = uri;
     }
 

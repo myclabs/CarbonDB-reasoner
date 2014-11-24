@@ -26,7 +26,7 @@ public class Dimension
     }
 
     public Dimension(Dimension dimension) {
-        keywords = new HashSet<Keyword>(dimension.keywords);
+        keywords = new HashSet<>(dimension.keywords);
     }
 
     public int size() {

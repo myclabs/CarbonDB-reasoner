@@ -5,7 +5,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
-import com.mycsense.carbondb.domain.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

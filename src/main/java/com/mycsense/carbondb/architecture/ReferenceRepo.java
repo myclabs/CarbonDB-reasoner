@@ -32,7 +32,6 @@ public class ReferenceRepo extends AbstractRepo {
         Selector selector = new SimpleSelector(null, RDF.type, Datatype.Reference);
         StmtIterator iter = model.listStatements(selector);
 
-        HashMap<String, Reference> references = new HashMap<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 getReference(iter.nextStatement().getResource());

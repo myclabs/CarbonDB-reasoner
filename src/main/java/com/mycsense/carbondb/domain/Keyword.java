@@ -10,7 +10,7 @@ public class Keyword
     protected String label;
 
     public Keyword() {
-        name = new String();
+        name = "";
     }
 
     public Keyword(String name) {

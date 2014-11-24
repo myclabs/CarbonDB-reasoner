@@ -125,15 +125,9 @@ public class SourceRelationTest
 
     /**
      * Test for SourceRelation.translate
-     */
-    @Test public void translate()
-    {
-        // empty OK, same (i.e. : normal) OK, overlapping (i.e. : projection and aggregation) OK, different TODO
-        // normal OK, partial OK, projection OK, aggregation OK
-    }
-
-    /**
-     * Test for SourceRelation.translate
+     * The tests should contains the following cases :
+     *  empty, same (i.e. : normal), overlapping (i.e. : projection and aggregation), different TODO
+     *  normal, partial, projection, aggregation
      */
     @Test public void translateWithEmptyGroups()
     {

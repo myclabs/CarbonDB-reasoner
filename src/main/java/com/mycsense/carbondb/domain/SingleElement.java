@@ -12,15 +12,15 @@ public abstract class SingleElement {
 
     public SingleElement() {
         keywords = new Dimension();
-        uri = new String();
-        id = new String();
+        uri = "";
+        id = "";
     }
 
     public SingleElement(Dimension keywords, Unit unit) {
         this.keywords = new Dimension(keywords);
         this.unit = unit;
-        uri = new String();
-        id = new String();
+        uri = "";
+        id = "";
     }
 
     public String getUri() {

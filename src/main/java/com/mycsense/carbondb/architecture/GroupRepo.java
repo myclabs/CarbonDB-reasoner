@@ -3,6 +3,7 @@ package com.mycsense.carbondb.architecture;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.group.Type;
@@ -11,12 +12,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GroupRepo extends AbstractRepo {
-    private final UnitsRepo unitsRepo;
     protected HashMap<String, Group> groupCache;
 
-    public GroupRepo(Model model, UnitsRepo unitsRepo) {
+    public GroupRepo(Model model) {
         super(model);
-        this.unitsRepo = unitsRepo;
         groupCache = new HashMap<>();
     }
 
@@ -41,19 +40,21 @@ public class GroupRepo extends AbstractRepo {
         ResIterator i = model.listSubjectsWithProperty(RDF.type, groupType);
         while (i.hasNext()) {
             Resource resource = i.next();
-            groups.put(resource.getURI(), getGroup(resource));
+            try {
+                groups.put(resource.getURI(), getGroup(resource));
+            } catch (NoUnitException e) {
+                log.warn(e.getMessage());
+            }
         }
 
         return groups;
     }
 
-    public Group getGroup(String groupId)
-    {
+    public Group getGroup(String groupId) throws NoUnitException {
         return getGroup(model.getResource(Datatype.getURI() + groupId));
     }
 
-    public Group getGroup(Resource groupResource)
-    {
+    public Group getGroup(Resource groupResource) throws NoUnitException {
         if (!groupCache.containsKey(groupResource.getURI())) {
             Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
             group.setLabel(getLabelOrURI(groupResource));
@@ -110,7 +111,6 @@ public class GroupRepo extends AbstractRepo {
 
     protected Dimension getDimensionKeywords(Resource dimensionResource)
     {
-        ArrayList<Keyword> keywords = new ArrayList<>();
         Selector selector = new SimpleSelector(dimensionResource, Datatype.containsKeyword, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 

@@ -1,15 +1,12 @@
 package com.mycsense.carbondb; 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.InfModel;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 
 import com.mycsense.carbondb.architecture.*;
 import com.mycsense.carbondb.domain.*;
@@ -45,7 +42,7 @@ public class Reasoner {
     protected ArrayList<ImpactType> impactTypes;
     protected ArrayList<ElementaryFlowType> elementaryFlowTypes;
     protected ArrayList<Process> processes;
-    protected Double threshold = new Double(0.1);
+    protected Double threshold = 0.1;
     public ReasonnerReport report = new ReasonnerReport();
     protected GroupRepo groupRepo;
 
@@ -402,12 +399,11 @@ public class Reasoner {
             for (int j = 0; j < elementaryFlowTypes.size(); j++) {
                 double value = cumulativeEcologicalMatrix.get(i, j);
                 if (value != 0.0) {
-                    // @todo check if the unit is null (or empty)
                     value *= processes.get(i).getUnit().getConversionFactor();
                     ElementaryFlow flow = new ElementaryFlow(
                             elementaryFlowTypes.get(j),
                             new Value(value, 0.0),
-                            DataSource.INPUT);
+                            DataSource.CALCULATION);
                     processes.get(i).addCalculatedFlow(flow);
                 }
             }
@@ -419,7 +415,6 @@ public class Reasoner {
             for (int j = 0; j < impactTypes.size(); j++) {
                 double value = impactMatrix.get(i, j);
                 if (value != 0.0) {
-                    // @todo check if the unit is null (or empty)
                     value *= processes.get(i).getUnit().getConversionFactor();
                     Impact impact = new Impact(
                             impactTypes.get(j),
