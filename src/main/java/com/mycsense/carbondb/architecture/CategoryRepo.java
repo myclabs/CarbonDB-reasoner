@@ -4,6 +4,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.Category;
 
 public class CategoryRepo extends AbstractRepo {
@@ -41,7 +42,12 @@ public class CategoryRepo extends AbstractRepo {
         i = model.listResourcesWithProperty(Datatype.belongsToCategoryOfGroup, categoryResource);
         while (i.hasNext()) {
             Resource groupResource = i.next();
-            category.addChild(RepoFactory.getGroupRepo().getGroup(groupResource));
+            if (groupResource.hasProperty(RDF.type, Datatype.ProcessGroup)) {
+                category.addChild(CarbonOntology.getInstance().getProcessGroup(groupResource.getURI()));
+            }
+            else if (groupResource.hasProperty(RDF.type, Datatype.CoefficientGroup)) {
+                category.addChild(CarbonOntology.getInstance().getCoefficientGroup(groupResource.getURI()));
+            }
         }
 
         return category;

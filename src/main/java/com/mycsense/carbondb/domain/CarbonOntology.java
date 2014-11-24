@@ -11,6 +11,8 @@ import java.util.HashSet;
 public final class CarbonOntology {
     private static volatile CarbonOntology instance = null;
 
+    protected Category categoryTree;
+
     protected HashMap<String, Group> processGroups;
     protected HashMap<String, Group> coefficientGroups;
 
@@ -72,6 +74,14 @@ public final class CarbonOntology {
             }
         }
         throw new NoElementFoundException("No process found with keywords " + keywords + " and unit " + unit);
+    }
+
+    public Category getCategoryTree() {
+        return categoryTree;
+    }
+
+    public void setCategoryTree(Category categoryTree) {
+        this.categoryTree = categoryTree;
     }
 
     public Category getElementaryFlowTypesTree() {

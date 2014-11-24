@@ -93,6 +93,7 @@ public class Reasoner {
             }
         }
         ontology.setSourceRelations(RepoFactory.getRelationRepo().getSourceRelations());
+        ontology.setCategoryTree(RepoFactory.getCategoryRepo().getCategoriesTree());
 
         // and we process the ontology only using the object model
         for (SourceRelation sourceRelation: ontology.getSourceRelations().values()) {
