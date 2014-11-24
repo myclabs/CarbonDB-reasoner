@@ -40,15 +40,13 @@ public class TranslationDerivative {
             destination = new Process(destinationKeywords, sourceRelation.getDestination().getUnit());
             CarbonOntology.getInstance().addProcess(destination);
         }
-        DerivedRelation derivedRelation = new DerivedRelation(
+        return new DerivedRelation(
                 source,
                 coeff,
                 destination,
                 sourceRelation,
                 sourceRelation.getType(),
                 sourceRelation.getExponent());
-        sourceRelation.addDerivedRelation(derivedRelation);
-        return derivedRelation;
     }
 
     @Override

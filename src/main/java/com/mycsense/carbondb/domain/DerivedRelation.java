@@ -36,6 +36,8 @@ public class DerivedRelation {
 
         source.addDownstreamDerivedRelation(this);
         destination.addUpstreamDerivedRelation(this);
+        coeff.addDerivedRelation(this);
+        sourceRelation.addDerivedRelation(this);
     }
 
     public String toString() {
