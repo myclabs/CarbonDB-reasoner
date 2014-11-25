@@ -4,11 +4,20 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import com.mycsense.carbondb.architecture.Datatype;
-import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.Dimension;
+import com.mycsense.carbondb.domain.DimensionSet;
+import com.mycsense.carbondb.domain.Group;
+import com.mycsense.carbondb.domain.Keyword;
+import com.mycsense.carbondb.domain.RelationType;
+import com.mycsense.carbondb.domain.SourceRelation;
+import com.mycsense.carbondb.domain.Unit;
+import com.mycsense.carbondb.domain.UnitTools;
 import com.mycsense.carbondb.domain.relation.TranslationDerivative;
 import com.mycsense.carbondb.domain.relation.Type;
+
 import org.junit.Test;
 import org.junit.Before;
+
 import org.mockito.Mockito;
 
 import java.util.HashMap;

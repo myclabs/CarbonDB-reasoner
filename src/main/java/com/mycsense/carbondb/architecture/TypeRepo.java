@@ -5,9 +5,15 @@ import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+
 import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.NotFoundException;
-import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.CarbonOntology;
+import com.mycsense.carbondb.domain.ElementaryFlowType;
+import com.mycsense.carbondb.domain.ImpactType;
+import com.mycsense.carbondb.domain.TypeCategory;
+import com.mycsense.carbondb.domain.Unit;
+import com.mycsense.carbondb.domain.Value;
 
 import java.util.HashMap;
 

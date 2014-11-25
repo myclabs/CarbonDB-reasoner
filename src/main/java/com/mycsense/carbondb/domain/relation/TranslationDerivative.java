@@ -2,8 +2,13 @@ package com.mycsense.carbondb.domain.relation;
 
 import com.mycsense.carbondb.AlreadyExistsException;
 import com.mycsense.carbondb.NoElementFoundException;
-import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.CarbonOntology;
+import com.mycsense.carbondb.domain.Coefficient;
+import com.mycsense.carbondb.domain.DerivedRelation;
+import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.Process;
+import com.mycsense.carbondb.domain.SourceRelation;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

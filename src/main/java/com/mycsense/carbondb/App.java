@@ -1,9 +1,13 @@
 package com.mycsense.carbondb;
 
-import com.hp.hpl.jena.rdf.model.*;
-import java.io.*;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.util.FileManager;
+
 import com.mycsense.carbondb.architecture.RepoFactory;
 import com.mycsense.carbondb.architecture.UnitToolsWebService;
 import com.mycsense.carbondb.domain.Category;
@@ -54,7 +58,7 @@ public class App
     public static void run(String inputFileName) {
         UnitToolsWebService unitTools = new UnitToolsWebService();
         Unit.setUnitTools(unitTools);
-        Model model = ModelFactory.createDefaultModel( );
+        Model model = ModelFactory.createDefaultModel();
 
         InputStream in = FileManager.get().open( inputFileName );
         if (in == null) {

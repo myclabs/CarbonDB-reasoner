@@ -1,12 +1,33 @@
 package com.mycsense.carbondb.architecture;
 
-import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.rdf.model.AnonId;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Selector;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
-import com.mycsense.carbondb.*;
-import com.mycsense.carbondb.domain.*;
-import com.mycsense.carbondb.domain.Process;
 
-import java.util.*;
+import com.mycsense.carbondb.AlreadyExistsException;
+import com.mycsense.carbondb.NoUnitException;
+import com.mycsense.carbondb.NotFoundException;
+import com.mycsense.carbondb.domain.CarbonOntology;
+import com.mycsense.carbondb.domain.Coefficient;
+import com.mycsense.carbondb.domain.Dimension;
+import com.mycsense.carbondb.domain.ElementaryFlow;
+import com.mycsense.carbondb.domain.ElementaryFlowType;
+import com.mycsense.carbondb.domain.Impact;
+import com.mycsense.carbondb.domain.ImpactType;
+import com.mycsense.carbondb.domain.Keyword;
+import com.mycsense.carbondb.domain.Process;
+import com.mycsense.carbondb.domain.Unit;
+import com.mycsense.carbondb.domain.Value;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SingleElementRepo extends AbstractRepo {
 

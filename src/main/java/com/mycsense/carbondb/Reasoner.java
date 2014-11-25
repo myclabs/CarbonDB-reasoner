@@ -8,11 +8,20 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.InfModel;
 
-import com.mycsense.carbondb.architecture.*;
-import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.architecture.RepoFactory;
+import com.mycsense.carbondb.domain.CarbonOntology;
+import com.mycsense.carbondb.domain.Coefficient;
+import com.mycsense.carbondb.domain.DerivedRelation;
+import com.mycsense.carbondb.domain.ElementaryFlow;
+import com.mycsense.carbondb.domain.ElementaryFlowType;
+import com.mycsense.carbondb.domain.Impact;
+import com.mycsense.carbondb.domain.ImpactType;
 import com.mycsense.carbondb.domain.Process;
+import com.mycsense.carbondb.domain.SourceRelation;
+import com.mycsense.carbondb.domain.Value;
 import com.mycsense.carbondb.domain.elementaryFlow.DataSource;
 import com.mycsense.carbondb.domain.relation.TranslationDerivative;
+
 import org.la4j.matrix.sparse.CCSMatrix;
 import org.la4j.matrix.Matrix;
 import org.la4j.vector.Vector;
@@ -21,6 +30,7 @@ import org.la4j.LinearAlgebra;
 
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 import org.mindswap.pellet.jena.PelletInfGraph;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

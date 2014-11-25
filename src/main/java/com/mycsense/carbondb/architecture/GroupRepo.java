@@ -1,10 +1,22 @@
 package com.mycsense.carbondb.architecture;
 
-import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Selector;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+
 import com.mycsense.carbondb.NoUnitException;
-import com.mycsense.carbondb.domain.*;
+import com.mycsense.carbondb.domain.Dimension;
+import com.mycsense.carbondb.domain.DimensionSet;
+import com.mycsense.carbondb.domain.Group;
+import com.mycsense.carbondb.domain.Keyword;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.group.Type;
 
