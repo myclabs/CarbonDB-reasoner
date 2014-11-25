@@ -65,8 +65,6 @@ public class App
         model.read( in, null );
         Reasoner reasoner = new Reasoner(model);
         reasoner.run();
-        System.out.println(reasoner.report.errors);
-        System.out.println(reasoner.report.warnings);
 
         Category cat = RepoFactory.getCategoryRepo().getCategoriesTree();
         for (Object child: cat.getChildren()) {
