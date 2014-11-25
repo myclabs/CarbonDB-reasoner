@@ -43,10 +43,10 @@ public class CategoryRepo extends AbstractRepo {
         while (i.hasNext()) {
             Resource groupResource = i.next();
             if (groupResource.hasProperty(RDF.type, Datatype.ProcessGroup)) {
-                category.addChild(CarbonOntology.getInstance().getProcessGroup(groupResource.getURI()));
+                category.addChild(CarbonOntology.getInstance().getProcessGroup(getId(groupResource)));
             }
             else if (groupResource.hasProperty(RDF.type, Datatype.CoefficientGroup)) {
-                category.addChild(CarbonOntology.getInstance().getCoefficientGroup(groupResource.getURI()));
+                category.addChild(CarbonOntology.getInstance().getCoefficientGroup(getId(groupResource)));
             }
         }
 

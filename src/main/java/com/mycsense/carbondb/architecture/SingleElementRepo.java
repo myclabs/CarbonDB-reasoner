@@ -108,15 +108,15 @@ public class SingleElementRepo extends AbstractRepo {
             Resource emission = iter.nextStatement().getResource();
             if (emission.hasProperty(Datatype.hasElementaryFlowType) && null != emission.getProperty(Datatype.hasElementaryFlowType)
                     && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
-                String typeURI = emission.getProperty(Datatype.hasElementaryFlowType).getResource().getURI();
-                ElementaryFlowType flowType = CarbonOntology.getInstance().getElementaryFlowType(typeURI);
+                String typeId = getId(emission.getProperty(Datatype.hasElementaryFlowType).getResource());
                 Value value = new Value(emission.getProperty(Datatype.value).getDouble() / conversionFactor, getUncertainty(emission));
-
                 try {
+                    ElementaryFlowType flowType = CarbonOntology.getInstance().getElementaryFlowType(typeId);
                     process.addInputFlow(new ElementaryFlow(flowType, value));
-                } catch (AlreadyExistsException e) {
+                } catch (NotFoundException | AlreadyExistsException e) {
                     log.warn(e.getMessage());
                 }
+
             }
         }
         return flows;
@@ -131,13 +131,13 @@ public class SingleElementRepo extends AbstractRepo {
             Resource emission = iter.nextStatement().getResource();
             if (emission.hasProperty(Datatype.hasImpactType) && null != emission.getProperty(Datatype.hasImpactType)
                     && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
-                String typeURI = emission.getProperty(Datatype.hasImpactType).getResource().getURI();
-                ImpactType impactType = CarbonOntology.getInstance().getImpactType(typeURI);
+                String typeId = getId(emission.getProperty(Datatype.hasImpactType).getResource());
                 Value value = new Value(emission.getProperty(Datatype.value).getDouble(), getUncertainty(emission));
 
                 try {
+                    ImpactType impactType = CarbonOntology.getInstance().getImpactType(typeId);
                     process.addImpact(new Impact(impactType, value));
-                } catch (AlreadyExistsException e) {
+                } catch (AlreadyExistsException | NotFoundException e) {
                     log.warn(e.getMessage());
                 }
             }
@@ -147,7 +147,7 @@ public class SingleElementRepo extends AbstractRepo {
 
     public Resource writeProcess(Process process)
     {
-        Resource processResource = model.createResource(Datatype.getURI() + "sp/" + AnonId.create().toString())
+        Resource processResource = model.createResource(Datatype.getURI() + "sp/" + process.getId())
                 .addProperty(RDF.type, Datatype.SingleProcess);
         processResource.addProperty(Datatype.hasUnit, model.createResource(process.getUnit().getId()));
         for (Keyword keyword: process.getKeywords().keywords) {

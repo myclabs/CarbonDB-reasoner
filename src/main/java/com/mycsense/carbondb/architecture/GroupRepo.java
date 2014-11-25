@@ -40,7 +40,7 @@ public class GroupRepo extends AbstractRepo {
         while (i.hasNext()) {
             Resource resource = i.next();
             try {
-                groups.put(resource.getURI(), getGroup(resource));
+                groups.put(getId(resource), getGroup(resource));
             } catch (NoUnitException e) {
                 log.warn(e.getMessage());
             }

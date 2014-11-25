@@ -25,7 +25,7 @@ public class RelationRepo  extends AbstractRepo {
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SourceRelation);
         while (i.hasNext()) {
-            sourceRelations.put(i.next().getURI(), getSourceRelation(i.next()));
+            sourceRelations.put(getId(i.next()), getSourceRelation(i.next()));
         }
 
         return sourceRelations;
@@ -33,13 +33,13 @@ public class RelationRepo  extends AbstractRepo {
 
     public SourceRelation getSourceRelation(Resource sourceRelationResource) {
         if (!sourceRelationsCache.containsKey(sourceRelationResource.getURI())) {
-            String originURI = sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource().getURI();
-            String coeffURI = sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource().getURI();
-            String destinationURI = sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource().getURI();
+            String originId = getId(sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource());
+            String coeffId = getId(sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource());
+            String destinationId = getId(sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource());
             SourceRelation sourceRelation = new SourceRelation(
-                    CarbonOntology.getInstance().getProcessGroup(originURI),
-                    CarbonOntology.getInstance().getCoefficientGroup(coeffURI),
-                    CarbonOntology.getInstance().getProcessGroup(destinationURI)
+                    CarbonOntology.getInstance().getProcessGroup(getId(originId)),
+                    CarbonOntology.getInstance().getCoefficientGroup(getId(coeffId)),
+                    CarbonOntology.getInstance().getProcessGroup(getId(destinationId))
             );
             sourceRelation.setId(getId(sourceRelationResource));
             if (sourceRelationResource.hasProperty(Datatype.hasRelationType)

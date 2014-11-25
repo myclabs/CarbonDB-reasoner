@@ -22,9 +22,9 @@ public final class CarbonOntology {
     protected HashMap<String, SourceRelation> sourceRelations;
     protected ArrayList<DerivedRelation> derivedRelations;
 
-    protected Category elementaryFlowTypesTree;
+    protected TypeCategory elementaryFlowTypesTree;
     protected HashMap<String, ElementaryFlowType> elementaryFlowTypes;
-    protected Category impactTypesTree;
+    protected TypeCategory impactTypesTree;
     protected HashMap<String, ImpactType> impactTypes;
 
     protected HashMap<String, Reference> references;
@@ -84,11 +84,11 @@ public final class CarbonOntology {
         this.categoryTree = categoryTree;
     }
 
-    public Category getElementaryFlowTypesTree() {
+    public TypeCategory getElementaryFlowTypesTree() {
         return elementaryFlowTypesTree;
     }
 
-    public void setElementaryFlowTypesTree(Category root) {
+    public void setElementaryFlowTypesTree(TypeCategory root) {
         elementaryFlowTypesTree = root;
         extractElementaryFlowTypesFromTree();
     }
@@ -98,10 +98,13 @@ public final class CarbonOntology {
             throw new RuntimeException("The elementary flow types tree should be initialized"
                     + " before extracting the elementary flow types");
         }
-        for (Object obj: elementaryFlowTypesTree.getChildren()) {
-            elementaryFlowTypes = new HashMap<>();
-            ElementaryFlowType type = (ElementaryFlowType) obj;
-            elementaryFlowTypes.put(type.getId(), type);
+        elementaryFlowTypes = new HashMap<>();
+        for (Object categoryObj : elementaryFlowTypesTree.getChildren()) {
+            Category category = (Category) categoryObj;
+            for (Object obj : category.getChildren()) {
+                ElementaryFlowType type = (ElementaryFlowType) obj;
+                elementaryFlowTypes.put(type.getId(), type);
+            }
         }
     }
 
@@ -109,15 +112,18 @@ public final class CarbonOntology {
         return elementaryFlowTypes;
     }
 
-    public ElementaryFlowType getElementaryFlowType(String id) {
+    public ElementaryFlowType getElementaryFlowType(String id) throws NotFoundException {
+        if (!elementaryFlowTypes.containsKey(id)) {
+            throw new NotFoundException("The elementary flow type " + id + " could not be found");
+        }
         return elementaryFlowTypes.get(id);
     }
 
-    public Category getImpactTypesTree() {
+    public TypeCategory getImpactTypesTree() {
         return impactTypesTree;
     }
 
-    public void setImpactTypesTree(Category root) {
+    public void setImpactTypesTree(TypeCategory root) {
         impactTypesTree = root;
         extractImpactTypesFromTree();
     }
@@ -127,10 +133,13 @@ public final class CarbonOntology {
             throw new RuntimeException("The impact types tree should be initialized"
                     + " before extracting the impact types");
         }
-        for (Object obj: impactTypesTree.getChildren()) {
-            impactTypes = new HashMap<>();
-            ImpactType type = (ImpactType) obj;
-            impactTypes.put(type.getId(), type);
+        impactTypes = new HashMap<>();
+        for (Object categoryObj : impactTypesTree.getChildren()) {
+            Category category = (Category) categoryObj;
+            for (Object obj : category.getChildren()) {
+                ImpactType type = (ImpactType) obj;
+                impactTypes.put(type.getId(), type);
+            }
         }
     }
 
@@ -138,7 +147,10 @@ public final class CarbonOntology {
         return impactTypes;
     }
 
-    public ImpactType getImpactType(String id) {
+    public ImpactType getImpactType(String id) throws NotFoundException {
+        if (!impactTypes.containsKey(id)) {
+            throw new NotFoundException("The impact type " + id + " could not be found");
+        }
         return impactTypes.get(id);
     }
 

@@ -6,6 +6,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.mycsense.carbondb.NoUnitException;
+import com.mycsense.carbondb.NotFoundException;
 import com.mycsense.carbondb.domain.*;
 
 import java.util.HashMap;
@@ -16,33 +17,39 @@ public class TypeRepo extends AbstractRepo {
         super(model);
     }
 
-    public Category getImpactTypesTree() {
-        Category root = new Category();
+    public TypeCategory getImpactTypesTree() {
+        Unit defaultUnit = new Unit("u/one", "un");
+        TypeCategory root = new TypeCategory(defaultUnit);
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfImpactType);
         while (i.hasNext()) {
             Resource categoryResource = i.next();
-            Category category = new Category(
+            Unit categoryUnit;
+            try {
+                categoryUnit = RepoFactory.getUnitsRepo().getUnit(categoryResource);
+            } catch (NoUnitException e) {
+                log.warn(e.getMessage() + " - using " + defaultUnit.getId() + " instead");
+                // @todo add default unit to the config
+                categoryUnit = defaultUnit;
+            }
+            TypeCategory category = new TypeCategory(
                     getId(categoryResource),
                     getLabelOrURI(categoryResource),
-                    root);
+                    root,
+                    categoryUnit);
 
             root.addChild(category);
             ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfImpactType, categoryResource);
             while (iCat.hasNext()) {
                 Resource resource = iCat.next();
                 ImpactType type;
-                try {
-                    type = new ImpactType(
-                            getId(resource),
-                            getLabelOrURI(resource),
-                            RepoFactory.getUnitsRepo().getUnit(resource)
-                    );
-                    type.setComponents(getComponentsForImpact(resource));
-                    category.addChild(type);
-                } catch (NoUnitException e) {
-                    log.warn(e.getMessage());
-                }
+                type = new ImpactType(
+                        getId(resource),
+                        getLabelOrURI(resource),
+                        categoryUnit
+                );
+                type.setComponents(getComponentsForImpact(resource));
+                category.addChild(type);
             }
         }
 
@@ -63,40 +70,49 @@ public class TypeRepo extends AbstractRepo {
                 Resource flowTypeResource = component.getProperty(Datatype.isBasedOnElementaryFlowType).getResource();
                 Double value = component.getProperty(Datatype.value).getDouble();
                 Double uncertainty = getUncertainty(component);
-                ElementaryFlowType flowType = CarbonOntology.getInstance().getElementaryFlowType(flowTypeResource.getURI());
-
-                components.put(flowType, new Value(value, uncertainty));
+                try {
+                    ElementaryFlowType flowType = CarbonOntology.getInstance().getElementaryFlowType(getId(flowTypeResource));
+                    components.put(flowType, new Value(value, uncertainty));
+                } catch (NotFoundException e) {
+                    log.warn(e.getMessage());
+                }
             }
         }
         return components;
     }
 
-    public Category getElementaryFlowTypesTree() {
-        Category root = new Category();
+    public TypeCategory getElementaryFlowTypesTree() {
+        Unit defaultUnit = new Unit("u/one", "un");
+        TypeCategory root = new TypeCategory(defaultUnit);
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfElementaryFlowType);
         while (i.hasNext()) {
             Resource categoryResource = i.next();
-            Category category = new Category(
+            Unit categoryUnit;
+            try {
+                categoryUnit = RepoFactory.getUnitsRepo().getUnit(categoryResource);
+            } catch (NoUnitException e) {
+                log.warn(e.getMessage() + " - using " + defaultUnit.getId() + " instead");
+                // @todo add default unit to the config
+                categoryUnit = defaultUnit;
+            }
+            TypeCategory category = new TypeCategory(
                     getId(categoryResource),
                     getLabelOrURI(categoryResource),
-                    root);
+                    root,
+                    categoryUnit);
 
             root.addChild(category);
             ResIterator iCat = model.listResourcesWithProperty(Datatype.belongsToCategoryOfElementaryFlowType, categoryResource);
             while (iCat.hasNext()) {
                 Resource resource = iCat.next();
                 ElementaryFlowType type;
-                try {
-                    type = new ElementaryFlowType(
-                            getId(resource),
-                            getLabelOrURI(resource),
-                            RepoFactory.getUnitsRepo().getUnit(resource)
-                    );
-                    category.addChild(type);
-                } catch (NoUnitException e) {
-                    log.warn(e.getMessage());
-                }
+                type = new ElementaryFlowType(
+                        getId(resource),
+                        getLabelOrURI(resource),
+                        categoryUnit
+                );
+                category.addChild(type);
             }
         }
 
