@@ -14,8 +14,7 @@ import com.mycsense.carbondb.domain.Category;
 import com.mycsense.carbondb.domain.Group;
 import com.mycsense.carbondb.domain.Unit;
 
-public class App
-{
+public class App {
     public static void main(String[] args) throws IOException {
         if (args.length > 1){
 	        runAll(args[0], args[1]);
@@ -28,8 +27,7 @@ public class App
         }
     }
 
-    public static void runAll(String inputFileName, String outputFileName)
-    {
+    public static void runAll(String inputFileName, String outputFileName) {
         UnitToolsWebService unitTools = new UnitToolsWebService();
         Unit.setUnitTools(unitTools);
         Model model = ModelFactory.createDefaultModel( );
