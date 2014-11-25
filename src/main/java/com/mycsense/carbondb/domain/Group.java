@@ -1,16 +1,22 @@
 package com.mycsense.carbondb.domain;
 
+import com.mycsense.carbondb.NoElementFoundException;
 import com.mycsense.carbondb.domain.group.Type;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Group
 {
-    public DimensionSet dimSet;
-    public DimensionSet dimSetWithCommonKeywords;
-    public DimensionSet elements;
-    public Dimension commonKeywords;
-    public Type type = Type.PROCESS;
+    protected DimensionSet dimSet;
+    /**
+     * Contains the dimension set and the common keywords
+     */
+    protected DimensionSet fullDimSet;
+    protected DimensionSet coordinates;
+    protected Dimension commonKeywords;
+    protected Type type = Type.PROCESS;
+    protected HashSet<SingleElement> elements;
 
     protected String label;
     protected String id;
@@ -20,44 +26,33 @@ public class Group
     protected ArrayList<Reference> references;
 
     public Group() {
-        dimSet = new DimensionSet();
-        dimSetWithCommonKeywords = new DimensionSet();
-        commonKeywords = new Dimension();
-        elements = new DimensionSet();
+        this(new DimensionSet());
     }
 
     public Group(Dimension... dimensions) {
-        dimSet = new DimensionSet();
-        dimSetWithCommonKeywords = new DimensionSet();
-        commonKeywords = new Dimension();
-        for (Dimension dimension: dimensions) {
-            addDimension(dimension);
-        }
-        createElements();
+        this(new DimensionSet(dimensions));
     }
 
     public Group(DimensionSet dimSet) {
-        this.dimSet = dimSet;
-        dimSetWithCommonKeywords = new DimensionSet(dimSet);
-        commonKeywords = new Dimension();
-        createElements();
+        this(dimSet, new Dimension());
     }
 
     public Group(DimensionSet dimSet, Dimension commonKeywords) {
         this.dimSet = dimSet;
-        dimSetWithCommonKeywords = new DimensionSet(dimSet);
+        fullDimSet = new DimensionSet(dimSet);
         setCommonKeywords(commonKeywords);
-        createElements();
+        createCoordinates();
+        fetchElements();
     }
 
     public void addDimension(Dimension dimension) {
         dimSet.add(dimension);
-        dimSetWithCommonKeywords.add(dimension);
+        fullDimSet.add(dimension);
     }
 
     public void addCommonKeyword(Keyword keyword) {
         commonKeywords.add(keyword);
-        dimSetWithCommonKeywords.add(new Dimension(keyword));
+        fullDimSet.add(new Dimension(keyword));
     }
 
     public void setCommonKeywords(Dimension commonKeywords) {
@@ -67,16 +62,16 @@ public class Group
         }
     }
 
-    public void createElements() {
-        elements = dimSetWithCommonKeywords.combinations();
+    public void createCoordinates() {
+        coordinates = fullDimSet.combinations();
     }
 
     public String toString() {
-        return "elements: " + elements.toString() + " dimSet: " + dimSet.toString() + " unit: " + unit;
+        return "coordinates: " + coordinates.toString() + " dimSet: " + dimSet.toString() + " unit: " + unit;
     }
 
-    public DimensionSet getElements() {
-        return elements;
+    public DimensionSet getCoordinates() {
+        return coordinates;
     }
 
     public void setLabel(String label) {
@@ -117,6 +112,33 @@ public class Group
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public DimensionSet getFullDimSet() {
+        return fullDimSet;
+    }
+
+    public HashSet<SingleElement> getElements() {
+        return elements;
+    }
+
+    public void addElement(SingleElement element) {
+        elements.add(element);
+        element.addGroup(this);
+    }
+
+    public void fetchElements() {
+        for (Dimension coordinate : coordinates.dimensions) {
+            try {
+                if (type == Type.COEFFICIENT)
+                    addElement(CarbonOntology.getInstance().findCoefficient(coordinate, unit));
+
+                else
+                    addElement(CarbonOntology.getInstance().findProcess(coordinate, unit));
+            } catch (NoElementFoundException e) {
+                // nothing to do here, there is no element at this coordinate
+            }
+        }
     }
 
     public ArrayList<Reference> getReferences() {

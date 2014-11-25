@@ -3,11 +3,15 @@ package com.mycsense.carbondb.domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.HashSet;
+
 public abstract class SingleElement {
     public Dimension keywords;
 
     protected String id;
     protected Unit unit;
+
+    protected HashSet<Group> groups;
 
     public SingleElement() {
         keywords = new Dimension();
@@ -16,6 +20,7 @@ public abstract class SingleElement {
     public SingleElement(Dimension keywords, Unit unit) {
         this.keywords = new Dimension(keywords);
         this.unit = unit;
+        groups = new HashSet<>();
     }
 
     public String getId() {
@@ -43,6 +48,14 @@ public abstract class SingleElement {
 
     public Dimension getKeywords() {
         return keywords;
+    }
+
+    public HashSet<Group> getGroups() {
+        return groups;
+    }
+
+    public void addGroup(Group group) {
+        groups.add(group);
     }
 
     @Override

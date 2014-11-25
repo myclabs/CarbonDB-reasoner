@@ -31,6 +31,7 @@ public class TranslationDerivative {
         }
         catch (NoElementFoundException e) {
             source = new Process(sourceKeywords, sourceRelation.getSource().getUnit());
+            sourceRelation.getSource().addElement(source);
             CarbonOntology.getInstance().addProcess(source);
         }
         try  {
@@ -38,6 +39,7 @@ public class TranslationDerivative {
         }
         catch (NoElementFoundException e) {
             destination = new Process(destinationKeywords, sourceRelation.getDestination().getUnit());
+            sourceRelation.getDestination().addElement(destination);
             CarbonOntology.getInstance().addProcess(destination);
         }
         return new DerivedRelation(

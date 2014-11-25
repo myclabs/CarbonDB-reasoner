@@ -69,13 +69,11 @@ public class Reasoner {
         groupRepo = RepoFactory.getGroupRepo();
         log.info("Loading and translating sourceRelations");
 
-        // We load the ontology
+        // We load the ontology starting from the lowest elements in the dependency tree to the highest ones
         CarbonOntology ontology = CarbonOntology.getInstance();
         ontology.setElementaryFlowTypesTree(RepoFactory.getTypeRepo().getElementaryFlowTypesTree());
         ontology.setImpactTypesTree(RepoFactory.getTypeRepo().getImpactTypesTree());
         ontology.setReferences(referenceRepo.getReferences());
-        ontology.setProcessGroups(groupRepo.getProcessGroups());
-        ontology.setCoefficientGroups(groupRepo.getCoefficientGroups());
         for (Process process: singleElementRepo.getProcesses()) {
             try {
                 ontology.addProcess(process);
@@ -92,6 +90,8 @@ public class Reasoner {
                 log.warn(e.getMessage());
             }
         }
+        ontology.setProcessGroups(groupRepo.getProcessGroups());
+        ontology.setCoefficientGroups(groupRepo.getCoefficientGroups());
         ontology.setSourceRelations(RepoFactory.getRelationRepo().getSourceRelations());
         ontology.setCategoryTree(RepoFactory.getCategoryRepo().getCategoriesTree());
 
