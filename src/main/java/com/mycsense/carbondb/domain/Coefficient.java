@@ -9,6 +9,7 @@ public class Coefficient extends SingleElement {
     public Coefficient(Dimension keywords, Unit unit, Value value) {
         super(keywords, unit);
         this.value = value;
+        derivedRelations = new HashSet<>();
     }
 
     public Value getValue() {

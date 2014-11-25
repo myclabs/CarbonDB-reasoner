@@ -23,6 +23,7 @@ public class SourceRelation {
         this.source = source;
         this.coeff = coeff;
         this.destination = destination;
+        derivedRelations = new ArrayList<>();
     }
 
     public String toString() {

@@ -128,6 +128,7 @@ public class Group
     }
 
     public void fetchElements() {
+        elements = new HashSet<>();
         for (Dimension coordinate : coordinates.dimensions) {
             try {
                 if (type == Type.COEFFICIENT)

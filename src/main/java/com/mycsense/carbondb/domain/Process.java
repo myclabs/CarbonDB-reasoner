@@ -16,6 +16,9 @@ public class Process extends SingleElement {
         super(keywords, unit);
         impacts = new HashMap<>();
         inputFlows = new HashMap<>();
+        calculatedFlows = new HashMap<>();
+        downstreamDerivedRelations = new HashSet<>();
+        upstreamDerivedRelations = new HashSet<>();
     }
 
     public HashMap<String, Impact> getImpacts() {
