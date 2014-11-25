@@ -28,9 +28,6 @@ public class Reasoner {
 
     protected Model model;
     protected InfModel infModel;
-    protected RelationRepo relationRepo;
-    protected SingleElementRepo singleElementRepo;
-    protected ReferenceRepo referenceRepo;
 
     protected com.hp.hpl.jena.reasoner.Reasoner jenaReasoner;
     protected Matrix dependencyMatrix, transitiveDependencyMatrix;
@@ -39,12 +36,14 @@ public class Reasoner {
     protected Matrix flowToImpactsMatrix, flowToImpactsUncertaintyMatrix;
     protected Matrix impactMatrix;
     protected Matrix ecologicalUncertaintyMatrix, cumulativeEcologicalUncertaintyMatrix;
+    protected Double threshold = 0.1;
+
     protected ArrayList<ImpactType> impactTypes;
     protected ArrayList<ElementaryFlowType> elementaryFlowTypes;
+
     protected ArrayList<Process> processes;
-    protected Double threshold = 0.1;
     public ReasonnerReport report = new ReasonnerReport();
-    protected GroupRepo groupRepo;
+    protected CarbonOntology ontology;
 
     private final Logger log = LoggerFactory.getLogger(Reasoner.class);
 
@@ -61,41 +60,11 @@ public class Reasoner {
 
         RepoFactory.clear();
         RepoFactory.setModel(infModel);
-        //RepoFactory.setUnitsRepo(unitsRepo);
         RepoFactory.setReasonnerReport(report);
-        relationRepo = RepoFactory.getRelationRepo();
-        singleElementRepo = RepoFactory.getSingleElementRepo();
-        referenceRepo = RepoFactory.getReferenceRepo();
-        groupRepo = RepoFactory.getGroupRepo();
         log.info("Loading and translating sourceRelations");
 
-        // We load the ontology starting from the lowest elements in the dependency tree to the highest ones
-        CarbonOntology ontology = CarbonOntology.getInstance();
-        ontology.setElementaryFlowTypesTree(RepoFactory.getTypeRepo().getElementaryFlowTypesTree());
-        ontology.setImpactTypesTree(RepoFactory.getTypeRepo().getImpactTypesTree());
-        ontology.setReferences(referenceRepo.getReferences());
-        for (Process process: singleElementRepo.getProcesses()) {
-            try {
-                ontology.addProcess(process);
-            }
-            catch (AlreadyExistsException e) {
-                log.warn(e.getMessage());
-            }
-        }
-        for (Coefficient coefficient: singleElementRepo.getCoefficients()) {
-            try {
-                ontology.addCoefficient(coefficient);
-            }
-            catch (AlreadyExistsException e) {
-                log.warn(e.getMessage());
-            }
-        }
-        ontology.setProcessGroups(groupRepo.getProcessGroups());
-        ontology.setCoefficientGroups(groupRepo.getCoefficientGroups());
-        ontology.setSourceRelations(RepoFactory.getRelationRepo().getSourceRelations());
-        ontology.setCategoryTree(RepoFactory.getCategoryRepo().getCategoriesTree());
-
-        // and we process the ontology only using the object model
+        loadOntology();
+        // We process the ontology only using the object model
         for (SourceRelation sourceRelation: ontology.getSourceRelations().values()) {
             ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
             try {
@@ -151,6 +120,34 @@ public class Reasoner {
         }
 
         log.info("Reasoning finished");
+    }
+
+    protected void loadOntology() {
+        // We load the ontology starting from the lowest elements in the dependency tree to the highest ones
+        ontology = CarbonOntology.getInstance();
+        ontology.setElementaryFlowTypesTree(RepoFactory.getTypeRepo().getElementaryFlowTypesTree());
+        ontology.setImpactTypesTree(RepoFactory.getTypeRepo().getImpactTypesTree());
+        ontology.setReferences(RepoFactory.getReferenceRepo().getReferences());
+        for (Process process: RepoFactory.getSingleElementRepo().getProcesses()) {
+            try {
+                ontology.addProcess(process);
+            }
+            catch (AlreadyExistsException e) {
+                log.warn(e.getMessage());
+            }
+        }
+        for (Coefficient coefficient: RepoFactory.getSingleElementRepo().getCoefficients()) {
+            try {
+                ontology.addCoefficient(coefficient);
+            }
+            catch (AlreadyExistsException e) {
+                log.warn(e.getMessage());
+            }
+        }
+        ontology.setProcessGroups(RepoFactory.getGroupRepo().getProcessGroups());
+        ontology.setCoefficientGroups(RepoFactory.getGroupRepo().getCoefficientGroups());
+        ontology.setSourceRelations(RepoFactory.getRelationRepo().getSourceRelations());
+        ontology.setCategoryTree(RepoFactory.getCategoryRepo().getCategoriesTree());
     }
 
     public void createMatrix() {
