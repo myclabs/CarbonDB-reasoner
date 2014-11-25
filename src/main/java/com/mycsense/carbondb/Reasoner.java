@@ -42,7 +42,6 @@ public class Reasoner {
     protected ArrayList<ElementaryFlowType> elementaryFlowTypes;
 
     protected ArrayList<Process> processes;
-    public ReasonnerReport report = new ReasonnerReport();
     protected CarbonOntology ontology;
 
     private final Logger log = LoggerFactory.getLogger(Reasoner.class);
@@ -60,7 +59,6 @@ public class Reasoner {
 
         RepoFactory.clear();
         RepoFactory.setModel(infModel);
-        RepoFactory.setReasonnerReport(report);
         log.info("Loading and translating sourceRelations");
 
         loadOntology();

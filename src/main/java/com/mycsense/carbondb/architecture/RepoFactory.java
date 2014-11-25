@@ -1,7 +1,6 @@
 package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.mycsense.carbondb.ReasonnerReport;
 
 public class RepoFactory {
     protected static CategoryRepo categoryRepo;
@@ -12,7 +11,6 @@ public class RepoFactory {
     protected static UnitsRepo unitsRepo;
     protected static TypeRepo typeRepo;
     protected static Model model;
-    protected static ReasonnerReport reasonnerReport;
 
     public static void setModel(Model pModel) {
         model = pModel;
@@ -83,11 +81,4 @@ public class RepoFactory {
         return typeRepo;
     }
 
-    public static ReasonnerReport getReasonnerReport() {
-        return reasonnerReport;
-    }
-
-    public static void setReasonnerReport(ReasonnerReport reasonnerReport) {
-        RepoFactory.reasonnerReport = reasonnerReport;
-    }
 }
