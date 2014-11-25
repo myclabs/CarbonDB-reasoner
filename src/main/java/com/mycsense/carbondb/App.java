@@ -91,38 +91,8 @@ public class App
         }
     }
 
-        /**
-        read, write RDF files: OK
-        query model: OK
-        run calculation: OK
-        convert source-relations: OK
-        use Pellet to infer the ontology with java: OK (downgraded jena to 2.10.0 ... try with pellet/master?)
-        in conversion: foreach over all the sourceRelations: OK
-        rename ontology concept for group -> group: OK
-        check if SWRL rules are executed with Pellet: OK
-        cut the onto in two parts (vocabulary and data): TODO
-        calculate uncertainties: TODO
-        use a class to store the ontology classes and property: OK
-        units: OK
-        flow type?
-        generator group?
-        use OWL API instead of Jena: Nope
-        add property isReferenced for the link between elements and groups: NO (useless?)
-
-        improve architecture:
-            Maven: OK
-            unit tests
-            create multiple classes: OK
-            use IDEA
-            logger
-            use stardog?
-
-        add errors checking (throw exceptions)
-        Protege plugin?
-
-        Limits: no units conversions
-                no uncertainty (is montecarlo necessary?)
-                no flow type (economic, conversion...)
-                sourceRelations involving single elements
-        **/
+    /**
+    generator group?
+    add property isReferenced for the link between elements and groups: NO (useless?)
+    **/
 }
