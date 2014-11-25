@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRepo {
     public Model model;
 
-    protected final Logger log = LoggerFactory.getLogger(UnitToolsWebService.class);
+    protected final Logger log = LoggerFactory.getLogger(AbstractRepo.class);
 
     public AbstractRepo (Model model) {
         this.model = model;
