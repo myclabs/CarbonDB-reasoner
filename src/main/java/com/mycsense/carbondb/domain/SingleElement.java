@@ -47,7 +47,7 @@ public abstract class SingleElement {
 
     public String getId() {
         if (null == id) {
-            id = keywords.toString() + "+" + unit.getRef();
+            id = keywords.toString() + "+" + unit.getId();
         }
         return id;
     }
@@ -77,6 +77,9 @@ public abstract class SingleElement {
     }
 
     public void addGroup(Group group) {
+        for (Group otherGroups : groups) {
+            otherGroups.addOverlapingGroup(group);
+        }
         groups.add(group);
     }
 

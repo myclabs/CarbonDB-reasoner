@@ -24,6 +24,8 @@ package com.mycsense.carbondb.domain;
 
 import com.mycsense.carbondb.NoElementFoundException;
 import com.mycsense.carbondb.domain.group.Type;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,6 +41,8 @@ public class Group
     protected Dimension commonKeywords;
     protected Type type = Type.PROCESS;
     protected HashSet<SingleElement> elements;
+    protected HashSet<Group> overlappingGroups;
+    protected HashSet<SourceRelation> sourceRelations;
 
     protected String label;
     protected String id;
@@ -62,14 +66,23 @@ public class Group
     public Group(DimensionSet dimSet, Dimension commonKeywords) {
         this.dimSet = dimSet;
         fullDimSet = new DimensionSet(dimSet);
+        overlappingGroups = new HashSet<>();
+        sourceRelations = new HashSet<>();
         setCommonKeywords(commonKeywords);
         createCoordinates();
-        fetchElements();
+    }
+
+    public DimensionSet getDimSet() {
+        return dimSet;
     }
 
     public void addDimension(Dimension dimension) {
         dimSet.add(dimension);
         fullDimSet.add(dimension);
+    }
+
+    public Dimension getCommonKeywords() {
+        return commonKeywords;
     }
 
     public void addCommonKeyword(Keyword keyword) {
@@ -141,23 +154,47 @@ public class Group
     }
 
     public HashSet<SingleElement> getElements() {
+        if (null == elements) {
+            fetchElements();
+        }
         return elements;
     }
 
     public void addElement(SingleElement element) {
-        elements.add(element);
+        getElements().add(element);
         element.addGroup(this);
     }
 
-    public void fetchElements() {
+    public HashSet<Group> getOverlappingGroups() {
+        return overlappingGroups;
+    }
+
+    public void addOverlapingGroup(Group group) {
+        if (this != group && !overlappingGroups.contains(group)) {
+            overlappingGroups.add(group);
+        }
+    }
+
+    public HashSet<SourceRelation> getSourceRelations() {
+        return sourceRelations;
+    }
+
+    public void addSourceRelation(SourceRelation sourceRelation) {
+        if (!sourceRelations.contains(sourceRelation)) {
+            sourceRelations.add(sourceRelation);
+        }
+    }
+
+    protected void fetchElements() {
         elements = new HashSet<>();
         for (Dimension coordinate : coordinates.dimensions) {
             try {
-                if (type == Type.COEFFICIENT)
+                if (type == Type.COEFFICIENT) {
                     addElement(CarbonOntology.getInstance().findCoefficient(coordinate, unit));
-
-                else
+                }
+                else {
                     addElement(CarbonOntology.getInstance().findProcess(coordinate, unit));
+                }
             } catch (NoElementFoundException e) {
                 // nothing to do here, there is no element at this coordinate
             }
@@ -170,5 +207,25 @@ public class Group
 
     public void setReferences(ArrayList<Reference> references) {
         this.references = references;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Group))
+            return false;
+        if (obj == this)
+            return true;
+
+        Group rhs = (Group) obj;
+        return new EqualsBuilder()
+                .append(id, rhs.id)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(229, 881)
+                .append(id)
+                .toHashCode();
     }
 }
