@@ -98,7 +98,7 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
+        <!-- <configuration>
           <archive>
             <manifest>
               <mainClass>com.mycsense.carbondb.App</mainClass>
@@ -107,7 +107,7 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-        </configuration>
+        </configuration> -->
       </plugin>
     </plugins>
   </build>

@@ -32,6 +32,7 @@ public class RepoFactory {
     protected static ReferenceRepo referenceRepo;
     protected static UnitsRepo unitsRepo;
     protected static TypeRepo typeRepo;
+    protected static KeywordRepo keywordRepo;
     protected static Model model;
 
     public static void setModel(Model pModel) {
@@ -52,6 +53,7 @@ public class RepoFactory {
         referenceRepo = null;
         unitsRepo = null;
         typeRepo = null;
+        keywordRepo = null;
     }
 
     public static CategoryRepo getCategoryRepo() {
@@ -103,4 +105,10 @@ public class RepoFactory {
         return typeRepo;
     }
 
+    public static KeywordRepo getKeywordRepo() {
+        checkProperlyInitialized();
+        if (null == keywordRepo)
+            keywordRepo = new KeywordRepo(model);
+        return keywordRepo;
+    }
 }
