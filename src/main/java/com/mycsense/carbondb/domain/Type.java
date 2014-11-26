@@ -22,25 +22,38 @@
 
 package com.mycsense.carbondb.domain;
 
-import java.util.HashMap;
+public class Type {
+    protected String id;
+    protected String label;
+    protected Unit unit;
 
-public class ImpactType extends Type {
-    protected HashMap<ElementaryFlowType, Value> components;
-
-    public ImpactType(String id, String label, Unit unit) {
-        super(id, label, unit);
-        components = new HashMap<>();
+    public Type(String id, String label, Unit unit) {
+        this.id = id;
+        this.label = label;
+        this.unit = unit;
     }
 
-    public HashMap<ElementaryFlowType, Value> getComponents() {
-        return components;
+    public String getId() {
+        return id;
     }
 
-    public void setComponents(HashMap<ElementaryFlowType, Value> components) {
-        this.components = components;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void addComponent(ElementaryFlowType flowType, Value value) {
-        components.put(flowType, value);
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
     }
 }
