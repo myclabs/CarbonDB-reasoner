@@ -74,6 +74,18 @@ public final class CarbonOntology {
         return CarbonOntology.instance;
     }
 
+    public void clear() {
+        processGroups = new HashMap<>();
+        coefficientGroups = new HashMap<>();
+        processes = new HashSet<>();
+        coefficients = new HashSet<>();
+        references = new HashMap<>();
+        sourceRelations = new HashMap<>();
+        derivedRelations = new ArrayList<>();
+        elementaryFlowTypes = new HashMap<>();
+        impactTypes = new HashMap<>();
+    }
+
     public Coefficient findCoefficient(Dimension keywords, Unit unit) throws NoElementFoundException {
         Coefficient temporaryCoefficient = new Coefficient(keywords, unit, new Value(0.0,0.0));
         if (coefficients.contains(temporaryCoefficient)) {
@@ -213,6 +225,13 @@ public final class CarbonOntology {
 
     public Group getCoefficientGroup(String id) {
         return coefficientGroups.get(id);
+    }
+
+    public HashMap<String, Group> getGroups() {
+        HashMap<String, Group> groups = new HashMap<>();
+        groups.putAll(processGroups);
+        groups.putAll(coefficientGroups);
+        return groups;
     }
 
     public HashSet<Process> getProcesses() {
