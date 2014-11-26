@@ -25,6 +25,8 @@ package com.mycsense.carbondb.domain;
 import com.mycsense.carbondb.IncompatibleDimSetException;
 import com.mycsense.carbondb.IncompatibleUnitsException;
 import com.mycsense.carbondb.domain.relation.TranslationDerivative;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -192,23 +194,31 @@ public class SourceRelation {
         return source;
     }
 
-    public void setSource(Group source) {
-        this.source = source;
-    }
-
     public Group getCoeff() {
         return coeff;
-    }
-
-    public void setCoeff(Group coeff) {
-        this.coeff = coeff;
     }
 
     public Group getDestination() {
         return destination;
     }
 
-    public void setDestination(Group destination) {
-        this.destination = destination;
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Group))
+            return false;
+        if (obj == this)
+            return true;
+
+        Group rhs = (Group) obj;
+        return new EqualsBuilder()
+                .append(id, rhs.id)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(229, 881)
+                .append(id)
+                .toHashCode();
     }
 }
