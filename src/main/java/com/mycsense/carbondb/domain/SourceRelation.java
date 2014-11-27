@@ -45,8 +45,11 @@ public class SourceRelation {
 
     public SourceRelation(Group source, Group coeff, Group destination) {
         this.source = source;
+        source.addSourceRelation(this);
         this.coeff = coeff;
+        coeff.addSourceRelation(this);
         this.destination = destination;
+        destination.addSourceRelation(this);
         derivedRelations = new ArrayList<>();
     }
 

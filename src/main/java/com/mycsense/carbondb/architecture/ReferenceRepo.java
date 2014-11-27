@@ -62,14 +62,14 @@ public class ReferenceRepo extends AbstractRepo {
 
         if (iter.hasNext()) {
             while (iter.hasNext()) {
-                getReference(iter.nextStatement().getResource());
+                getReference(iter.next().getSubject());
             }
         }
         return refCache;
     }
 
     protected Reference getReference(Resource referenceResource) {
-        if (refCache.containsKey(referenceResource.getURI())) {
+        if (!refCache.containsKey(referenceResource.getURI())) {
             String title = getStringForProperty(referenceResource, Datatype.title),
                    source = getStringForProperty(referenceResource, Datatype.source),
                    URL = getStringForProperty(referenceResource, Datatype.URL),

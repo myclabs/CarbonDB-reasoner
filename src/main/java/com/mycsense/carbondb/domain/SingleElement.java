@@ -47,7 +47,16 @@ public abstract class SingleElement {
 
     public String getId() {
         if (null == id) {
-            id = keywords.toString() + "+" + unit.getId();
+            if (this instanceof Process) {
+                id = "sp/";
+            }
+            else {
+                id = "sc/";
+            }
+            for (Keyword keyword : keywords.keywords) {
+                id += keyword.getId().replace("k/", "") + "+";
+            }
+            id += unit.getId().replace("u/", "");
         }
         return id;
     }

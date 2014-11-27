@@ -55,7 +55,8 @@ public class RelationRepo  extends AbstractRepo {
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SourceRelation);
         while (i.hasNext()) {
-            sourceRelations.put(getId(i.next()), getSourceRelation(i.next()));
+            Resource relationResource = i.next();
+            sourceRelations.put(getId(relationResource), getSourceRelation(relationResource));
         }
 
         return sourceRelations;
@@ -77,6 +78,7 @@ public class RelationRepo  extends AbstractRepo {
                     ) {
                 sourceRelation.setType(getRelationType(sourceRelationResource.getProperty(Datatype.hasRelationType).getResource()));
             } else {
+                // @todo the logger does not seem to work here (and in any other repo?)
                 log.warn("The source relation " + sourceRelationResource.getURI() + " has no type");
             }
             if (sourceRelationResource.hasProperty(Datatype.exponent)

@@ -80,7 +80,7 @@ public class Unit {
 
     public String toString()
     {
-        return symbol;
+        return getSymbol();
     }
 
     public String getRef() {
