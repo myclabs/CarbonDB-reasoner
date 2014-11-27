@@ -48,15 +48,16 @@ public final class CarbonOntology {
     protected HashMap<String, ElementaryFlowType> elementaryFlowTypes;
     protected TypeCategory impactTypesTree;
     protected HashMap<String, ImpactType> impactTypes;
+    protected HashSet<RelationType> relationTypes;
 
-    protected HashMap<String, Reference> references;
+    protected HashSet<Reference> references;
 
     private CarbonOntology() {
         processGroups = new HashMap<>();
         coefficientGroups = new HashMap<>();
         processes = new HashSet<>();
         coefficients = new HashSet<>();
-        references = new HashMap<>();
+        references = new HashSet<>();
         sourceRelations = new HashMap<>();
         derivedRelations = new ArrayList<>();
         elementaryFlowTypes = new HashMap<>();
@@ -79,7 +80,7 @@ public final class CarbonOntology {
         coefficientGroups = new HashMap<>();
         processes = new HashSet<>();
         coefficients = new HashSet<>();
-        references = new HashMap<>();
+        references = new HashSet<>();
         sourceRelations = new HashMap<>();
         derivedRelations = new ArrayList<>();
         elementaryFlowTypes = new HashMap<>();
@@ -188,19 +189,20 @@ public final class CarbonOntology {
         return impactTypes.get(id);
     }
 
-    public HashMap<String, Reference> getReferences() {
+    public HashSet<RelationType> getRelationTypes() {
+        return relationTypes;
+    }
+
+    public void setRelationTypes(HashSet<RelationType> relationTypes) {
+        this.relationTypes = relationTypes;
+    }
+
+    public HashSet<Reference> getReferences() {
         return references;
     }
 
-    public void setReferences(HashMap<String, Reference> references) {
+    public void setReferences(HashSet<Reference> references) {
         this.references = references;
-    }
-
-    public Reference getReference(String id) throws NotFoundException {
-        if (!references.containsKey(id)) {
-            throw new NotFoundException("The reference with the id " + id + " was not found");
-        }
-        return references.get(id);
     }
 
     public HashMap<String, Group> getProcessGroups() {

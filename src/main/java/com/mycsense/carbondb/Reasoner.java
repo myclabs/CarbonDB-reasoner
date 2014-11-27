@@ -39,6 +39,7 @@ import com.mycsense.carbondb.domain.ElementaryFlowType;
 import com.mycsense.carbondb.domain.Impact;
 import com.mycsense.carbondb.domain.ImpactType;
 import com.mycsense.carbondb.domain.Process;
+import com.mycsense.carbondb.domain.Reference;
 import com.mycsense.carbondb.domain.SourceRelation;
 import com.mycsense.carbondb.domain.Value;
 import com.mycsense.carbondb.domain.elementaryFlow.DataSource;
@@ -105,7 +106,9 @@ public class Reasoner {
             for (TranslationDerivative derivative: derivatives) {
                 try {
                     ontology.addDerivedRelation(derivative.transformToDerivedRelation());
-                } catch (NoElementFoundException | AlreadyExistsException e) {
+                } catch (NoElementFoundException e) {
+                    //log.warn(e.getMessage()); // we do not want to log this, as it is a normal behavior
+                } catch (AlreadyExistsException e) {
                     log.warn(e.getMessage());
                 }
             }
@@ -157,7 +160,8 @@ public class Reasoner {
         ontology = CarbonOntology.getInstance();
         ontology.setElementaryFlowTypesTree(RepoFactory.getTypeRepo().getElementaryFlowTypesTree());
         ontology.setImpactTypesTree(RepoFactory.getTypeRepo().getImpactTypesTree());
-        ontology.setReferences(RepoFactory.getReferenceRepo().getReferences());
+        ontology.setReferences(new HashSet<>(RepoFactory.getReferenceRepo().getReferences().values()));
+        ontology.setRelationTypes(RepoFactory.getRelationRepo().getRelationTypes());
         for (Process process: RepoFactory.getSingleElementRepo().getProcesses()) {
             try {
                 ontology.addProcess(process);

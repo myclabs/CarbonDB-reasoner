@@ -23,6 +23,8 @@
 package com.mycsense.carbondb.domain;
 
 import com.mycsense.carbondb.domain.relation.Type;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class RelationType {
     protected String id;
@@ -67,5 +69,26 @@ public class RelationType {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof RelationType))
+            return false;
+        if (obj == this)
+            return true;
+
+        RelationType rhs = (RelationType) obj;
+        return new EqualsBuilder()
+                .append(id, rhs.getId())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(173, 677)
+                .append(id)
+                .toHashCode();
     }
 }

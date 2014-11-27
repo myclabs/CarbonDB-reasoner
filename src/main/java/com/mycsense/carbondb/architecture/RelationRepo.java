@@ -38,16 +38,18 @@ import com.mycsense.carbondb.domain.RelationType;
 import com.mycsense.carbondb.domain.SourceRelation;
 import com.mycsense.carbondb.domain.relation.Type;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class RelationRepo  extends AbstractRepo {
 
     protected HashMap<String, SourceRelation> sourceRelationsCache;
+    protected HashMap<String, RelationType> relationTypesCache;
 
     public RelationRepo(Model model) {
         super(model);
         sourceRelationsCache = new HashMap<>();
+        relationTypesCache = new HashMap<>();
     }
 
     public HashMap<String, SourceRelation> getSourceRelations() {
@@ -103,12 +105,12 @@ public class RelationRepo  extends AbstractRepo {
                         .addProperty(Datatype.exponent, model.createTypedLiteral(exponent)));
     }
 
-    public ArrayList<RelationType> getRelationTypes()
+    public HashSet<RelationType> getRelationTypes()
     {
         Selector selector = new SimpleSelector(null, RDF.type, Datatype.RelationType);
         StmtIterator iter = model.listStatements(selector);
 
-        ArrayList<RelationType> types = new ArrayList<>();
+        HashSet<RelationType> types = new HashSet<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
@@ -120,17 +122,20 @@ public class RelationRepo  extends AbstractRepo {
 
     public RelationType getRelationType(Resource relationTypeResource)
     {
-        String label = relationTypeResource.getProperty(RDFS.label).getString();
-        Type type = Type.SYNCHRONOUS;
-        if (relationTypeResource.hasProperty(RDF.type, Datatype.Asynchronous)) {
-            type = Type.ASYNCHRONOUS;
+        if (!relationTypesCache.containsKey(relationTypeResource.getURI())) {
+            String label = relationTypeResource.getProperty(RDFS.label).getString();
+            Type type = Type.SYNCHRONOUS;
+            if (relationTypeResource.hasProperty(RDF.type, Datatype.Asynchronous)) {
+                type = Type.ASYNCHRONOUS;
+            }
+            RelationType relationType = new RelationType(getId(relationTypeResource), label, type);
+            if (relationTypeResource.hasProperty(RDFS.comment)
+                    && relationTypeResource.getProperty(RDFS.comment) != null
+                    ) {
+                relationType.setComment(relationTypeResource.getProperty(RDFS.comment).getString());
+            }
+            relationTypesCache.put(relationTypeResource.getURI(), relationType);
         }
-        RelationType relationType = new RelationType(getId(relationTypeResource), label, type);
-        if (relationTypeResource.hasProperty(RDFS.comment)
-            && relationTypeResource.getProperty(RDFS.comment) != null
-        ) {
-            relationType.setComment(relationTypeResource.getProperty(RDFS.comment).getString());
-        }
-        return relationType;
+        return relationTypesCache.get(relationTypeResource.getURI());
     }
 }

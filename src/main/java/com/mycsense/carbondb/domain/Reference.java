@@ -22,6 +22,11 @@
 
 package com.mycsense.carbondb.domain;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.util.HashSet;
+
 public class Reference {
     protected String title;
     protected String source;
@@ -29,8 +34,9 @@ public class Reference {
     protected String creator;
     protected String publisher;
     protected String date;
-    protected String URI;
+    protected String id;
     protected String shortName;
+    protected HashSet<Group> groups;
 
     public Reference(String title,
                      String source,
@@ -38,7 +44,7 @@ public class Reference {
                      String creator,
                      String publisher,
                      String date,
-                     String URI,
+                     String id,
                      String shortName) {
         this.title = title;
         this.source = source;
@@ -46,8 +52,9 @@ public class Reference {
         this.creator = creator;
         this.publisher = publisher;
         this.date = date;
-        this.URI = URI;
+        this.id = id;
         this.shortName = shortName;
+        groups = new HashSet<>();
     }
 
     public String getTitle() {
@@ -98,12 +105,12 @@ public class Reference {
         this.date = date;
     }
 
-    public String getURI() {
-        return URI;
+    public String getId() {
+        return id;
     }
 
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getShortName() {
@@ -112,5 +119,36 @@ public class Reference {
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
+    }
+
+    public HashSet<Group> getGroups() {
+        return groups;
+    }
+
+    public void addGroup(Group group) {
+        if (!groups.contains(group)) {
+            groups.add(group);
+        }
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Reference))
+            return false;
+        if (obj == this)
+            return true;
+
+        Reference rhs = (Reference) obj;
+        return new EqualsBuilder()
+                .append(id, rhs.getId())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(193, 631)
+                .append(id)
+                .toHashCode();
     }
 }

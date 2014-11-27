@@ -78,7 +78,7 @@ public class ReferenceRepo extends AbstractRepo {
                    date = getStringForProperty(referenceResource, Datatype.date),
                    shortName = getStringForProperty(referenceResource, Datatype.shortName);
 
-            refCache.put(referenceResource.getURI(), new Reference(title, source, URL, creator, publisher, date, referenceResource.getURI(), shortName));
+            refCache.put(referenceResource.getURI(), new Reference(title, source, URL, creator, publisher, date, getId(referenceResource), shortName));
         }
         return refCache.get(referenceResource.getURI());
     }

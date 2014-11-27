@@ -207,6 +207,9 @@ public class Group
 
     public void setReferences(ArrayList<Reference> references) {
         this.references = references;
+        for (Reference reference : references) {
+            reference.addGroup(this);
+        }
     }
 
     @Override
