@@ -38,7 +38,6 @@ import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.DimensionSet;
 import com.mycsense.carbondb.domain.Group;
-import com.mycsense.carbondb.domain.Keyword;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.group.Type;
 
@@ -152,7 +151,7 @@ public class GroupRepo extends AbstractRepo {
     }
 
     protected void setKeywordsPositionForDimension(Resource dimensionResource, Dimension dimension) {
-        NodeIterator i = model.listObjectsOfProperty(dimensionResource, Datatype.hasPositionForSomeKeyword);
+        NodeIterator i = model.listObjectsOfProperty(dimensionResource, Datatype.hasPositionAsDimensionForSomeKeyword);
         while (i.hasNext()) {
             Resource positionResource = i.next().asResource();
             if (positionResource.hasProperty(Datatype.position)

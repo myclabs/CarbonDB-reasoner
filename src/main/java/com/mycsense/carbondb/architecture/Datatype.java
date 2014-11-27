@@ -96,7 +96,7 @@ public class Datatype {
     public static final Property foreignUnitID = property("foreignUnitID");
     public static final Property hasComponentOfImpactType = property("hasComponentOfImpactType");
     public static final Property isBasedOnElementaryFlowType = property("isBasedOnElementaryFlowType");
-    public static final Property hasPositionForSomeKeyword = property("hasPositionForSomeKeyword");
+    public static final Property hasPositionAsDimensionForSomeKeyword = property("hasPositionAsDimensionForSomeKeyword");
     public static final Property providesPositionToKeyword = property("providesPositionToKeyword");
     public static final Property position = property("position");
     public static final Property hasRelationType = property("hasRelationType");
