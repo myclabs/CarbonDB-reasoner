@@ -74,6 +74,7 @@ public class SingleElementRepo extends AbstractRepo {
         if (!processesCache.containsKey(processResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(processResource);
             Process process = new Process(getElementKeywords(processResource), unit);
+            process.setId(processResource.getURI().replace(Datatype.getURI(), ""));
             getElementaryFlowsForProcess(process, processResource);
             getImpactsForProcess(process, processResource);
             processesCache.put(processResource.getURI(), process);
@@ -88,6 +89,7 @@ public class SingleElementRepo extends AbstractRepo {
             Value value = new Value(coefficientResource.getProperty(Datatype.value).getDouble() / conversionFactor,
                     getUncertainty(coefficientResource));
             Coefficient coefficient = new Coefficient(getElementKeywords(coefficientResource), unit, value);
+            coefficient.setId(coefficientResource.getURI().replace(Datatype.getURI(), ""));
             coefficientsCache.put(coefficientResource.getURI(), coefficient);
         }
         return coefficientsCache.get(coefficientResource.getURI());
