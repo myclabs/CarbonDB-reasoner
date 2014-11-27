@@ -86,7 +86,7 @@ public class SingleElementRepo extends AbstractRepo {
         if (!coefficientsCache.containsKey(coefficientResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(coefficientResource);
             Double conversionFactor = unit.getConversionFactor();
-            Value value = new Value(coefficientResource.getProperty(Datatype.value).getDouble() * conversionFactor,
+            Value value = new Value(coefficientResource.getProperty(Datatype.value).getDouble(),
                     getUncertainty(coefficientResource));
             Coefficient coefficient = new Coefficient(getElementKeywords(coefficientResource), unit, value);
             coefficient.setId(coefficientResource.getURI().replace(Datatype.getURI(), ""));

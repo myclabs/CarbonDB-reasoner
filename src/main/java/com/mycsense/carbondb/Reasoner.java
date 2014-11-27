@@ -372,7 +372,7 @@ public class Reasoner {
                 Process downStreamProcess = relation.getDestination();
                 double value = dependencyMatrix.get(processes.indexOf(downStreamProcess), i);
                 double uncertainty = uncertaintyMatrix.get(processes.indexOf(downStreamProcess), i);
-                double coeffValue = relation.getCoeff().getValue().value;
+                double coeffValue = relation.getCoeff().getValue().value * relation.getCoeff().getUnit().getConversionFactor();
                 if (-1 == relation.getExponent()) {
                     coeffValue = 1 / coeffValue;
                 }
