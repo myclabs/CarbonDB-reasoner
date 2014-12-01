@@ -86,8 +86,9 @@ public abstract class SingleElement {
     }
 
     public void addGroup(Group group) {
-        for (Group otherGroups : groups) {
-            otherGroups.addOverlapingGroup(group);
+        for (Group otherGroup : groups) {
+            otherGroup.addOverlapingGroup(group);
+            group.addOverlapingGroup(otherGroup);
         }
         groups.add(group);
     }

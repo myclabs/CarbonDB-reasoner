@@ -92,9 +92,10 @@ public class Reasoner {
 
         RepoFactory.clear();
         RepoFactory.setModel(infModel);
-        log.info("Loading and translating sourceRelations");
 
+        log.info("Loading the object model");
         loadOntology();
+        log.info("Translating source relations");
         // We process the ontology only using the object model
         for (SourceRelation sourceRelation: ontology.getSourceRelations().values()) {
             ArrayList<TranslationDerivative> derivatives = new ArrayList<>();
