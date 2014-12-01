@@ -72,6 +72,16 @@ public abstract class AbstractRepo {
         if (resource.hasProperty(Datatype.uncertainty) && null != resource.getProperty(Datatype.uncertainty)) {
             return resource.getProperty(Datatype.uncertainty).getDouble();
         }
+        //log.warn("The resource " + resource.getURI() + " has no uncertainty, using 0.0 instead"); // deactivated for a while
+        return 0.0;
+    }
+
+    public Double getValue(Resource resource)
+    {
+        if (resource.hasProperty(Datatype.value) && null != resource.getProperty(Datatype.value)) {
+            return resource.getProperty(Datatype.value).getDouble();
+        }
+        log.warn("The resource " + resource.getURI() + " has no value, using 0.0 instead");
         return 0.0;
     }
 

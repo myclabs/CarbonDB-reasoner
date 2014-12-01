@@ -86,7 +86,9 @@ public class SingleElementRepo extends AbstractRepo {
         if (!coefficientsCache.containsKey(coefficientResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(coefficientResource);
             Double conversionFactor = unit.getConversionFactor();
-            Value value = new Value(coefficientResource.getProperty(Datatype.value).getDouble(),
+
+            Value value = new Value(
+                    getValue(coefficientResource),
                     getUncertainty(coefficientResource));
             Coefficient coefficient = new Coefficient(getElementKeywords(coefficientResource), unit, value);
             coefficient.setId(coefficientResource.getURI().replace(Datatype.getURI(), ""));
@@ -152,7 +154,7 @@ public class SingleElementRepo extends AbstractRepo {
             if (emission.hasProperty(Datatype.hasElementaryFlowType) && null != emission.getProperty(Datatype.hasElementaryFlowType)
                     && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
                 String typeId = getId(emission.getProperty(Datatype.hasElementaryFlowType).getResource());
-                Value value = new Value(emission.getProperty(Datatype.value).getDouble() / conversionFactor, getUncertainty(emission));
+                Value value = new Value(getValue(emission) / conversionFactor, getUncertainty(emission));
                 try {
                     ElementaryFlowType flowType = CarbonOntology.getInstance().getElementaryFlowType(typeId);
                     process.addInputFlow(new ElementaryFlow(flowType, value));
@@ -175,7 +177,7 @@ public class SingleElementRepo extends AbstractRepo {
             if (emission.hasProperty(Datatype.hasImpactType) && null != emission.getProperty(Datatype.hasImpactType)
                     && emission.hasProperty(Datatype.value) && null != emission.getProperty(Datatype.value)) {
                 String typeId = getId(emission.getProperty(Datatype.hasImpactType).getResource());
-                Value value = new Value(emission.getProperty(Datatype.value).getDouble(), getUncertainty(emission));
+                Value value = new Value(getValue(emission), getUncertainty(emission));
 
                 try {
                     ImpactType impactType = CarbonOntology.getInstance().getImpactType(typeId);

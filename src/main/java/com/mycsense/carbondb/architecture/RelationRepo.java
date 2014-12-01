@@ -80,7 +80,6 @@ public class RelationRepo  extends AbstractRepo {
                     ) {
                 sourceRelation.setType(getRelationType(sourceRelationResource.getProperty(Datatype.hasRelationType).getResource()));
             } else {
-                // @todo the logger does not seem to work here (and in any other repo?)
                 log.warn("The source relation " + sourceRelationResource.getURI() + " has no type");
             }
             if (sourceRelationResource.hasProperty(Datatype.exponent)
