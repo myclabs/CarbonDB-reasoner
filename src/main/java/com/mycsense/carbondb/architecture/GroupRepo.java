@@ -156,12 +156,12 @@ public class GroupRepo extends AbstractRepo {
             Resource positionResource = i.next().asResource();
             if (positionResource.hasProperty(Datatype.position)
                 && positionResource.getProperty(Datatype.position) != null
-                && positionResource.hasProperty(Datatype.providesPositionToKeyword)
-                && positionResource.getProperty(Datatype.providesPositionToKeyword) != null
+                && positionResource.hasProperty(Datatype.providesPositionToKeywordInSomeDimension)
+                && positionResource.getProperty(Datatype.providesPositionToKeywordInSomeDimension) != null
             ) {
                 dimension.addKeywordPosition(
                         positionResource.getProperty(Datatype.position).getInt(),
-                        positionResource.getPropertyResourceValue(Datatype.providesPositionToKeyword).getURI()
+                        getId(positionResource.getPropertyResourceValue(Datatype.providesPositionToKeywordInSomeDimension))
                 );
             }
         }

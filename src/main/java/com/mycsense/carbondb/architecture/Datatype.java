@@ -97,7 +97,7 @@ public class Datatype {
     public static final Property hasComponentOfImpactType = property("hasComponentOfImpactType");
     public static final Property isBasedOnElementaryFlowType = property("isBasedOnElementaryFlowType");
     public static final Property hasPositionAsDimensionForSomeKeyword = property("hasPositionAsDimensionForSomeKeyword");
-    public static final Property providesPositionToKeyword = property("providesPositionToKeyword");
+    public static final Property providesPositionToKeywordInSomeDimension = property("providesPositionToKeywordInSomeDimension");
     public static final Property position = property("position");
     public static final Property hasRelationType = property("hasRelationType");
     public static final Property isDerivedFrom = property("isDerivedFrom");
