@@ -165,6 +165,10 @@ public class Group
         element.addGroup(this);
     }
 
+    public boolean hasElement(SingleElement element) {
+        return getElements().contains(element);
+    }
+
     public HashSet<Group> getOverlappingGroups() {
         return overlappingGroups;
     }

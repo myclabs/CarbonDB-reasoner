@@ -61,6 +61,9 @@ public class TranslationDerivative {
             sourceRelation.getSource().addElement(source);
             CarbonOntology.getInstance().addProcess(source);
         }
+        if (!sourceRelation.getSource().hasElement(source)) {
+            sourceRelation.getSource().addElement(source);
+        }
         try  {
             destination = CarbonOntology.getInstance().findProcess(destinationKeywords, sourceRelation.getDestination().getUnit());
         }
@@ -68,6 +71,9 @@ public class TranslationDerivative {
             destination = new Process(destinationKeywords, sourceRelation.getDestination().getUnit());
             sourceRelation.getDestination().addElement(destination);
             CarbonOntology.getInstance().addProcess(destination);
+        }
+        if (!sourceRelation.getDestination().hasElement(destination)) {
+            sourceRelation.getDestination().addElement(destination);
         }
         return new DerivedRelation(
                 source,
