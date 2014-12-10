@@ -72,6 +72,9 @@ public class SourceRelation {
             throw new IncompatibleDimSetException("The coeff group and the destination group are incompatible "
                                                   + "in the source relation: " + id);
         }
+        // The multiplication should be source.getUnit * coeff.getUnit isCompatibleWith destination.getUnit
+        // but the (groups of) processes units are at power (-1), thus the easiest way to test for units
+        // compatibility is with the following operation:
         if (!source.getUnit().isCompatible(destination.getUnit().multiply(coeff.getUnit(), exponent))) {
             throw new IncompatibleUnitsException("The units are incompatible "
                                                  + "in the source relation: " + id);

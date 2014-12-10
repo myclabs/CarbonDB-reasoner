@@ -91,6 +91,11 @@ public class UnitToolsWebService implements UnitTools {
             if (response.getStatus() == 200) {
                 compatibleUnitsCache.get(unitID1).put(unitID2, Boolean.parseBoolean(result));
             }
+            else {
+                log.warn("Unable to find unit compatibility with unitID1: " + unitID1 + " and unitID2: " + unitID2
+                         + " - units are considered incompatibles");
+                compatibleUnitsCache.get(unitID1).put(unitID2, false);
+            }
         }
         return compatibleUnitsCache.get(unitID1).get(unitID2);
     }
