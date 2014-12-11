@@ -33,7 +33,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 
 public class Datatype {
 
-    protected static final String uri ="http://www.myc-sense.com/ontologies/bc#";
+    protected static final String uri ="http://www.carbondb.org/#";
 
     /** returns the URI for this schema
      *  @return the URI for this schema
