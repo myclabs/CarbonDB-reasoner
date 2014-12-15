@@ -119,8 +119,9 @@ public class UnitToolsWebService implements UnitTools {
         return unit;
     }
 
-    public String getUnitSymbol(String ref)
+    public String getUnitSymbol(Unit unit)
     {
+        String ref = unit.getRef();
         if (!symbolsCache.containsKey(ref)) {
             log.debug("fetching symbol for " + ref);
             Response response = buildBaseWebTarget()
@@ -134,7 +135,7 @@ public class UnitToolsWebService implements UnitTools {
                 if (obj.getJSONObject("symbol").isNull("en")
                         || obj.getJSONObject("symbol").get("en").toString().equals("null")
                         ) {
-                    symbolsCache.put(ref, ref);
+                    symbolsCache.put(ref, unit.getId().replace("u/", ""));
                 }
                 else {
                     symbolsCache.put(ref, obj.getJSONObject("symbol").getString("en"));

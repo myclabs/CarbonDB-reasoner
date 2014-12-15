@@ -69,7 +69,7 @@ public class Unit {
 
     public String getSymbol() {
         if (null == symbol) {
-            symbol = unitTools.getUnitSymbol(ref);
+            symbol = unitTools.getUnitSymbol(this);
         }
         return symbol;
     }
