@@ -26,6 +26,7 @@ public class Type {
     protected String id;
     protected String label;
     protected Unit unit;
+    protected Category category;
 
     public Type(String id, String label, Unit unit) {
         this.id = id;
@@ -55,5 +56,13 @@ public class Type {
 
     public void setUnit(Unit unit) {
         this.unit = unit;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

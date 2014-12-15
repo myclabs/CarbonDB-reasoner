@@ -78,6 +78,7 @@ public class TypeRepo extends AbstractRepo {
                 );
                 type.setComponents(getComponentsForImpact(resource));
                 category.addChild(type);
+                type.setCategory(category);
             }
         }
 
@@ -141,6 +142,7 @@ public class TypeRepo extends AbstractRepo {
                         categoryUnit
                 );
                 category.addChild(type);
+                type.setCategory(category);
             }
         }
 
