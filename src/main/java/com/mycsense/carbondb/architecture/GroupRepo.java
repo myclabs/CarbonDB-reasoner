@@ -34,6 +34,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+import com.mycsense.carbondb.MalformedOntologyException;
 import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.DimensionSet;
@@ -44,20 +45,16 @@ import com.mycsense.carbondb.domain.group.Type;
 import java.util.HashMap;
 
 public class GroupRepo extends AbstractRepo {
-    protected HashMap<String, Group> groupCache;
 
     public GroupRepo(Model model) {
         super(model);
-        groupCache = new HashMap<>();
     }
 
-    public HashMap<String, Group> getProcessGroups()
-    {
+    public HashMap<String, Group> getProcessGroups() {
         return getGroups(Datatype.ProcessGroup);
     }
 
-    public HashMap<String, Group> getCoefficientGroups()
-    {
+    public HashMap<String, Group> getCoefficientGroups() {
         return getGroups(Datatype.CoefficientGroup);
     }
 
@@ -65,8 +62,7 @@ public class GroupRepo extends AbstractRepo {
         return getGroups(Datatype.Group);
     }
 
-    protected HashMap<String, Group> getGroups(Resource groupType)
-    {
+    protected HashMap<String, Group> getGroups(Resource groupType) {
         HashMap<String, Group> groups = new HashMap<>();
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, groupType);
@@ -74,32 +70,37 @@ public class GroupRepo extends AbstractRepo {
             Resource resource = i.next();
             try {
                 groups.put(getId(resource), getGroup(resource));
-            } catch (NoUnitException e) {
-                log.warn(e.getMessage());
+            }
+            catch (NoUnitException | MalformedOntologyException e) {
+                log.error("Unable to load group " + resource.getURI() + ": " + e.getMessage());
             }
         }
 
         return groups;
     }
 
-    public Group getGroup(Resource groupResource) throws NoUnitException {
-        if (!groupCache.containsKey(groupResource.getURI())) {
-            Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
-            group.setLabel(getLabelOrURI(groupResource));
-            group.setId(getId(groupResource));
-            group.setUnit(RepoFactory.getUnitsRepo().getUnit(groupResource));
-            group.setType(groupResource.hasProperty(RDF.type, Datatype.ProcessGroup) ? Type.PROCESS : Type.COEFFICIENT);
-            if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
-                group.setComment(groupResource.getProperty(RDFS.comment).getString());
-            }
-            group.setReferences(RepoFactory.getReferenceRepo().getReferencesForResource(groupResource));
-            groupCache.put(groupResource.getURI(), group);
+    protected Group getGroup(Resource groupResource) throws NoUnitException, MalformedOntologyException {
+        Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
+        group.setLabel(getLabelOrURI(groupResource));
+        group.setId(getId(groupResource));
+        group.setUnit(RepoFactory.getUnitsRepo().getUnit(groupResource));
+        if (groupResource.hasProperty(RDF.type, Datatype.ProcessGroup)) {
+            group.setType(Type.PROCESS);
         }
-        return groupCache.get(groupResource.getURI());
+        else if (groupResource.hasProperty(RDF.type, Datatype.CoefficientGroup)) {
+            group.setType(Type.COEFFICIENT);
+        }
+        else {
+            throw new MalformedOntologyException("The group " + groupResource.getURI() + " type is not correct");
+        }
+        if (groupResource.hasProperty(RDFS.comment) && groupResource.getProperty(RDFS.comment) != null) {
+            group.setComment(groupResource.getProperty(RDFS.comment).getString());
+        }
+        group.setReferences(RepoFactory.getReferenceRepo().getReferencesForResource(groupResource));
+        return group;
     }
 
-    protected DimensionSet getGroupDimSet(Resource groupResource)
-    {
+    protected DimensionSet getGroupDimSet(Resource groupResource) {
         Selector selector = new SimpleSelector(groupResource, Datatype.hasDimension, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
@@ -109,18 +110,19 @@ public class GroupRepo extends AbstractRepo {
                 Statement s = iter.nextStatement();
                 Resource dimensionResource = s.getObject().asResource();
                 Dimension dim = getDimensionKeywords(dimensionResource);
-                if (groupResource.hasProperty(Datatype.hasHorizontalDimension, dimensionResource))
+                if (groupResource.hasProperty(Datatype.hasHorizontalDimension, dimensionResource)) {
                     dim.setOrientation(Orientation.HORIZONTAL);
-                else if (groupResource.hasProperty(Datatype.hasVerticalDimension, dimensionResource))
+                }
+                else if (groupResource.hasProperty(Datatype.hasVerticalDimension, dimensionResource)) {
                     dim.setOrientation(Orientation.VERTICAL);
+                }
                 dimSet.add(dim);
             }
         }
         return dimSet;
     }
 
-    protected Dimension getGroupCommonKeywords(Resource groupResource)
-    {
+    protected Dimension getGroupCommonKeywords(Resource groupResource) {
         Selector selector = new SimpleSelector(groupResource, Datatype.hasCommonTag, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
@@ -134,8 +136,7 @@ public class GroupRepo extends AbstractRepo {
         return dim;
     }
 
-    protected Dimension getDimensionKeywords(Resource dimensionResource)
-    {
+    protected Dimension getDimensionKeywords(Resource dimensionResource) {
         Selector selector = new SimpleSelector(dimensionResource, Datatype.containsKeyword, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 

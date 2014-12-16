@@ -229,6 +229,9 @@ public final class CarbonOntology {
     }
 
     public Group getCoefficientGroup(String id) {
+        if (!coefficientGroups.containsKey(id)) {
+
+        }
         return coefficientGroups.get(id);
     }
 

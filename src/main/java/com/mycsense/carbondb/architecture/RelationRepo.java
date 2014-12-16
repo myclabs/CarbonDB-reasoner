@@ -33,6 +33,8 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+import com.mycsense.carbondb.MalformedOntologyException;
+import com.mycsense.carbondb.NotFoundException;
 import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.RelationType;
 import com.mycsense.carbondb.domain.SourceRelation;
@@ -58,38 +60,56 @@ public class RelationRepo  extends AbstractRepo {
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.SourceRelation);
         while (i.hasNext()) {
             Resource relationResource = i.next();
-            sourceRelations.put(getId(relationResource), getSourceRelation(relationResource));
+            try {
+                sourceRelations.put(getId(relationResource), getSourceRelation(relationResource));
+            } catch (NotFoundException | MalformedOntologyException e) {
+                log.error("Unable to load source relation " + relationResource.getURI() + ": " + e.getMessage());
+            }
         }
 
         return sourceRelations;
     }
 
-    public SourceRelation getSourceRelation(Resource sourceRelationResource) {
-        if (!sourceRelationsCache.containsKey(sourceRelationResource.getURI())) {
-            String originId = getId(sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource());
-            String coeffId = getId(sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource());
-            String destinationId = getId(sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource());
-            SourceRelation sourceRelation = new SourceRelation(
-                    CarbonOntology.getInstance().getProcessGroup(getId(originId)),
-                    CarbonOntology.getInstance().getCoefficientGroup(getId(coeffId)),
-                    CarbonOntology.getInstance().getProcessGroup(getId(destinationId))
-            );
-            sourceRelation.setId(getId(sourceRelationResource));
-            if (sourceRelationResource.hasProperty(Datatype.hasRelationType)
-                    && sourceRelationResource.getProperty(Datatype.hasRelationType) != null
-                    ) {
-                sourceRelation.setType(getRelationType(sourceRelationResource.getProperty(Datatype.hasRelationType).getResource()));
-            } else {
-                log.warn("The source relation " + sourceRelationResource.getURI() + " has no type");
-            }
-            if (sourceRelationResource.hasProperty(Datatype.exponent)
-                    && null != sourceRelationResource.getProperty(Datatype.exponent)
-                    ) {
-                sourceRelation.setExponent(sourceRelationResource.getProperty(Datatype.exponent).getInt());
-            }
-            sourceRelationsCache.put(sourceRelationResource.getURI(), sourceRelation);
+    protected SourceRelation getSourceRelation(Resource sourceRelationResource) throws NotFoundException, MalformedOntologyException {
+        if (!sourceRelationResource.hasProperty(Datatype.hasOriginProcess)
+            || sourceRelationResource.getProperty(Datatype.hasOriginProcess) == null
+        ) {
+            throw new MalformedOntologyException("Missing " + Datatype.hasOriginProcess + " property");
         }
-        return sourceRelationsCache.get(sourceRelationResource.getURI());
+        if (!sourceRelationResource.hasProperty(Datatype.hasWeightCoefficient)
+            || sourceRelationResource.getProperty(Datatype.hasWeightCoefficient) == null
+        ) {
+            throw new MalformedOntologyException("Missing " + Datatype.hasWeightCoefficient + " property");
+        }
+        if (!sourceRelationResource.hasProperty(Datatype.hasDestinationProcess)
+            || sourceRelationResource.getProperty(Datatype.hasDestinationProcess) == null
+        ) {
+            throw new MalformedOntologyException("Missing " + Datatype.hasDestinationProcess + " property");
+        }
+        String originId = getId(sourceRelationResource.getProperty(Datatype.hasOriginProcess).getResource());
+        String coeffId = getId(sourceRelationResource.getProperty(Datatype.hasWeightCoefficient).getResource());
+        String destinationId = getId(sourceRelationResource.getProperty(Datatype.hasDestinationProcess).getResource());
+        SourceRelation sourceRelation = new SourceRelation(
+                CarbonOntology.getInstance().getProcessGroup(getId(originId)),
+                CarbonOntology.getInstance().getCoefficientGroup(getId(coeffId)),
+                CarbonOntology.getInstance().getProcessGroup(getId(destinationId))
+        );
+        sourceRelation.setId(getId(sourceRelationResource));
+        if (!sourceRelationResource.hasProperty(Datatype.hasRelationType)
+            || sourceRelationResource.getProperty(Datatype.hasRelationType) == null
+        ) {
+            throw new MalformedOntologyException("Missing " + Datatype.hasRelationType + " property");
+        }
+        sourceRelation.setType(getRelationType(sourceRelationResource.getProperty(Datatype.hasRelationType).getResource()));
+        if (!sourceRelationResource.hasProperty(Datatype.exponent)
+            || sourceRelationResource.getProperty(Datatype.exponent) == null
+        ) {
+            log.warn("The source relation " + sourceRelationResource.getURI() + " has no exponent, using default value 1.0");
+        }
+        else {
+            sourceRelation.setExponent(sourceRelationResource.getProperty(Datatype.exponent).getInt());
+        }
+        return sourceRelation;
     }
 
     public void addDerivedRelation(Resource sourceProcess, Resource coeff, Resource destinationProcess, int exponent, Resource sourceRelation)
@@ -122,15 +142,15 @@ public class RelationRepo  extends AbstractRepo {
     public RelationType getRelationType(Resource relationTypeResource)
     {
         if (!relationTypesCache.containsKey(relationTypeResource.getURI())) {
-            String label = relationTypeResource.getProperty(RDFS.label).getString();
+            String label = getLabelOrURI(relationTypeResource);
             Type type = Type.SYNCHRONOUS;
             if (relationTypeResource.hasProperty(RDF.type, Datatype.Asynchronous)) {
                 type = Type.ASYNCHRONOUS;
             }
             RelationType relationType = new RelationType(getId(relationTypeResource), label, type);
             if (relationTypeResource.hasProperty(RDFS.comment)
-                    && relationTypeResource.getProperty(RDFS.comment) != null
-                    ) {
+                && relationTypeResource.getProperty(RDFS.comment) != null
+            ) {
                 relationType.setComment(relationTypeResource.getProperty(RDFS.comment).getString());
             }
             relationTypesCache.put(relationTypeResource.getURI(), relationType);
