@@ -26,6 +26,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.mycsense.carbondb.NotFoundException;
 import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.Category;
 
@@ -64,11 +65,18 @@ public class CategoryRepo extends AbstractRepo {
         i = model.listResourcesWithProperty(Datatype.belongsToCategoryOfGroup, categoryResource);
         while (i.hasNext()) {
             Resource groupResource = i.next();
-            if (groupResource.hasProperty(RDF.type, Datatype.ProcessGroup)) {
-                category.addChild(CarbonOntology.getInstance().getProcessGroup(getId(groupResource)));
+            try {
+                if (groupResource.hasProperty(RDF.type, Datatype.ProcessGroup)) {
+                    category.addChild(CarbonOntology.getInstance().getProcessGroup(getId(groupResource)));
+                } else if (groupResource.hasProperty(RDF.type, Datatype.CoefficientGroup)) {
+                    category.addChild(CarbonOntology.getInstance().getCoefficientGroup(getId(groupResource)));
+                } else {
+                    log.warn("The category " + categoryResource.getURI() + " has a child"
+                            + " which is not a process or a coefficient group: " + groupResource.getURI());
+                }
             }
-            else if (groupResource.hasProperty(RDF.type, Datatype.CoefficientGroup)) {
-                category.addChild(CarbonOntology.getInstance().getCoefficientGroup(getId(groupResource)));
+            catch (NotFoundException e) {
+                log.error(e.getMessage() + " for the category " + categoryResource.getURI());
             }
         }
 

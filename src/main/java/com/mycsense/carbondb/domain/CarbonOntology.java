@@ -213,7 +213,10 @@ public final class CarbonOntology {
         this.processGroups = processGroups;
     }
 
-    public Group getProcessGroup(String id) {
+    public Group getProcessGroup(String id) throws NotFoundException {
+        if (!processGroups.containsKey(id)) {
+            throw new NotFoundException("The process group " + id + " could not be found");
+        }
         return processGroups.get(id);
     }
 
