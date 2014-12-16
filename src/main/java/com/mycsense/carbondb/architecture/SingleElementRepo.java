@@ -34,6 +34,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 import com.mycsense.carbondb.AlreadyExistsException;
+import com.mycsense.carbondb.MalformedOntologyException;
 import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.NotFoundException;
 import com.mycsense.carbondb.domain.CarbonOntology;
@@ -70,7 +71,7 @@ public class SingleElementRepo extends AbstractRepo {
         flowTypesCache = new HashMap<>();
     }
 
-    public Process getProcess(Resource processResource) throws NoUnitException {
+    protected Process getProcess(Resource processResource) throws NoUnitException, MalformedOntologyException {
         if (!processesCache.containsKey(processResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(processResource);
             Process process = new Process(getElementKeywords(processResource), unit);
@@ -82,7 +83,7 @@ public class SingleElementRepo extends AbstractRepo {
         return processesCache.get(processResource.getURI());
     }
 
-    public Coefficient getCoefficient(Resource coefficientResource) throws NoUnitException {
+    protected Coefficient getCoefficient(Resource coefficientResource) throws NoUnitException, MalformedOntologyException {
         if (!coefficientsCache.containsKey(coefficientResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(coefficientResource);
             Double conversionFactor = unit.getConversionFactor();
@@ -105,8 +106,8 @@ public class SingleElementRepo extends AbstractRepo {
             Resource resource = i.next();
             try {
                 processes.add(getProcess(resource));
-            } catch (NoUnitException e) {
-                log.warn(e.getMessage());
+            } catch (NoUnitException | MalformedOntologyException e) {
+                log.error(e.getMessage());
             }
         }
 
@@ -121,16 +122,15 @@ public class SingleElementRepo extends AbstractRepo {
             Resource resource = i.next();
             try {
                 coefficients.add(getCoefficient(resource));
-            } catch (NoUnitException e) {
-                log.warn(e.getMessage());
+            } catch (NoUnitException | MalformedOntologyException e) {
+                log.error(e.getMessage());
             }
         }
 
         return coefficients;
     }
 
-    protected Dimension getElementKeywords(Resource elementResource)
-    {
+    protected Dimension getElementKeywords(Resource elementResource) throws MalformedOntologyException {
         Selector selector = new SimpleSelector(elementResource, Datatype.hasTag, (RDFNode) null);
         StmtIterator iter = model.listStatements(selector);
 
@@ -140,6 +140,9 @@ public class SingleElementRepo extends AbstractRepo {
                 Statement s = iter.nextStatement();
                 dim.add(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
             }
+        }
+        else {
+            throw new MalformedOntologyException("The element " + elementResource + " has no keyword");
         }
         return dim;
     }
