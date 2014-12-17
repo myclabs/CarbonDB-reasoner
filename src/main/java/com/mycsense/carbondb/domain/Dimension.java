@@ -32,8 +32,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import com.mycsense.carbondb.domain.dimension.Orientation;
 
-public class Dimension
-{
+public class Dimension {
     protected String id;
     public TreeSet<Keyword> keywords;
     public HashMap<Integer, String> keywordsPosition;
@@ -89,10 +88,6 @@ public class Dimension
 
     public boolean isEmpty() {
         return keywords.isEmpty();
-    }
-
-    public Object[] toArray() {
-        return keywords.toArray();
     }
 
     @Override

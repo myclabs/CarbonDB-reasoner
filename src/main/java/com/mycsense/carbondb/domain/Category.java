@@ -24,8 +24,7 @@ package com.mycsense.carbondb.domain;
 
 import java.util.ArrayList;
 
-public class Category
-{
+public class Category {
     protected String id;
     protected String label;
     protected ArrayList<Object> children = new ArrayList<>();

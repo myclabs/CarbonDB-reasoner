@@ -25,8 +25,7 @@ package com.mycsense.carbondb.domain;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Keyword implements Comparable<Keyword>
-{
+public class Keyword implements Comparable<Keyword> {
     protected String id;
     protected String label;
 

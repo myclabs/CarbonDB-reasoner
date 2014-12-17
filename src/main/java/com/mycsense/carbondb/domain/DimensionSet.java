@@ -33,8 +33,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * Dimensions inside a DimensionSet should not be modified
  * after they have been added to the dimensionSet
  */
-public class DimensionSet
-{
+public class DimensionSet {
     public HashSet<Dimension> dimensions;
 
     public DimensionSet() {

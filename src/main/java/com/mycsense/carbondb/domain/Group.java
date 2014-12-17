@@ -31,8 +31,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-public class Group
-{
+public class Group {
     protected DimensionSet dimSet;
     /**
      * Contains the dimension set and the common keywords
