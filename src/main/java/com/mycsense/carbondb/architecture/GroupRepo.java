@@ -23,7 +23,6 @@
 package com.mycsense.carbondb.architecture;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -58,10 +57,6 @@ public class GroupRepo extends AbstractRepo {
 
     public HashMap<String, Group> getCoefficientGroups() {
         return getGroups(Datatype.CoefficientGroup);
-    }
-
-    public HashMap<String, Group> getGroups() {
-        return getGroups(Datatype.Group);
     }
 
     protected HashMap<String, Group> getGroups(Resource groupType) {

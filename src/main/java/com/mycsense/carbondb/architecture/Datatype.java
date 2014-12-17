@@ -58,13 +58,10 @@ public class Datatype {
     public static final Resource SingleProcess = resource("SingleProcess");
     public static final Resource SingleCoefficient = resource("SingleCoefficient");
     public static final Resource CalculateElementaryFlow = resource("CalculatedElementaryFlow");
-    public static final Resource ElementaryFlowType = resource("ElementaryFlowType");
-    public static final Resource ImpactType = resource("ImpactType");
     public static final Resource Group = resource("Group");
     public static final Resource ProcessGroup = resource("ProcessGroup");
     public static final Resource CoefficientGroup = resource("CoefficientGroup");
     public static final Resource Impact = resource("Impact");
-    public static final Resource PositionOfKeywordInDimension = resource("PositionOfKeywordInDimension");
     public static final Resource RelationType = resource("RelationType");
     public static final Resource Asynchronous = resource("Asynchronous");
     public static final Resource Reference = resource("Reference");
@@ -91,7 +88,6 @@ public class Datatype {
     public static final Property hasElementaryFlowType = property("hasElementaryFlowType");
     public static final Property value = property("value");
     public static final Property uncertainty = property("uncertainty");
-    public static final Property involvesElement = property("involvesElement");
     public static final Property hasUnit = property("hasUnit");
     public static final Property foreignUnitID = property("foreignUnitID");
     public static final Property hasComponentOfImpactType = property("hasComponentOfImpactType");
