@@ -152,12 +152,18 @@ public class Reasoner {
 
     protected void checkOntology() {
         ontology = CarbonOntology.getInstance();
+        HashSet<String> unusedDimensions = new HashSet<>(ontology.getDimensions().keySet());
         for (Group group: ontology.getCoefficientGroups().values()) {
             if (group.getElements().size() == 0) {
                 log.warn("The coefficient group " + group.getId() + " does not contain any coefficient");
             }
             if (!group.hasCategory()) {
                 log.warn("The coefficient group " + group.getId() + " has no category");
+            }
+            for (Dimension dimension: group.getDimSet().dimensions) {
+                if (unusedDimensions.contains(dimension.getId())) {
+                    unusedDimensions.remove(dimension.getId());
+                }
             }
         }
         for (Group group: ontology.getProcessGroups().values()) {
@@ -166,6 +172,11 @@ public class Reasoner {
             }
             if (!group.hasCategory()) {
                 log.warn("The process group " + group.getId() + " has no category");
+            }
+            for (Dimension dimension: group.getDimSet().dimensions) {
+                if (unusedDimensions.contains(dimension.getId())) {
+                    unusedDimensions.remove(dimension.getId());
+                }
             }
         }
         for (Coefficient coefficient: ontology.getCoefficients()) {
@@ -182,6 +193,9 @@ public class Reasoner {
             if (sourceRelation.getDerivedRelations().size() == 0) {
                 log.warn("The source relation " + sourceRelation.getId() + " did not generate any derived relation");
             }
+        }
+        for (String dimensionId: unusedDimensions) {
+            log.warn("The dimension " + dimensionId + " is not used in any group");
         }
     }
 

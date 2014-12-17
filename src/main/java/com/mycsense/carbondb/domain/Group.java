@@ -77,11 +77,6 @@ public class Group {
         return dimSet;
     }
 
-    public void addDimension(Dimension dimension) {
-        dimSet.add(dimension);
-        fullDimSet.add(dimension);
-    }
-
     public TreeSet<Keyword> getCommonKeywords() {
         return commonKeywords;
     }
