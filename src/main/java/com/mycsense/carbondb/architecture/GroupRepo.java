@@ -34,6 +34,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+import com.mycsense.carbondb.EmptyDimensionException;
 import com.mycsense.carbondb.MalformedOntologyException;
 import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.UnrecogniedUnitException;
@@ -72,7 +73,9 @@ public class GroupRepo extends AbstractRepo {
             try {
                 groups.put(getId(resource), getGroup(resource));
             }
-            catch (NoUnitException | MalformedOntologyException | UnrecogniedUnitException e) {
+            catch (NoUnitException | MalformedOntologyException |
+                   UnrecogniedUnitException | EmptyDimensionException e
+            ) {
                 log.error("Unable to load group " + resource.getURI() + ": " + e.getMessage());
             }
         }
@@ -81,7 +84,7 @@ public class GroupRepo extends AbstractRepo {
     }
 
     protected Group getGroup(Resource groupResource)
-            throws NoUnitException, MalformedOntologyException, UnrecogniedUnitException {
+            throws NoUnitException, MalformedOntologyException, UnrecogniedUnitException, EmptyDimensionException {
         Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setId(getId(groupResource));
@@ -102,7 +105,7 @@ public class GroupRepo extends AbstractRepo {
         return group;
     }
 
-    protected DimensionSet getGroupDimSet(Resource groupResource) {
+    protected DimensionSet getGroupDimSet(Resource groupResource) throws EmptyDimensionException {
         Selector selector = new SimpleSelector(groupResource, Datatype.hasDimension, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
@@ -111,7 +114,7 @@ public class GroupRepo extends AbstractRepo {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
                 Resource dimensionResource = s.getObject().asResource();
-                Dimension dim = getDimensionKeywords(dimensionResource);
+                Dimension dim = RepoFactory.getDimensionRepo().getDimension(dimensionResource);
                 if (groupResource.hasProperty(Datatype.hasHorizontalDimension, dimensionResource)) {
                     dim.setOrientation(Orientation.HORIZONTAL);
                 }
@@ -136,37 +139,5 @@ public class GroupRepo extends AbstractRepo {
             }
         }
         return dim;
-    }
-
-    protected Dimension getDimensionKeywords(Resource dimensionResource) {
-        Selector selector = new SimpleSelector(dimensionResource, Datatype.containsKeyword, (RDFNode) null);
-        StmtIterator iter = model.listStatements( selector );
-
-        Dimension dim = new Dimension();
-        if (iter.hasNext()) {
-            while (iter.hasNext()) {
-                Statement s = iter.nextStatement();
-                dim.addKeyword(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
-            }
-        }
-        setKeywordsPositionForDimension(dimensionResource, dim);
-        return dim;
-    }
-
-    protected void setKeywordsPositionForDimension(Resource dimensionResource, Dimension dimension) {
-        NodeIterator i = model.listObjectsOfProperty(dimensionResource, Datatype.hasPositionAsDimensionForSomeKeyword);
-        while (i.hasNext()) {
-            Resource positionResource = i.next().asResource();
-            if (positionResource.hasProperty(Datatype.position)
-                && positionResource.getProperty(Datatype.position) != null
-                && positionResource.hasProperty(Datatype.providesPositionToKeywordInSomeDimension)
-                && positionResource.getProperty(Datatype.providesPositionToKeywordInSomeDimension) != null
-            ) {
-                dimension.addKeywordPosition(
-                        positionResource.getProperty(Datatype.position).getInt(),
-                        getId(positionResource.getPropertyResourceValue(Datatype.providesPositionToKeywordInSomeDimension))
-                );
-            }
-        }
     }
 }
