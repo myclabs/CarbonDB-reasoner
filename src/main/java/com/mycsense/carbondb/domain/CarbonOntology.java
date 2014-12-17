@@ -228,9 +228,9 @@ public final class CarbonOntology {
         this.coefficientGroups = coefficientGroups;
     }
 
-    public Group getCoefficientGroup(String id) {
+    public Group getCoefficientGroup(String id) throws NotFoundException {
         if (!coefficientGroups.containsKey(id)) {
-
+            throw new NotFoundException("The coefficient group " + id + " could not be found");
         }
         return coefficientGroups.get(id);
     }
