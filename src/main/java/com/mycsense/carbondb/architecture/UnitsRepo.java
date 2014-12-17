@@ -25,6 +25,7 @@ package com.mycsense.carbondb.architecture;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.mycsense.carbondb.NoUnitException;
+import com.mycsense.carbondb.UnrecogniedUnitException;
 import com.mycsense.carbondb.domain.Unit;
 
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public class UnitsRepo extends AbstractRepo {
         unitsCache = new HashMap<>();
     }
 
-    public Unit getUnit(Resource element) throws NoUnitException {
+    public Unit getUnit(Resource element) throws NoUnitException, UnrecogniedUnitException {
         if (element.hasProperty(Datatype.hasUnit) && null != element.getProperty(Datatype.hasUnit)) {
             Resource unitResource = element.getProperty(Datatype.hasUnit).getResource();
             String unitId = getId(unitResource);

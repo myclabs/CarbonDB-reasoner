@@ -20,13 +20,10 @@
  *
  */
 
-package com.mycsense.carbondb.domain;
+package com.mycsense.carbondb;
 
-import com.mycsense.carbondb.UnrecogniedUnitException;
-
-public interface UnitTools {
-    public Double getConversionFactor(Unit unit);
-    public boolean areCompatible(Unit unit1, Unit unit2);
-    public String getUnitsMultiplication(Unit unit1, Unit unit2, int exponent);
-    public String getUnitSymbol(Unit unit) throws UnrecogniedUnitException;
+public class UnrecogniedUnitException extends Throwable {
+    public UnrecogniedUnitException(String message) {
+        super(message);
+    }
 }

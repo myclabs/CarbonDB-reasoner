@@ -30,6 +30,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 import com.mycsense.carbondb.NoUnitException;
 import com.mycsense.carbondb.NotFoundException;
+import com.mycsense.carbondb.UnrecogniedUnitException;
 import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.ElementaryFlowType;
 import com.mycsense.carbondb.domain.ImpactType;
@@ -46,7 +47,7 @@ public class TypeRepo extends AbstractRepo {
     }
 
     public TypeCategory getImpactTypesTree() {
-        Unit defaultUnit = new Unit("u/one", "un");
+        Unit defaultUnit = new Unit("u/one", "one", "un");
         TypeCategory root = new TypeCategory(defaultUnit);
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfImpactType);
@@ -58,6 +59,10 @@ public class TypeRepo extends AbstractRepo {
             } catch (NoUnitException e) {
                 log.warn(e.getMessage() + " - using " + defaultUnit.getId() + " instead");
                 // @todo add default unit to the config
+                categoryUnit = defaultUnit;
+            } catch (UnrecogniedUnitException e) {
+                log.warn(e.getMessage() + " for the category " + categoryResource.getURI()
+                        + " - using " + defaultUnit.getId() + " instead");
                 categoryUnit = defaultUnit;
             }
             TypeCategory category = new TypeCategory(
@@ -111,7 +116,7 @@ public class TypeRepo extends AbstractRepo {
     }
 
     public TypeCategory getElementaryFlowTypesTree() {
-        Unit defaultUnit = new Unit("u/one", "un");
+        Unit defaultUnit = new Unit("u/one", "one", "un");
         TypeCategory root = new TypeCategory(defaultUnit);
 
         ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.CategoryOfElementaryFlowType);
@@ -123,6 +128,10 @@ public class TypeRepo extends AbstractRepo {
             } catch (NoUnitException e) {
                 log.warn(e.getMessage() + " - using " + defaultUnit.getId() + " instead");
                 // @todo add default unit to the config
+                categoryUnit = defaultUnit;
+            } catch (UnrecogniedUnitException e) {
+                log.warn(e.getMessage() + " for the category " + categoryResource.getURI()
+                         + " - using " + defaultUnit.getId() + " instead");
                 categoryUnit = defaultUnit;
             }
             TypeCategory category = new TypeCategory(

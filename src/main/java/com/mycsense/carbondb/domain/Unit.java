@@ -22,6 +22,7 @@
 
 package com.mycsense.carbondb.domain;
 
+import com.mycsense.carbondb.UnrecogniedUnitException;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -36,9 +37,10 @@ public class Unit {
         unitTools = pUnitTools;
     }
 
-    public Unit(String id, String ref) {
+    public Unit(String id, String ref) throws UnrecogniedUnitException {
         this.id = id;
         this.ref = ref;
+        symbol = unitTools.getUnitSymbol(this);
     }
 
     public Unit(String id, String symbol, String ref) {
@@ -52,7 +54,7 @@ public class Unit {
     }
 
     public Unit multiply(Unit unit, int exponent) {
-        return new Unit(null, unitTools.getUnitsMultiplication(this, unit, exponent));
+        return new Unit(null, null, unitTools.getUnitsMultiplication(this, unit, exponent));
     }
 
     public Double getConversionFactor() {
@@ -68,9 +70,6 @@ public class Unit {
     }
 
     public String getSymbol() {
-        if (null == symbol) {
-            symbol = unitTools.getUnitSymbol(this);
-        }
         return symbol;
     }
 
@@ -80,7 +79,7 @@ public class Unit {
 
     public String toString()
     {
-        return getSymbol();
+        return symbol;
     }
 
     public String getRef() {

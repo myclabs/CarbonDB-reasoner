@@ -33,10 +33,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-import com.mycsense.carbondb.AlreadyExistsException;
-import com.mycsense.carbondb.MalformedOntologyException;
-import com.mycsense.carbondb.NoUnitException;
-import com.mycsense.carbondb.NotFoundException;
+import com.mycsense.carbondb.*;
 import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.Coefficient;
 import com.mycsense.carbondb.domain.Dimension;
@@ -71,7 +68,8 @@ public class SingleElementRepo extends AbstractRepo {
         flowTypesCache = new HashMap<>();
     }
 
-    protected Process getProcess(Resource processResource) throws NoUnitException, MalformedOntologyException {
+    protected Process getProcess(Resource processResource)
+            throws NoUnitException, MalformedOntologyException, UnrecogniedUnitException {
         if (!processesCache.containsKey(processResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(processResource);
             Process process = new Process(getElementKeywords(processResource), unit);
@@ -83,10 +81,10 @@ public class SingleElementRepo extends AbstractRepo {
         return processesCache.get(processResource.getURI());
     }
 
-    protected Coefficient getCoefficient(Resource coefficientResource) throws NoUnitException, MalformedOntologyException {
+    protected Coefficient getCoefficient(Resource coefficientResource)
+            throws NoUnitException, MalformedOntologyException, UnrecogniedUnitException {
         if (!coefficientsCache.containsKey(coefficientResource.getURI())) {
             Unit unit = RepoFactory.unitsRepo.getUnit(coefficientResource);
-            Double conversionFactor = unit.getConversionFactor();
 
             Value value = new Value(
                     getValue(coefficientResource),
@@ -106,7 +104,7 @@ public class SingleElementRepo extends AbstractRepo {
             Resource resource = i.next();
             try {
                 processes.add(getProcess(resource));
-            } catch (NoUnitException | MalformedOntologyException e) {
+            } catch (NoUnitException | MalformedOntologyException | UnrecogniedUnitException e) {
                 log.error(e.getMessage());
             }
         }
@@ -122,7 +120,7 @@ public class SingleElementRepo extends AbstractRepo {
             Resource resource = i.next();
             try {
                 coefficients.add(getCoefficient(resource));
-            } catch (NoUnitException | MalformedOntologyException e) {
+            } catch (NoUnitException | MalformedOntologyException | UnrecogniedUnitException e) {
                 log.error(e.getMessage());
             }
         }

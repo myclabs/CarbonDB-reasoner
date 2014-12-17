@@ -36,6 +36,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 import com.mycsense.carbondb.MalformedOntologyException;
 import com.mycsense.carbondb.NoUnitException;
+import com.mycsense.carbondb.UnrecogniedUnitException;
 import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.DimensionSet;
 import com.mycsense.carbondb.domain.Group;
@@ -71,7 +72,7 @@ public class GroupRepo extends AbstractRepo {
             try {
                 groups.put(getId(resource), getGroup(resource));
             }
-            catch (NoUnitException | MalformedOntologyException e) {
+            catch (NoUnitException | MalformedOntologyException | UnrecogniedUnitException e) {
                 log.error("Unable to load group " + resource.getURI() + ": " + e.getMessage());
             }
         }
@@ -79,7 +80,8 @@ public class GroupRepo extends AbstractRepo {
         return groups;
     }
 
-    protected Group getGroup(Resource groupResource) throws NoUnitException, MalformedOntologyException {
+    protected Group getGroup(Resource groupResource)
+            throws NoUnitException, MalformedOntologyException, UnrecogniedUnitException {
         Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setId(getId(groupResource));

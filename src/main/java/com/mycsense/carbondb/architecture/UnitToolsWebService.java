@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
 
 import com.mycsense.carbondb.NotFoundException;
+import com.mycsense.carbondb.UnrecogniedUnitException;
 import com.mycsense.carbondb.domain.Unit;
 import com.mycsense.carbondb.domain.UnitTools;
 import org.json.JSONObject;
@@ -119,8 +120,7 @@ public class UnitToolsWebService implements UnitTools {
         return unit;
     }
 
-    public String getUnitSymbol(Unit unit)
-    {
+    public String getUnitSymbol(Unit unit) throws UnrecogniedUnitException {
         String ref = unit.getRef();
         if (!symbolsCache.containsKey(ref)) {
             log.debug("fetching symbol for " + ref);
@@ -133,8 +133,8 @@ public class UnitToolsWebService implements UnitTools {
                 String responseString = response.readEntity(String.class);
                 JSONObject obj = new JSONObject(responseString);
                 if (obj.getJSONObject("symbol").isNull("en")
-                        || obj.getJSONObject("symbol").get("en").toString().equals("null")
-                        ) {
+                    || obj.getJSONObject("symbol").get("en").toString().equals("null")
+                ) {
                     symbolsCache.put(ref, unit.getId().replace("u/", ""));
                 }
                 else {
@@ -142,7 +142,7 @@ public class UnitToolsWebService implements UnitTools {
                 }
             }
             else {
-                symbolsCache.put(ref, ref);
+                throw new UnrecogniedUnitException("The unit " + ref + " is not recognized by the unit web service");
             }
         }
         return symbolsCache.get(ref);
