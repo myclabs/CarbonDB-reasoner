@@ -44,6 +44,7 @@ import org.mockito.Mockito;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.TreeSet;
 
 /**
  * Unit test for SourceRelation.
@@ -362,7 +363,8 @@ public class SourceRelationTest
     {
         DimensionSet dimSet = new DimensionSet(dim12, dim34);
         Keyword commonKeyword = new Keyword("commonKw");
-        Dimension commonKeywords = new Dimension(commonKeyword);
+        TreeSet<Keyword> commonKeywords = new TreeSet<>();
+        commonKeywords.add(commonKeyword);
 
         Group upstreamGroup = new Group(dimSet, commonKeywords);
         Group coeffGroup = new Group(dimSet, commonKeywords);

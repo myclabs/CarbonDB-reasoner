@@ -40,10 +40,12 @@ import com.mycsense.carbondb.UnrecogniedUnitException;
 import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.DimensionSet;
 import com.mycsense.carbondb.domain.Group;
+import com.mycsense.carbondb.domain.Keyword;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.group.Type;
 
 import java.util.HashMap;
+import java.util.TreeSet;
 
 public class GroupRepo extends AbstractRepo {
 
@@ -122,17 +124,17 @@ public class GroupRepo extends AbstractRepo {
         return dimSet;
     }
 
-    protected Dimension getGroupCommonKeywords(Resource groupResource) {
+    protected TreeSet<Keyword> getGroupCommonKeywords(Resource groupResource) {
         Selector selector = new SimpleSelector(groupResource, Datatype.hasCommonTag, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
-        Dimension dim = new Dimension();
+        TreeSet<Keyword> keywords = new TreeSet<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                dim.addKeyword(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
+                keywords.add(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
             }
         }
-        return dim;
+        return keywords;
     }
 }

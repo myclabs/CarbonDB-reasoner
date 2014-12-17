@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 public class Group
 {
@@ -38,7 +39,7 @@ public class Group
      */
     protected DimensionSet fullDimSet;
     protected DimensionSet coordinates;
-    protected Dimension commonKeywords;
+    protected TreeSet<Keyword> commonKeywords;
     protected Type type = Type.PROCESS;
     protected HashSet<SingleElement> elements;
     protected HashSet<Group> overlappingGroups;
@@ -61,10 +62,10 @@ public class Group
     }
 
     public Group(DimensionSet dimSet) {
-        this(dimSet, new Dimension());
+        this(dimSet, new TreeSet<Keyword>());
     }
 
-    public Group(DimensionSet dimSet, Dimension commonKeywords) {
+    public Group(DimensionSet dimSet, TreeSet<Keyword> commonKeywords) {
         this.dimSet = dimSet;
         fullDimSet = new DimensionSet(dimSet);
         overlappingGroups = new HashSet<>();
@@ -82,18 +83,18 @@ public class Group
         fullDimSet.add(dimension);
     }
 
-    public Dimension getCommonKeywords() {
+    public TreeSet<Keyword> getCommonKeywords() {
         return commonKeywords;
     }
 
     public void addCommonKeyword(Keyword keyword) {
-        commonKeywords.addKeyword(keyword);
+        commonKeywords.add(keyword);
         fullDimSet.add(new Dimension(keyword));
     }
 
-    public void setCommonKeywords(Dimension commonKeywords) {
-        this.commonKeywords = new Dimension();
-        for (Keyword keyword: commonKeywords.keywords) {
+    public void setCommonKeywords(TreeSet<Keyword> keywords) {
+        this.commonKeywords = new TreeSet<>();
+        for (Keyword keyword: keywords) {
             addCommonKeyword(keyword);
         }
     }
