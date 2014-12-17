@@ -48,6 +48,7 @@ public class Group
     protected String id;
     protected Unit unit;
     protected String comment;
+    protected Category category;
 
     protected ArrayList<Reference> references;
 
@@ -147,6 +148,18 @@ public class Group
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public boolean hasCategory() {
+        return null != category;
     }
 
     public DimensionSet getFullDimSet() {

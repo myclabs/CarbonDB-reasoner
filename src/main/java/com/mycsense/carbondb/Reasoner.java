@@ -31,17 +31,8 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.InfModel;
 
 import com.mycsense.carbondb.architecture.RepoFactory;
-import com.mycsense.carbondb.domain.CarbonOntology;
-import com.mycsense.carbondb.domain.Coefficient;
-import com.mycsense.carbondb.domain.DerivedRelation;
-import com.mycsense.carbondb.domain.ElementaryFlow;
-import com.mycsense.carbondb.domain.ElementaryFlowType;
-import com.mycsense.carbondb.domain.Impact;
-import com.mycsense.carbondb.domain.ImpactType;
+import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.Process;
-import com.mycsense.carbondb.domain.Reference;
-import com.mycsense.carbondb.domain.SourceRelation;
-import com.mycsense.carbondb.domain.Value;
 import com.mycsense.carbondb.domain.elementaryFlow.DataSource;
 import com.mycsense.carbondb.domain.relation.TranslationDerivative;
 
@@ -153,7 +144,45 @@ public class Reasoner {
             log.warn(e.getMessage());
         }
 
+        log.info("Checking the ontology");
+        checkOntology();
+
         log.info("Reasoning finished");
+    }
+
+    protected void checkOntology() {
+        ontology = CarbonOntology.getInstance();
+        for (Group group: ontology.getCoefficientGroups().values()) {
+            if (group.getElements().size() == 0) {
+                log.warn("The coefficient group " + group.getId() + " does not contain any coefficient");
+            }
+            if (!group.hasCategory()) {
+                log.warn("The coefficient group " + group.getId() + " has no category");
+            }
+        }
+        for (Group group: ontology.getProcessGroups().values()) {
+            if (group.getElements().size() == 0) {
+                log.warn("The process group " + group.getId() + " does not contain any coefficient");
+            }
+            if (!group.hasCategory()) {
+                log.warn("The process group " + group.getId() + " has no category");
+            }
+        }
+        for (Coefficient coefficient: ontology.getCoefficients()) {
+            if (coefficient.getGroups().size() == 0) {
+                log.warn("The coefficient " + coefficient.getId() + " is not referenced in any group");
+            }
+        }
+        for (Process process: ontology.getProcesses()) {
+            if (process.getGroups().size() == 0) {
+                log.warn("The process " + process.getId() + " is not referenced in any group");
+            }
+        }
+        for (SourceRelation sourceRelation: ontology.getSourceRelations().values()) {
+            if (sourceRelation.getDerivedRelations().size() == 0) {
+                log.warn("The source relation " + sourceRelation.getId() + " did not generate any derived relation");
+            }
+        }
     }
 
     protected void loadOntology() {

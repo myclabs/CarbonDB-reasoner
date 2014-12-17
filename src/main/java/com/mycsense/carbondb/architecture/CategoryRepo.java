@@ -26,9 +26,11 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.mycsense.carbondb.MalformedOntologyException;
 import com.mycsense.carbondb.NotFoundException;
 import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.Category;
+import com.mycsense.carbondb.domain.Group;
 
 public class CategoryRepo extends AbstractRepo {
 
@@ -66,17 +68,22 @@ public class CategoryRepo extends AbstractRepo {
         while (i.hasNext()) {
             Resource groupResource = i.next();
             try {
+                Group group;
                 if (groupResource.hasProperty(RDF.type, Datatype.ProcessGroup)) {
-                    category.addChild(CarbonOntology.getInstance().getProcessGroup(getId(groupResource)));
+                    group = CarbonOntology.getInstance().getProcessGroup(getId(groupResource));
                 } else if (groupResource.hasProperty(RDF.type, Datatype.CoefficientGroup)) {
-                    category.addChild(CarbonOntology.getInstance().getCoefficientGroup(getId(groupResource)));
+                    group = CarbonOntology.getInstance().getCoefficientGroup(getId(groupResource));
                 } else {
-                    log.warn("The category " + categoryResource.getURI() + " has a child"
+                    throw new MalformedOntologyException("The category " + categoryResource.getURI() + " has a child"
                             + " which is not a process or a coefficient group: " + groupResource.getURI());
                 }
+                category.addChild(group);
+                group.setCategory(category);
             }
             catch (NotFoundException e) {
                 log.error(e.getMessage() + " for the category " + categoryResource.getURI());
+            } catch (MalformedOntologyException e) {
+                log.error(e.getMessage());
             }
         }
 
