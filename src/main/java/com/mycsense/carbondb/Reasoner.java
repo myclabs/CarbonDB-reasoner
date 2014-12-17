@@ -208,6 +208,7 @@ public class Reasoner {
                 log.warn(e.getMessage());
             }
         }
+        ontology.setDimensions(RepoFactory.getDimensionRepo().getDimensions());
         ontology.setProcessGroups(RepoFactory.getGroupRepo().getProcessGroups());
         ontology.setCoefficientGroups(RepoFactory.getGroupRepo().getCoefficientGroups());
         ontology.setSourceRelations(RepoFactory.getRelationRepo().getSourceRelations());

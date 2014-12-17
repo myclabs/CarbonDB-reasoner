@@ -30,13 +30,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import com.mycsense.carbondb.domain.dimension.Orientation;
-
 public class Dimension {
     protected String id;
     public TreeSet<Keyword> keywords;
     public HashMap<Integer, String> keywordsPosition;
-    public Orientation orientation = Orientation.NONE;
 
     public Dimension() {
         this("");
@@ -119,13 +116,5 @@ public class Dimension {
             }
         }
         return false;
-    }
-
-    public void setOrientation(Orientation orientation) {
-        this.orientation = orientation;
-    }
-
-    public Orientation getOrientation() {
-        return orientation;
     }
 }

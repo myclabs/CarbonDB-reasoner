@@ -33,14 +33,8 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-import com.mycsense.carbondb.EmptyDimensionException;
-import com.mycsense.carbondb.MalformedOntologyException;
-import com.mycsense.carbondb.NoUnitException;
-import com.mycsense.carbondb.UnrecogniedUnitException;
-import com.mycsense.carbondb.domain.Dimension;
-import com.mycsense.carbondb.domain.DimensionSet;
-import com.mycsense.carbondb.domain.Group;
-import com.mycsense.carbondb.domain.Keyword;
+import com.mycsense.carbondb.*;
+import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.dimension.Orientation;
 import com.mycsense.carbondb.domain.group.Type;
 
@@ -70,8 +64,8 @@ public class GroupRepo extends AbstractRepo {
             try {
                 groups.put(getId(resource), getGroup(resource));
             }
-            catch (NoUnitException | MalformedOntologyException |
-                   UnrecogniedUnitException | EmptyDimensionException e
+            catch (NoUnitException | MalformedOntologyException
+                   | UnrecogniedUnitException | EmptyDimensionException | NotFoundException e
             ) {
                 log.error("Unable to load group " + resource.getURI() + ": " + e.getMessage());
             }
@@ -81,7 +75,8 @@ public class GroupRepo extends AbstractRepo {
     }
 
     protected Group getGroup(Resource groupResource)
-            throws NoUnitException, MalformedOntologyException, UnrecogniedUnitException, EmptyDimensionException {
+            throws NoUnitException, MalformedOntologyException,
+                   UnrecogniedUnitException, EmptyDimensionException, NotFoundException {
         Group group = new Group(getGroupDimSet(groupResource), getGroupCommonKeywords(groupResource));
         group.setLabel(getLabelOrURI(groupResource));
         group.setId(getId(groupResource));
@@ -102,7 +97,7 @@ public class GroupRepo extends AbstractRepo {
         return group;
     }
 
-    protected DimensionSet getGroupDimSet(Resource groupResource) throws EmptyDimensionException {
+    protected DimensionSet getGroupDimSet(Resource groupResource) throws EmptyDimensionException, NotFoundException {
         Selector selector = new SimpleSelector(groupResource, Datatype.hasDimension, (RDFNode) null);
         StmtIterator iter = model.listStatements( selector );
 
@@ -111,14 +106,14 @@ public class GroupRepo extends AbstractRepo {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
                 Resource dimensionResource = s.getObject().asResource();
-                Dimension dim = RepoFactory.getDimensionRepo().getDimension(dimensionResource);
+                Dimension dim = CarbonOntology.getInstance().getDimension(getId(dimensionResource));
+                dimSet.add(dim);
                 if (groupResource.hasProperty(Datatype.hasHorizontalDimension, dimensionResource)) {
-                    dim.setOrientation(Orientation.HORIZONTAL);
+                    dimSet.setDimensionOrientation(dim, Orientation.HORIZONTAL);
                 }
                 else if (groupResource.hasProperty(Datatype.hasVerticalDimension, dimensionResource)) {
-                    dim.setOrientation(Orientation.VERTICAL);
+                    dimSet.setDimensionOrientation(dim, Orientation.VERTICAL);
                 }
-                dimSet.add(dim);
             }
         }
         return dimSet;

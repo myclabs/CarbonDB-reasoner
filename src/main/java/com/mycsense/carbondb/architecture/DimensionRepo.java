@@ -35,10 +35,10 @@ public class DimensionRepo extends AbstractRepo {
         super(model);
     }
 
-    protected HashMap<String, Dimension> getDimensions(Resource groupType) {
+    public HashMap<String, Dimension> getDimensions() {
         HashMap<String, Dimension> dimensions = new HashMap<>();
 
-        ResIterator i = model.listSubjectsWithProperty(RDF.type, groupType);
+        ResIterator i = model.listSubjectsWithProperty(RDF.type, Datatype.Dimension);
         while (i.hasNext()) {
             Resource resource = i.next();
             try {

@@ -277,13 +277,18 @@ public final class CarbonOntology {
         derivedRelations.add(derivedRelation);
     }
 
-    public void addDimension(Dimension dimension) throws AlreadyExistsException {
-        if (dimensions.containsKey(dimension.getId())) {
-            throw new AlreadyExistsException("The dimension " + dimension.getId() + " already exists");
-        }
+    public void setDimensions(HashMap<String, Dimension> dimensions) {
+        this.dimensions = dimensions;
     }
 
     public HashMap<String, Dimension> getDimensions() {
         return dimensions;
+    }
+
+    public Dimension getDimension(String id) throws NotFoundException {
+        if (!dimensions.containsKey(id)) {
+            throw new NotFoundException("The dimension " + id + " could not be found");
+        }
+        return dimensions.get(id);
     }
 }

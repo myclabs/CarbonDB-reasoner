@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import com.mycsense.carbondb.domain.dimension.Orientation;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -35,18 +36,20 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class DimensionSet {
     public HashSet<Dimension> dimensions;
+    public HashMap<String, Orientation> dimensionOrientations;
 
     public DimensionSet() {
         dimensions = new HashSet<>();
+        dimensionOrientations = new HashMap<>();
     }
 
     public DimensionSet(Dimension... dimensions) {
-        this.dimensions = new HashSet<>();
+        this();
         Collections.addAll(this.dimensions, dimensions);
     }
 
     public DimensionSet(DimensionSet dimSet) {
-        dimensions = new HashSet<>();
+        this();
         for (Dimension dim: dimSet.dimensions) {
             dimensions.add(dim);
         }
@@ -74,6 +77,21 @@ public class DimensionSet {
 
     public Object[] toArray() {
         return dimensions.toArray();
+    }
+
+    public void setDimensionOrientation(Dimension dimension, Orientation orientation) {
+        dimensionOrientations.put(dimension.getId(), orientation);
+    }
+
+    public Orientation getDimensionOrientation(Dimension dimension) {
+        return getDimensionOrientation(dimension.getId());
+    }
+
+    public Orientation getDimensionOrientation(String id) {
+        if (dimensionOrientations.containsKey(id)) {
+            return dimensionOrientations.get(id);
+        }
+        return Orientation.NONE;
     }
 
     @Override
