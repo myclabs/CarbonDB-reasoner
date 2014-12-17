@@ -26,6 +26,7 @@ import com.mycsense.carbondb.AlreadyExistsException;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 public class Process extends SingleElement {
     protected HashMap<String, Impact> impacts;
@@ -34,7 +35,7 @@ public class Process extends SingleElement {
     protected HashSet<DerivedRelation> downstreamDerivedRelations;
     protected HashSet<DerivedRelation> upstreamDerivedRelations;
 
-    public Process(Dimension keywords, Unit unit) {
+    public Process(TreeSet<Keyword> keywords, Unit unit) {
         super(keywords, unit);
         impacts = new HashMap<>();
         inputFlows = new HashMap<>();

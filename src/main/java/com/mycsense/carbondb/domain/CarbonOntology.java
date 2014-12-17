@@ -50,18 +50,12 @@ public final class CarbonOntology {
     protected HashMap<String, ImpactType> impactTypes;
     protected HashSet<RelationType> relationTypes;
 
+    protected HashMap<String, Dimension> dimensions;
+
     protected HashSet<Reference> references;
 
     private CarbonOntology() {
-        processGroups = new HashMap<>();
-        coefficientGroups = new HashMap<>();
-        processes = new HashSet<>();
-        coefficients = new HashSet<>();
-        references = new HashSet<>();
-        sourceRelations = new HashMap<>();
-        derivedRelations = new ArrayList<>();
-        elementaryFlowTypes = new HashMap<>();
-        impactTypes = new HashMap<>();
+        clear();
     }
 
     public static CarbonOntology getInstance() {
@@ -85,10 +79,11 @@ public final class CarbonOntology {
         derivedRelations = new ArrayList<>();
         elementaryFlowTypes = new HashMap<>();
         impactTypes = new HashMap<>();
+        dimensions = new HashMap<>();
     }
 
     public Coefficient findCoefficient(Dimension keywords, Unit unit) throws NoElementFoundException {
-        Coefficient temporaryCoefficient = new Coefficient(keywords, unit, new Value(0.0,0.0));
+        Coefficient temporaryCoefficient = new Coefficient(keywords.keywords, unit, new Value(0.0,0.0));
         if (coefficients.contains(temporaryCoefficient)) {
             for (Coefficient coefficient: coefficients) {
                 if (coefficient.equals(temporaryCoefficient)) {
@@ -100,7 +95,7 @@ public final class CarbonOntology {
     }
 
     public Process findProcess(Dimension keywords, Unit unit) throws NoElementFoundException {
-        Process temporaryProcess = new Process(keywords, unit);
+        Process temporaryProcess = new Process(keywords.keywords, unit);
         if (processes.contains(temporaryProcess)) {
             for (Process process: processes) {
                 if (process.equals(temporaryProcess)) {
@@ -280,5 +275,15 @@ public final class CarbonOntology {
 
     public void addDerivedRelation(DerivedRelation derivedRelation) {
         derivedRelations.add(derivedRelation);
+    }
+
+    public void addDimension(Dimension dimension) throws AlreadyExistsException {
+        if (dimensions.containsKey(dimension.getId())) {
+            throw new AlreadyExistsException("The dimension " + dimension.getId() + " already exists");
+        }
+    }
+
+    public HashMap<String, Dimension> getDimensions() {
+        return dimensions;
     }
 }

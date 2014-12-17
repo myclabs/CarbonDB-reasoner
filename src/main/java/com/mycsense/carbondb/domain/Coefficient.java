@@ -23,10 +23,17 @@
 package com.mycsense.carbondb.domain;
 
 import java.util.HashSet;
+import java.util.TreeSet;
 
 public class Coefficient extends SingleElement {
     protected Value value;
     protected HashSet<DerivedRelation> derivedRelations;
+
+    public Coefficient(TreeSet<Keyword> keywords, Unit unit, Value value) {
+        super(keywords, unit);
+        this.value = value;
+        derivedRelations = new HashSet<>();
+    }
 
     public Coefficient(Dimension keywords, Unit unit, Value value) {
         super(keywords, unit);

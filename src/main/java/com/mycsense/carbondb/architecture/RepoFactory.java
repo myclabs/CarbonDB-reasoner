@@ -32,6 +32,7 @@ public class RepoFactory {
     protected static ReferenceRepo referenceRepo;
     protected static UnitsRepo unitsRepo;
     protected static TypeRepo typeRepo;
+    protected static DimensionRepo dimensionRepo;
     protected static KeywordRepo keywordRepo;
     protected static Model model;
 
@@ -53,6 +54,7 @@ public class RepoFactory {
         referenceRepo = null;
         unitsRepo = null;
         typeRepo = null;
+        dimensionRepo = null;
         keywordRepo = null;
     }
 
@@ -103,6 +105,13 @@ public class RepoFactory {
         if (null == typeRepo)
             typeRepo = new TypeRepo(model);
         return typeRepo;
+    }
+
+    public static DimensionRepo getDimensionRepo() {
+        checkProperlyInitialized();
+        if (null == dimensionRepo)
+            dimensionRepo = new DimensionRepo(model);
+        return dimensionRepo;
     }
 
     public static KeywordRepo getKeywordRepo() {

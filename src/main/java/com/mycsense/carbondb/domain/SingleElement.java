@@ -26,9 +26,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.HashSet;
+import java.util.TreeSet;
 
 public abstract class SingleElement {
-    public Dimension keywords;
+    public TreeSet<Keyword> keywords;
 
     protected String id;
     protected Unit unit;
@@ -36,11 +37,17 @@ public abstract class SingleElement {
     protected HashSet<Group> groups;
 
     public SingleElement() {
-        keywords = new Dimension();
+        keywords = new TreeSet<>();
     }
 
     public SingleElement(Dimension keywords, Unit unit) {
-        this.keywords = new Dimension(keywords);
+        this.keywords = new TreeSet<>(keywords.keywords);
+        this.unit = unit;
+        groups = new HashSet<>();
+    }
+
+    public SingleElement(TreeSet<Keyword> keywords, Unit unit) {
+        this.keywords = new TreeSet<>(keywords);
         this.unit = unit;
         groups = new HashSet<>();
     }
@@ -53,7 +60,7 @@ public abstract class SingleElement {
             else {
                 id = "sc/";
             }
-            for (Keyword keyword : keywords.keywords) {
+            for (Keyword keyword : keywords) {
                 id += keyword.getId().replace("k/", "") + "+";
             }
             id += unit.getId().replace("u/", "");
@@ -77,7 +84,7 @@ public abstract class SingleElement {
         return keywords + " ("+ unit.getSymbol() +" )";
     }
 
-    public Dimension getKeywords() {
+    public TreeSet<Keyword> getKeywords() {
         return keywords;
     }
 

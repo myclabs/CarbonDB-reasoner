@@ -132,7 +132,7 @@ public class GroupRepo extends AbstractRepo {
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                dim.add(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
+                dim.addKeyword(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
             }
         }
         return dim;
@@ -146,7 +146,7 @@ public class GroupRepo extends AbstractRepo {
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                dim.add(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
+                dim.addKeyword(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
             }
         }
         setKeywordsPositionForDimension(dimensionResource, dim);

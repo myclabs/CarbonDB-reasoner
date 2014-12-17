@@ -36,7 +36,6 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import com.mycsense.carbondb.*;
 import com.mycsense.carbondb.domain.CarbonOntology;
 import com.mycsense.carbondb.domain.Coefficient;
-import com.mycsense.carbondb.domain.Dimension;
 import com.mycsense.carbondb.domain.ElementaryFlow;
 import com.mycsense.carbondb.domain.ElementaryFlowType;
 import com.mycsense.carbondb.domain.Impact;
@@ -48,6 +47,7 @@ import com.mycsense.carbondb.domain.Value;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 public class SingleElementRepo extends AbstractRepo {
 
@@ -128,21 +128,21 @@ public class SingleElementRepo extends AbstractRepo {
         return coefficients;
     }
 
-    protected Dimension getElementKeywords(Resource elementResource) throws MalformedOntologyException {
+    protected TreeSet<Keyword> getElementKeywords(Resource elementResource) throws MalformedOntologyException {
         Selector selector = new SimpleSelector(elementResource, Datatype.hasTag, (RDFNode) null);
         StmtIterator iter = model.listStatements(selector);
 
-        Dimension dim = new Dimension();
+        TreeSet<Keyword> keywords = new TreeSet<>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
                 Statement s = iter.nextStatement();
-                dim.add(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
+                keywords.add(RepoFactory.getKeywordRepo().getKeyword(s.getObject().asResource()));
             }
         }
         else {
             throw new MalformedOntologyException("The element " + elementResource + " has no keyword");
         }
-        return dim;
+        return keywords;
     }
 
     protected HashMap<String, ElementaryFlow> getElementaryFlowsForProcess(Process process, Resource resource)
@@ -196,7 +196,7 @@ public class SingleElementRepo extends AbstractRepo {
         Resource processResource = model.createResource(Datatype.getURI() + "sp/" + process.getId())
                 .addProperty(RDF.type, Datatype.SingleProcess);
         processResource.addProperty(Datatype.hasUnit, model.createResource(process.getUnit().getId()));
-        for (Keyword keyword: process.getKeywords().keywords) {
+        for (Keyword keyword: process.getKeywords()) {
             Resource keywordResource = model.createResource(keyword.getId());
             processResource.addProperty(Datatype.hasTag, keywordResource);
         }

@@ -118,7 +118,7 @@ public class DimensionSet
         else {
             for (Keyword keyword: dimensions[index].keywords) {
                 for (Dimension dim: _getCombinations(index+1, dimensions).dimensions) {
-                    dim.add(keyword);
+                    dim.addKeyword(keyword);
                     ret.add(dim);
                 }
             }
@@ -134,7 +134,7 @@ public class DimensionSet
         for (Dimension dimension: dimensions) {
             for (Keyword keyword: dimension.keywords) {
                 if (hashTableRhs.contains(keyword)) {
-                    commonKeywords.add(keyword);
+                    commonKeywords.addKeyword(keyword);
                 }
             }
         }
@@ -188,8 +188,8 @@ public class DimensionSet
             for (Keyword keyword: dimension.keywords) {
                 if (hashTableRhs.containsKey(keyword)) {
                     unusedDimsInRhs.remove(hashTableRhs.get(keyword));
-                    dimResultTemp.add(keyword);
-                    r.commonKeywords.add(keyword);
+                    dimResultTemp.addKeyword(keyword);
+                    r.commonKeywords.addKeyword(keyword);
                 }
             }
             if (dimResultTemp.isEmpty()) {
@@ -212,7 +212,7 @@ public class DimensionSet
         Dimension hashTable = new Dimension();
         for (Dimension dimension: dimensions) {
             for (Keyword keyword: dimension.keywords) {
-                hashTable.add(keyword);
+                hashTable.addKeyword(keyword);
             }
         }
         return hashTable;

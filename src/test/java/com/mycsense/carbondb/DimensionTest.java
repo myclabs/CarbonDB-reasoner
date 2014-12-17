@@ -115,8 +115,8 @@ public class DimensionTest
 
         assertTrue(dim1.equals(dim2));
 
-        dim1.add(kw2);
-        dim2.add(kw2);
+        dim1.addKeyword(kw2);
+        dim2.addKeyword(kw2);
         assertTrue(dim1.equals(dim2));
     }
 
@@ -130,7 +130,7 @@ public class DimensionTest
 
         assertFalse(dim1.equals(dim2));
 
-        dim2.add(kw1);
+        dim2.addKeyword(kw1);
         assertFalse(dim1.equals(dim2));
     }
 }

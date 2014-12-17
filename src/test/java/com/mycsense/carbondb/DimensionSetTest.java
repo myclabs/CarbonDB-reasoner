@@ -101,7 +101,7 @@ public class DimensionSetTest
         dimSet2.add(dim234);
         assertFalse(dimSet1.equals(dimSet2));
 
-        dim234.add(kw4);
+        dim234.addKeyword(kw4);
         assertFalse(dimSet1.equals(dimSet2));
     }
 
@@ -200,7 +200,7 @@ public class DimensionSetTest
         DimensionSet dimSet = new DimensionSet();
         dimSet.add(dim12);
         assertTrue(dimSet.contains(dim12));
-        dim12.add(kw3);
+        dim12.addKeyword(kw3);
         // The hashcode for the dimension has changed,
         // contains uses this hashcode
         // thus we cannot find our dimension in the dimSet

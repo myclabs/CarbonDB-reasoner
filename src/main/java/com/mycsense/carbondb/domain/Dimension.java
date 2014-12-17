@@ -34,30 +34,44 @@ import com.mycsense.carbondb.domain.dimension.Orientation;
 
 public class Dimension
 {
+    protected String id;
     public TreeSet<Keyword> keywords;
     public HashMap<Integer, String> keywordsPosition;
     public Orientation orientation = Orientation.NONE;
 
     public Dimension() {
+        this("");
+    }
+
+    public Dimension(String id) {
+        this.id = id;
         keywords = new TreeSet<>();
         keywordsPosition = new HashMap<>();
     }
 
     public Dimension(Keyword... pKeywords) {
-        keywords = new TreeSet<>();
-        keywordsPosition = new HashMap<>();
+        this();
         Collections.addAll(keywords, pKeywords);
     }
 
     public Dimension(Dimension dimension) {
+        this();
         keywords = new TreeSet<>(dimension.keywords);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int size() {
         return keywords.size();
     }
 
-    public boolean add(Keyword keyword) {
+    public boolean addKeyword(Keyword keyword) {
         return keywords.add(keyword);
     }
 

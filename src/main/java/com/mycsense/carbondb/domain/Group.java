@@ -87,7 +87,7 @@ public class Group
     }
 
     public void addCommonKeyword(Keyword keyword) {
-        commonKeywords.add(keyword);
+        commonKeywords.addKeyword(keyword);
         fullDimSet.add(new Dimension(keyword));
     }
 
