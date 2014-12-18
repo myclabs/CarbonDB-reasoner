@@ -204,7 +204,7 @@ public class Reasoner {
         ontology = CarbonOntology.getInstance();
         ontology.setElementaryFlowTypesTree(RepoFactory.getTypeRepo().getElementaryFlowTypesTree());
         ontology.setImpactTypesTree(RepoFactory.getTypeRepo().getImpactTypesTree());
-        ontology.setReferences(new HashSet<>(RepoFactory.getReferenceRepo().getReferences().values()));
+        ontology.setReferences(RepoFactory.getReferenceRepo().getReferences());
         ontology.setRelationTypes(RepoFactory.getRelationRepo().getRelationTypes());
         for (Process process: RepoFactory.getSingleElementRepo().getProcesses()) {
             try {

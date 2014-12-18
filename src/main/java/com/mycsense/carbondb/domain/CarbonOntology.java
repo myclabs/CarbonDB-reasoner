@@ -52,7 +52,7 @@ public final class CarbonOntology {
 
     protected HashMap<String, Dimension> dimensions;
 
-    protected HashSet<Reference> references;
+    protected HashMap<String, Reference> references;
 
     private CarbonOntology() {
         clear();
@@ -74,7 +74,7 @@ public final class CarbonOntology {
         coefficientGroups = new HashMap<>();
         processes = new HashSet<>();
         coefficients = new HashSet<>();
-        references = new HashSet<>();
+        references = new HashMap<>();
         sourceRelations = new HashMap<>();
         derivedRelations = new ArrayList<>();
         elementaryFlowTypes = new HashMap<>();
@@ -192,11 +192,18 @@ public final class CarbonOntology {
         this.relationTypes = relationTypes;
     }
 
-    public HashSet<Reference> getReferences() {
+    public HashMap<String, Reference> getReferences() {
         return references;
     }
 
-    public void setReferences(HashSet<Reference> references) {
+    public Reference getReference(String id) throws NotFoundException {
+        if (!references.containsKey(id)) {
+            throw new NotFoundException("The reference " + id + " could not be found");
+        }
+        return references.get(id);
+    }
+
+    public void setReferences(HashMap<String, Reference> references) {
         this.references = references;
     }
 

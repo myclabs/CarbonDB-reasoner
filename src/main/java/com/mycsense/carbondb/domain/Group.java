@@ -69,6 +69,7 @@ public class Group {
         fullDimSet = new DimensionSet(dimSet);
         overlappingGroups = new HashSet<>();
         sourceRelations = new HashSet<>();
+        comment = "";
         setCommonKeywords(commonKeywords);
         createCoordinates();
     }

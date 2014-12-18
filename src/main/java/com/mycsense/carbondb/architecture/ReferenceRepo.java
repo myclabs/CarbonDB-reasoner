@@ -69,7 +69,7 @@ public class ReferenceRepo extends AbstractRepo {
     }
 
     protected Reference getReference(Resource referenceResource) {
-        if (!refCache.containsKey(referenceResource.getURI())) {
+        if (!refCache.containsKey(getId(referenceResource.getURI()))) {
             String title = getStringForProperty(referenceResource, Datatype.title),
                    source = getStringForProperty(referenceResource, Datatype.source),
                    URL = getStringForProperty(referenceResource, Datatype.URL),
@@ -78,9 +78,9 @@ public class ReferenceRepo extends AbstractRepo {
                    date = getStringForProperty(referenceResource, Datatype.date),
                    shortName = getStringForProperty(referenceResource, Datatype.shortName);
 
-            refCache.put(referenceResource.getURI(), new Reference(title, source, URL, creator, publisher, date, getId(referenceResource), shortName));
+            refCache.put(getId(referenceResource.getURI()), new Reference(title, source, URL, creator, publisher, date, getId(referenceResource), shortName));
         }
-        return refCache.get(referenceResource.getURI());
+        return refCache.get(getId(referenceResource.getURI()));
     }
 
     protected String getStringForProperty(Resource resource, Property property) {
