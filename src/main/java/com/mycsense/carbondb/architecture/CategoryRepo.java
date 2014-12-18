@@ -78,7 +78,13 @@ public class CategoryRepo extends AbstractRepo {
                             + " which is not a process or a coefficient group: " + groupResource.getURI());
                 }
                 category.addChild(group);
-                group.setCategory(category);
+                if (group.hasCategory()) {
+                    log.warn("The group " + group.getId() + " is already in the category " + group.getCategory().getId()
+                             + " and cannot be added to the category " + category.getId());
+                }
+                else {
+                    group.setCategory(category);
+                }
             }
             catch (NotFoundException e) {
                 log.error(e.getMessage() + " for the category " + categoryResource.getURI());

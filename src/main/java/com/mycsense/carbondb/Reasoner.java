@@ -160,6 +160,9 @@ public class Reasoner {
             if (!group.hasCategory()) {
                 log.warn("The coefficient group " + group.getId() + " has no category");
             }
+            if (group.getSourceRelations().size() == 0) {
+                log.warn("The coefficient group " + group.getId() + " has no source relation");
+            }
             for (Dimension dimension: group.getDimSet().dimensions) {
                 if (unusedDimensions.contains(dimension.getId())) {
                     unusedDimensions.remove(dimension.getId());
@@ -187,6 +190,9 @@ public class Reasoner {
         for (Process process: ontology.getProcesses()) {
             if (process.getGroups().size() == 0) {
                 log.warn("The process " + process.getId() + " is not referenced in any group");
+            }
+            if (process.getCalculatedFlows().size() == 0) {
+                log.warn("The process " + process.getId() + " has no calculated elementary flow");
             }
         }
         for (SourceRelation sourceRelation: ontology.getSourceRelations().values()) {
