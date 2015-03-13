@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  *     </ul>
  * </p>
  * <p>
- *     During this workflow, all the inferred data are stored in the ontology residing in the memory.
+ *     During the execution of this workflow, all the inferred data are stored in the ontology residing in the memory.
  * </p>
  */
 public class Reasoner {
