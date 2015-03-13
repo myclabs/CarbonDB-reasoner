@@ -32,14 +32,7 @@ import com.hp.hpl.jena.rdf.model.InfModel;
 import com.mycsense.carbondb.architecture.RepoFactory;
 import com.mycsense.carbondb.domain.*;
 import com.mycsense.carbondb.domain.Process;
-import com.mycsense.carbondb.domain.elementaryFlow.DataSource;
 import com.mycsense.carbondb.domain.relation.TranslationDerivative;
-
-import org.la4j.matrix.sparse.CCSMatrix;
-import org.la4j.matrix.Matrix;
-import org.la4j.vector.Vector;
-import org.la4j.inversion.MatrixInverter;
-import org.la4j.LinearAlgebra;
 
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 import org.mindswap.pellet.jena.PelletInfGraph;
@@ -98,7 +91,7 @@ public class Reasoner {
 
         log.info("Creating calculated flows");
         try {
-            calculation.createCumulatedEcologicalFlows();
+            calculation.createCalculatedElementaryFlows();
         } catch (AlreadyExistsException e) {
             log.warn(e.getMessage());
         }

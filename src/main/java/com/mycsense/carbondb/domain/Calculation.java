@@ -34,6 +34,41 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/**
+ * <p>
+ * This class calculates the cumulative elementary flows and the impacts for all the processes in the ontology.
+ * The calculation is done using matrices products until the results is below a threshold.
+ * </p>
+ * <p>
+ *     The workflow is as follows:
+ *     <ul>
+ *          <li>
+ *              create the dependency matrix between the processes: <code>R</code>,
+ *              also called the technology matrix
+ *          </li>
+ *          <li>
+ *              create a matrix containing all the elementary flows: <code>C</code>,
+ *              also called the ecology matrix
+ *          </li>
+ *          <li>
+ *              create a matrix containing the binding between an elementary flow and an impact
+ *          </li>
+ *          <li>
+ *              calculate the cumulative technology matrix
+ *              <code></>R<sup>0</sup> + R<sup>1</sup> + ... + R<sup>n</sup></code>
+ *              where n is large enough that <code>R<sup>n</sup> - R<sup>n-1</sup></code>
+ *              is lower than a the threshold
+ *          </li>
+ *          <li>
+ *              multiply the cumulative technology matrix with the ecology matrix,
+ *              thus obtaining a matrix that contains the cumulative elementary flows
+ *          </li>
+ *          <li>
+ *              multiply the cumulative elementary flow matrix with the flow to impact matrix
+ *          </li>
+ *     </ul>
+ * </p>
+ */
 public class Calculation {
     protected Matrix dependencyMatrix, transitiveDependencyMatrix;
     protected Matrix uncertaintyMatrix, transitiveUncertaintyMatrix;
@@ -56,14 +91,17 @@ public class Calculation {
         ontology = CarbonOntology.getInstance();
     }
 
+    /**
+     * Launch the calculation, see the workflow describe above.
+     */
     public void run() {
         elementaryFlowTypes = new ArrayList<>(ontology.getElementaryFlowTypes().values());
         processes = new ArrayList<>(ontology.getProcesses());
         impactTypes = new ArrayList<>(ontology.getImpactTypes().values());
 
         log.info("Creating ecological matrices");
-        createEcologicalMatrix();
-        createFlowToImpactsMatrix();
+        createEcologicalMatrices();
+        createFlowToImpactsMatrices();
 
         log.info("Creating matrix");
         createProcessMatrices();
@@ -85,6 +123,11 @@ public class Calculation {
         //calculateCumulatedEcologicalFlows();
     }
 
+    /**
+     * Creates the processes matrices (i.e.: the etchnology matrix) from the derived relations:
+     * one with the coefficients values and one with the coefficients uncertainties.
+     * If the relation has an negative exponent, the coefficient gets inverted.
+     */
     protected void createProcessMatrices() {
         dependencyMatrix = new CCSMatrix(processes.size(), processes.size());
         uncertaintyMatrix = new CCSMatrix(processes.size(), processes.size());
@@ -112,7 +155,10 @@ public class Calculation {
         }
     }
 
-    protected void createEcologicalMatrix() {
+    /**
+     * Creates the ecology values and uncertainties matrices from the processes elementary flows.
+     */
+    protected void createEcologicalMatrices() {
         ecologicalMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
         ecologicalUncertaintyMatrix = new CCSMatrix(processes.size(), elementaryFlowTypes.size());
 
@@ -131,7 +177,10 @@ public class Calculation {
         }
     }
 
-    protected void createFlowToImpactsMatrix() {
+    /**
+     * Creates the values and uncertainties matrices containing the mapping from elementary flows to impacts.
+     */
+    protected void createFlowToImpactsMatrices() {
         // W -> cols = EFT, rows = IT
         flowToImpactsMatrix = new CCSMatrix(impactTypes.size(), elementaryFlowTypes.size());
         flowToImpactsUncertaintyMatrix = new CCSMatrix(impactTypes.size(), elementaryFlowTypes.size());
@@ -151,6 +200,9 @@ public class Calculation {
         }
     }
 
+    /**
+     * Calculates iteratively the cumulative technology matrix without calculating the uncertainties.
+     */
     protected void iterativeCalculationWithoutUncertainties()
     {
         HashSet<Process> processes = CarbonOntology.getInstance().getProcesses();
@@ -177,6 +229,14 @@ public class Calculation {
         }
     }
 
+    /**
+     * Returns a boolean indicating if the difference between the two given matrices
+     * is greater (true) or lower (false) than the threshold.
+     *
+     * @param a matrix a
+     * @param b matrix b
+     * @return true if the a - b is lower than the threshold, false otherwise
+     */
     protected boolean differenceGreaterThanThreshold(Matrix a, Matrix b)
     {
         Matrix c = a.subtract(b);
@@ -190,7 +250,12 @@ public class Calculation {
         return false;
     }
 
-    public void createCumulatedEcologicalFlows() throws AlreadyExistsException {
+    /**
+     * Creates the cumulative elementary flows for every process.
+     *
+     * @throws AlreadyExistsException
+     */
+    public void createCalculatedElementaryFlows() throws AlreadyExistsException {
         for (int i = 0; i < processes.size(); i++) {
             for (int j = 0; j < elementaryFlowTypes.size(); j++) {
                 double value = cumulativeEcologicalMatrix.get(i, j);
@@ -206,6 +271,11 @@ public class Calculation {
         }
     }
 
+    /**
+     * Creates the (calculated) impacts for every process.
+     *
+     * @throws AlreadyExistsException
+     */
     public void createImpacts() throws AlreadyExistsException {
         for (int i = 0; i < processes.size(); i++) {
             for (int j = 0; j < impactTypes.size(); j++) {
