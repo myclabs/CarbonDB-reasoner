@@ -30,6 +30,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/**
+ * This singleton holds the carbon ontology elements
+ * It is somehow similar to an entity manager in an ORM
+ */
 public final class CarbonOntology {
     private static volatile CarbonOntology instance = null;
 
@@ -58,6 +62,10 @@ public final class CarbonOntology {
         clear();
     }
 
+    /**
+     * Returns the singleton instance
+     * @return CarbonOntology
+     */
     public static CarbonOntology getInstance() {
         if (null == CarbonOntology.instance) {
             synchronized (CarbonOntology.class) {
@@ -69,6 +77,9 @@ public final class CarbonOntology {
         return CarbonOntology.instance;
     }
 
+    /**
+     * Clears the stored ontology
+     */
     public void clear() {
         processGroups = new HashMap<>();
         coefficientGroups = new HashMap<>();
@@ -82,6 +93,13 @@ public final class CarbonOntology {
         dimensions = new HashMap<>();
     }
 
+    /**
+     * Returns a coefficient that matches a set of keywords and an unit
+     * @param keywords A set of keywords
+     * @param unit An unit
+     * @return The matching coefficient
+     * @throws NoElementFoundException
+     */
     public Coefficient findCoefficient(Dimension keywords, Unit unit) throws NoElementFoundException {
         Coefficient temporaryCoefficient = new Coefficient(keywords.keywords, unit, new Value(0.0,0.0));
         if (coefficients.contains(temporaryCoefficient)) {
@@ -94,6 +112,13 @@ public final class CarbonOntology {
         throw new NoElementFoundException("No coefficient found with keywords " + keywords + " and unit " + unit);
     }
 
+    /**
+     * Returns a process that matches a set of keywords and an unit
+     * @param keywords A set of keywords
+     * @param unit An unit
+     * @return The matching process
+     * @throws NoElementFoundException
+     */
     public Process findProcess(Dimension keywords, Unit unit) throws NoElementFoundException {
         Process temporaryProcess = new Process(keywords.keywords, unit);
         if (processes.contains(temporaryProcess)) {
@@ -106,23 +131,50 @@ public final class CarbonOntology {
         throw new NoElementFoundException("No process found with keywords " + keywords + " and unit " + unit);
     }
 
+    /**
+     * Returns the group category tree, this tree can have an arbitrary number of level
+     * @return the group category tree
+     */
     public Category getCategoryTree() {
         return categoryTree;
     }
 
+    /**
+     * Sets the group category tree
+     * @param categoryTree the first node of the category tree
+     */
     public void setCategoryTree(Category categoryTree) {
         this.categoryTree = categoryTree;
     }
 
+    /**
+     * The elementary flow types tree categorized the flow types
+     * in a one level hierarchy
+     *
+     * @return the root of the tree whose children
+     *             are only elementary flow types
+     */
     public TypeCategory getElementaryFlowTypesTree() {
         return elementaryFlowTypesTree;
     }
 
+    /**
+     * The elementary flow types tree categorized the flow types
+     * in a one level hierarchy
+     *
+     * @param root the root of the tree whose children
+     *             are only elementary flow types
+     */
     public void setElementaryFlowTypesTree(TypeCategory root) {
         elementaryFlowTypesTree = root;
         extractElementaryFlowTypesFromTree();
     }
 
+    /**
+     * Extract the elementary flow types from the elementary flow type tree
+     * and add them to a map where the key is the type id
+     * @throw RuntimeException if the tree is not initialized
+     */
     protected void extractElementaryFlowTypesFromTree() {
         if (null == elementaryFlowTypesTree) {
             throw new RuntimeException("The elementary flow types tree should be initialized"
@@ -138,10 +190,24 @@ public final class CarbonOntology {
         }
     }
 
+    /**
+     * Returns the elementary flow types in a map where the key is the type id,
+     * the elementary flow types tree should be set first (the types
+     * are extracted from the tree)
+     *
+     * @return a map containing the elementary flow types indexed with their id
+     */
     public HashMap<String, ElementaryFlowType> getElementaryFlowTypes() {
         return elementaryFlowTypes;
     }
 
+    /**
+     * Return an elementary flow type from it's id
+     *
+     * @param id the id of the elementary flow type
+     * @return an elementary flow type
+     * @throws NotFoundException
+     */
     public ElementaryFlowType getElementaryFlowType(String id) throws NotFoundException {
         if (!elementaryFlowTypes.containsKey(id)) {
             throw new NotFoundException("The elementary flow type " + id + " could not be found");
@@ -149,15 +215,35 @@ public final class CarbonOntology {
         return elementaryFlowTypes.get(id);
     }
 
+    /**
+     * The impact types tree categorized the impact types
+     * in a one level hierarchy
+     *
+     * @return the root of the tree whose children
+     *             are only elementary flow types
+     */
     public TypeCategory getImpactTypesTree() {
         return impactTypesTree;
     }
 
+    /**
+     * The impact types tree categorized the impact types
+     * in a one level hierarchy
+     *
+     * @param root the root of the tree whose children
+     *             are only impact types
+     */
     public void setImpactTypesTree(TypeCategory root) {
         impactTypesTree = root;
         extractImpactTypesFromTree();
     }
 
+    /**
+     * Extract the impact types from the impact type tree
+     * and add them to a map where the key is the type id
+     *
+     * @throw RuntimeException if the tree is not initialized
+     */
     protected void extractImpactTypesFromTree() {
         if (null == impactTypesTree) {
             throw new RuntimeException("The impact types tree should be initialized"
@@ -173,10 +259,22 @@ public final class CarbonOntology {
         }
     }
 
+    /**
+     * @return the impact types in a map where the key is the type id,
+     *         the impact types tree should be set first (the types
+     *         are extracted from the tree)
+     */
     public HashMap<String, ImpactType> getImpactTypes() {
         return impactTypes;
     }
 
+    /**
+     * Return an impact type from it's id
+     *
+     * @param id the id of the impact type
+     * @return an impact type
+     * @throws NotFoundException
+     */
     public ImpactType getImpactType(String id) throws NotFoundException {
         if (!impactTypes.containsKey(id)) {
             throw new NotFoundException("The impact type " + id + " could not be found");
@@ -184,18 +282,34 @@ public final class CarbonOntology {
         return impactTypes.get(id);
     }
 
+    /**
+     * @return a set containing the relation types
+     */
     public HashSet<RelationType> getRelationTypes() {
         return relationTypes;
     }
 
+    /**
+     * @param relationTypes a set containing the relation types
+     */
     public void setRelationTypes(HashSet<RelationType> relationTypes) {
         this.relationTypes = relationTypes;
     }
 
+    /**
+     * @return a map containing the references indexed by their ids
+     */
     public HashMap<String, Reference> getReferences() {
         return references;
     }
 
+    /**
+     * Finds and returns a reference from it's id
+     *
+     * @param id the id of the reference
+     * @return a reference
+     * @throws NotFoundException
+     */
     public Reference getReference(String id) throws NotFoundException {
         if (!references.containsKey(id)) {
             throw new NotFoundException("The reference " + id + " could not be found");
@@ -203,18 +317,34 @@ public final class CarbonOntology {
         return references.get(id);
     }
 
+    /**
+     * @param references a map containing the references indexed by their ids
+     */
     public void setReferences(HashMap<String, Reference> references) {
         this.references = references;
     }
 
+    /**
+     * @return a map containing the process groups indexed by their ids
+     */
     public HashMap<String, Group> getProcessGroups() {
         return processGroups;
     }
 
+    /**
+     * @param processGroups a map containing the process groups indexed by their ids
+     */
     public void setProcessGroups(HashMap<String, Group> processGroups) {
         this.processGroups = processGroups;
     }
 
+    /**
+     * Finds and returns a process group from it's id
+     *
+     * @param id the id of the process group
+     * @return a process group
+     * @throws NotFoundException
+     */
     public Group getProcessGroup(String id) throws NotFoundException {
         if (!processGroups.containsKey(id)) {
             throw new NotFoundException("The process group " + id + " could not be found");
@@ -222,14 +352,27 @@ public final class CarbonOntology {
         return processGroups.get(id);
     }
 
+    /**
+     * @return a map containing the coefficient groups indexed by their ids
+     */
     public HashMap<String, Group> getCoefficientGroups() {
         return coefficientGroups;
     }
 
+    /**
+     * @param coefficientGroups a map containing the coefficient groups indexed by their ids
+     */
     public void setCoefficientGroups(HashMap<String, Group> coefficientGroups) {
         this.coefficientGroups = coefficientGroups;
     }
 
+    /**
+     * Finds and returns a coefficient group from it's id
+     *
+     * @param id the id of the coefficient group
+     * @return a coefficient group
+     * @throws NotFoundException
+     */
     public Group getCoefficientGroup(String id) throws NotFoundException {
         if (!coefficientGroups.containsKey(id)) {
             throw new NotFoundException("The coefficient group " + id + " could not be found");
@@ -237,6 +380,11 @@ public final class CarbonOntology {
         return coefficientGroups.get(id);
     }
 
+    /**
+     * Returns all the process and coefficient groups in one map
+     *
+     * @return a map containing the process and the coefficient groups indexed by their ids
+     */
     public HashMap<String, Group> getGroups() {
         HashMap<String, Group> groups = new HashMap<>();
         groups.putAll(processGroups);
@@ -244,10 +392,21 @@ public final class CarbonOntology {
         return groups;
     }
 
+    /**
+     * @return a set containing all the single processes
+     */
     public HashSet<Process> getProcesses() {
         return processes;
     }
 
+    /**
+     * Add a process only if no process already exists
+     * with the same set of keywords set and the same unit
+     *
+     * @param process the new process
+     * @throws AlreadyExistsException if there already is a process with
+     *                                the same set of keywords and the same unit
+     */
     public void addProcess(Process process) throws AlreadyExistsException {
         if (processes.contains(process)) {
             throw new AlreadyExistsException("The process with keywords " + process
@@ -256,10 +415,21 @@ public final class CarbonOntology {
         processes.add(process);
     }
 
+    /**
+     * @return a set containing all the single coefficients
+     */
     public HashSet<Coefficient> getCoefficients() {
         return coefficients;
     }
 
+    /**
+     * Add a coefficient only if no coefficient already exists
+     * with the same set of keywords set and the same unit
+     *
+     * @param coefficient the new coefficient
+     * @throws AlreadyExistsException if there already is a coefficient with
+     *                                the same set of keywords and the same unit
+     */
     public void addCoefficient(Coefficient coefficient) throws AlreadyExistsException {
         if (coefficients.contains(coefficient)) {
             throw new AlreadyExistsException("The coefficient with keywords " + coefficient
@@ -268,30 +438,57 @@ public final class CarbonOntology {
         coefficients.add(coefficient);
     }
 
+    /**
+     * @return a map containing the source relations indexed by their ids
+     */
     public HashMap<String, SourceRelation> getSourceRelations() {
         return sourceRelations;
     }
 
+    /**
+     * @param sourceRelations a map containing the source relations indexed by their ids
+     */
     public void setSourceRelations(HashMap<String, SourceRelation> sourceRelations) {
         this.sourceRelations = sourceRelations;
     }
 
+    /**
+     * Returns the derived relations. Those relations are only available after the reasoner was launched.
+     *
+     * @return a list of the derived relations
+     */
     public ArrayList<DerivedRelation> getDerivedRelations() {
         return derivedRelations;
     }
 
+    /**
+     * @param derivedRelation a derived relation
+     */
     public void addDerivedRelation(DerivedRelation derivedRelation) {
         derivedRelations.add(derivedRelation);
     }
 
+    /**
+     * @param dimensions a map containing the dimensions indexed by their ids
+     */
     public void setDimensions(HashMap<String, Dimension> dimensions) {
         this.dimensions = dimensions;
     }
 
+    /**
+     * @return a map containing the dimensions indexed by their ids
+     */
     public HashMap<String, Dimension> getDimensions() {
         return dimensions;
     }
 
+    /**
+     * Finds and returns a dimension form it's id
+     *
+     * @param id the id of the dimension
+     * @return a dimension
+     * @throws NotFoundException
+     */
     public Dimension getDimension(String id) throws NotFoundException {
         if (!dimensions.containsKey(id)) {
             throw new NotFoundException("The dimension " + id + " could not be found");
