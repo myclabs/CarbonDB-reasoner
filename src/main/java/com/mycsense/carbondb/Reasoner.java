@@ -40,6 +40,34 @@ import org.mindswap.pellet.jena.PelletInfGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>
+ *     This class contains the workflow to create all the inferred knowledge of the CarbonDB ontology.
+ * </p>
+ * <p>
+ *     The workflow is as follows:
+ *     <ul>
+ *         <li>
+ *             Load the ontology
+ *         </li>
+ *         <li>
+ *             Use Pellet inference engine
+ *         </li>
+ *         <li>
+ *             Convert the source relations into derived relations
+ *         </li>
+ *         <li>
+ *             Calculate the cumulative elementary flows and the impacts
+ *         </li>
+ *         <li>
+ *             Check the ontology for inconsistencies
+ *         </li>
+ *     </ul>
+ * </p>
+ * <p>
+ *     During this workflow, all the inferred data are stored in the ontology residing in the memory.
+ * </p>
+ */
 public class Reasoner {
 
     protected Model model;
@@ -50,11 +78,17 @@ public class Reasoner {
 
     private final Logger log = LoggerFactory.getLogger(Reasoner.class);
 
+    /**
+     * @param model the RDF model containing the CarbonDB ontology.
+     */
     public Reasoner (Model model) {
         this.model = model;
         jenaReasoner = PelletReasonerFactory.theInstance().create();
     }
 
+    /**
+     * Launch the workflow described above.
+     */
     public void run () {
         log.info("Begin reasonning");
         infModel = ModelFactory.createInfModel( jenaReasoner, model );
@@ -108,6 +142,18 @@ public class Reasoner {
         log.info("Reasoning finished");
     }
 
+    /**
+     * Check the ontology for the following inconsistencies:
+     * <ul>
+     *     <li>groups referencing no single element</li>
+     *     <li>group not used in any source relation</li>
+     *     <li>groups not belonging to any category</li>
+     *     <li>single elements not referenced in any group</li>
+     *     <li>single processes not having any cumulative elementary flow</li>
+     *     <li>source relations not generating any derived relation</li>
+     *     <li>unused dimensions</li>
+     * </ul>
+     */
     protected void checkOntology() {
         ontology = CarbonOntology.getInstance();
         HashSet<String> unusedDimensions = new HashSet<>(ontology.getDimensions().keySet());
@@ -163,8 +209,11 @@ public class Reasoner {
         }
     }
 
+    /**
+     * Load the ontology starting from the lowest elements in the dependency tree to the highest ones.
+     * The ontology is loaded into the CarbonOntology singleton.
+     */
     protected void loadOntology() {
-        // We load the ontology starting from the lowest elements in the dependency tree to the highest ones
         ontology = CarbonOntology.getInstance();
         ontology.setElementaryFlowTypesTree(RepoFactory.getTypeRepo().getElementaryFlowTypesTree());
         ontology.setImpactTypesTree(RepoFactory.getTypeRepo().getImpactTypesTree());
@@ -193,10 +242,16 @@ public class Reasoner {
         ontology.setCategoryTree(RepoFactory.getCategoryRepo().getCategoriesTree());
     }
 
+    /**
+     * @return the inferred RDF model.
+     */
     public InfModel getInfModel() {
         return infModel;
     }
 
+    /**
+     * @return the raw RDF model.
+     */
     public Model getModel() {
         return model;
     }
