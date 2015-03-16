@@ -31,23 +31,36 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * Dimensions inside a DimensionSet should not be modified
- * after they have been added to the dimensionSet
+ * <p>This class stores all the dimensions of a group. It contains a set of keywords
+ * and has an orientation for each dimension.</p>
+ * <p>Dimensions inside a DimensionSet should not be modified
+ * after they have been added to the dimensionSet.</p>
  */
 public class DimensionSet {
     public HashSet<Dimension> dimensions;
     public HashMap<String, Orientation> dimensionOrientations;
 
+    /**
+     * Construct a new DimensionSet with an empty dimension set.
+     */
     public DimensionSet() {
         dimensions = new HashSet<>();
         dimensionOrientations = new HashMap<>();
     }
 
+    /**
+     * Construct a new DimensionSet with all the given dimensions.
+     * @param dimensions an undefined number of dimensions
+     */
     public DimensionSet(Dimension... dimensions) {
         this();
         Collections.addAll(this.dimensions, dimensions);
     }
 
+    /**
+     * Construcut a new DimensionSet from another DimensionSet.
+     * @param dimSet another DimensionSet
+     */
     public DimensionSet(DimensionSet dimSet) {
         this();
         for (Dimension dim: dimSet.dimensions) {
@@ -55,38 +68,76 @@ public class DimensionSet {
         }
     }
 
+    /**
+     * @return number of dimensions in this set
+     */
     public int size() {
         return dimensions.size();
     }
 
+    /**
+     * Add a dimension to the set
+     *
+     * @param dimension dimension to be added to this set
+     * @return <tt>true</tt> if this set did not already contain the specified
+     * dimension
+     */
     public boolean add(Dimension dimension) {
         return dimensions.add(dimension);
     }
 
+    /**
+     * Remove a dimension from the set
+     *
+     * @param dimension dimension to be removed
+     * @return <tt>true</tt> if the set contained the specified dimension
+     */
     public boolean remove(Dimension dimension) {
         return dimensions.remove(dimension);
     }
 
+    /**
+     * @return string representation of the set
+     */
     public String toString() {
         return dimensions.toString();
     }
 
+    /**
+     * @return <tt>true</tt> if the set does not contains any dimension
+     */
     public boolean isEmpty() {
         return dimensions.isEmpty();
     }
 
+    /**
+     * @return an array containing all the dimensions
+     */
     public Object[] toArray() {
         return dimensions.toArray();
     }
 
+    /**
+     * @param dimension dimension that needs an orientation
+     * @param orientation orientation of the dimension
+     */
     public void setDimensionOrientation(Dimension dimension, Orientation orientation) {
         dimensionOrientations.put(dimension.getId(), orientation);
     }
 
+    /**
+     * @param dimension dimension
+     * @return orientation of the dimension
+     */
     public Orientation getDimensionOrientation(Dimension dimension) {
         return getDimensionOrientation(dimension.getId());
     }
 
+    /**
+     *
+     * @param id id of a dimension
+     * @return orientation of the dimension, if none set, returns Orientation.NONE
+     */
     public Orientation getDimensionOrientation(String id) {
         if (dimensionOrientations.containsKey(id)) {
             return dimensionOrientations.get(id);
@@ -114,10 +165,25 @@ public class DimensionSet {
                   .toHashCode();
     }
 
+    /**
+     * Checks if a dimension is in the set.
+     *
+     * @param dim dimension to test
+     * @return <tt>true</tt> if the dimension is in the set
+     */
     public boolean contains(Dimension dim) {
         return dimensions.contains(dim);
     }
 
+    /**
+     * <p>Returns a new DimensionSet containing the cartesian product
+     * of all the dimensions contained in the set.</p>
+     *
+     * One keyword from every dimension
+     * <p>Every dimension is </p>
+     *
+     * @return set containing the car
+     */
     public DimensionSet combinations()
     {
         if (dimensions.size() == 0) {
